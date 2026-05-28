@@ -1,0 +1,9 @@
+version: '3.9'
+
+services:
+  frontend:
+    build: .
+    container_name: TSC_SERVICES
+    restart: always
+    ports:
+      - '3039:80'
