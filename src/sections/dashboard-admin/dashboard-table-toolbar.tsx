@@ -35,7 +35,7 @@ export function DahsboardAdminTableToolbar({ numSelected, filterName, onFilterNa
                     fullWidth
                     value={filterName}
                     onChange={onFilterName}
-                    placeholder="Search báo cáo ..."
+                    placeholder="Tìm kiếm báo cáo ..."
                     startAdornment={
                         <InputAdornment position="start">
                             <Iconify width={20} icon="eva:search-fill" sx={{ color: 'text.disabled' }} />

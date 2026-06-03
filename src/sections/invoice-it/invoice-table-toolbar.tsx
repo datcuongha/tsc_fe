@@ -35,7 +35,7 @@ export function InvoiceTableToolbar({ numSelected, filterName, onFilterName, del
                     fullWidth
                     value={filterName}
                     onChange={onFilterName}
-                    placeholder="Search Loại hình ..."
+                    placeholder="Tìm kiếm Loại hình ..."
                     startAdornment={
                         <InputAdornment position="start">
                             <Iconify width={20} icon="eva:search-fill" sx={{ color: 'text.disabled' }} />

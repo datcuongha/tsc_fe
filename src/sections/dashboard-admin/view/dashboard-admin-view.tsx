@@ -7,9 +7,9 @@ import { removeDashboardLink, getAllDashboardAdmin } from 'src/apis/dashboardAdm
 
 import { showAlert } from 'src/components/alert';
 import { ModalManager } from 'src/components/modal';
-import { useModal, ButtonGroup } from 'src/components/button';
 // import { Iconify } from 'src/components/iconify';
-import { headLabelDashboadAdmin } from 'src/components/Item/item';
+import { headLabel } from 'src/components/Item/item';
+import { useModal, ButtonGroup } from 'src/components/button';
 import { PageHeader, PrimaryTemp } from 'src/components/primary-temp/primary-temp';
 
 import { EditLink } from '../editLink';
@@ -27,8 +27,7 @@ export function AdminView() {
   const queryClient = useQueryClient();
   const table = useTable();
   const [filterName, setFilterName] = useState('');
-  const { data,open, closeModal, openModal } = useModal();
-
+  const { data, open, closeModal, openModal } = useModal();
 
   const { data: dataDashboardAdmin = [] } = useQuery<DashboardProps[]>({
     queryKey: ['dataDashboardAdmin'],
@@ -103,7 +102,7 @@ export function AdminView() {
                 dataFiltered.map((u) => u.id)
               )
             }
-            headLabel={headLabelDashboadAdmin}
+            headLabel={headLabel.bi}
           />
         }
         pagination={{

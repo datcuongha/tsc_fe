@@ -4,9 +4,10 @@ import { useQuery } from '@tanstack/react-query';
 import { getAllDatHang } from 'src/apis/datHang';
 import { DashboardContent } from 'src/layouts/dashboard';
 
-import { useModal } from 'src/components/button';
 import { ModalManager } from 'src/components/modal';
-import { headLabelDatHang } from 'src/components/Item/item';
+import { headLabel } from 'src/components/Item/item';
+import { handleExportData } from 'src/components/export';
+import { useModal, ButtonGroup } from 'src/components/button';
 import { PageHeader, PrimaryTemp } from 'src/components/primary-temp/primary-temp';
 
 import { InDeXuat } from '../inDeXuat';
@@ -40,7 +41,20 @@ export function InDatHangView() {
 
   return (
     <DashboardContent>
-      <PageHeader title="Đơn đặt hàng" />
+      <PageHeader
+        title="Đơn đặt hàng"
+        action={
+          <ButtonGroup
+            handleExport={() =>
+              handleExportData({
+                fileName: 'Danh sách phiếu đặt hàng',
+                columns: headLabel.deXuat,
+                data: dataFiltered,
+              })
+            }
+          />
+        }
+      />
       <PrimaryTemp
         toolbar={
           <PrintDhtableToolbar
@@ -65,7 +79,7 @@ export function InDatHangView() {
                 dataFiltered.map((u) => u.id)
               )
             }
-            headLabel={headLabelDatHang}
+            headLabel={headLabel.deXuat}
           />
         }
         pagination={{

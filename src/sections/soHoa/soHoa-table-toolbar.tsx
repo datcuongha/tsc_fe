@@ -9,13 +9,14 @@ import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-type RoleTableToolbarProps = {
+type SoHoaTableToolbarProps = {
   numSelected: number;
   filterName: string;
   onFilterName: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  // delUser: () => void;
 };
 
-export function RoleTableToolbar({ numSelected, filterName, onFilterName }: RoleTableToolbarProps) {
+export function SoHoaTableToolbar({ numSelected, filterName, onFilterName }: SoHoaTableToolbarProps) {
   return (
     <Toolbar
       sx={{
@@ -38,7 +39,7 @@ export function RoleTableToolbar({ numSelected, filterName, onFilterName }: Role
           fullWidth
           value={filterName}
           onChange={onFilterName}
-          placeholder="Tìm kiếm vai trò..."
+          placeholder="Tìm kiếm nội dung..."
           startAdornment={
             <InputAdornment position="start">
               <Iconify width={20} icon="eva:search-fill" sx={{ color: 'text.disabled' }} />

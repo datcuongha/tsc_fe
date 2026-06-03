@@ -1,4 +1,4 @@
-import type { SoHoaProps } from './soHoa-table-row';
+import type { HistoryProps } from './history-table-row';
 
 // ----------------------------------------------------------------------
 
@@ -53,7 +53,7 @@ export function getComparator<Key extends keyof any>(
 // ----------------------------------------------------------------------
 
 type ApplyFilterProps = {
-  inputData: SoHoaProps[];
+  inputData: HistoryProps[];
   filterName: string;
   comparator: (a: any, b: any) => number;
 };
@@ -71,7 +71,7 @@ export function applyFilter({ inputData, comparator, filterName }: ApplyFilterPr
 
   if (filterName) {
     inputData = inputData.filter(
-      (item) => item.soVb.toLowerCase().indexOf(filterName.toLowerCase()) !== -1
+      (item) => item.description.toLowerCase().indexOf(filterName.toLowerCase()) !== -1
     );
   }
 

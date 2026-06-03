@@ -100,7 +100,7 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
               <TableCell>Chi nhánh</TableCell>
               <TableCell>Mã hàng</TableCell>
               <TableCell>Tên hàng</TableCell>
-              <TableCell>Ghi chú hàng hoá</TableCell>
+              <TableCell sx={{width:120}}>Ghi chú hàng hoá</TableCell>
               <TableCell>Giá vốn</TableCell>
               <TableCell>Giá bán</TableCell>
               <TableCell>SL kho đặt</TableCell>

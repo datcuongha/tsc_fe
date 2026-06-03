@@ -156,7 +156,7 @@ export function InvoiceItView() {
           handleExport={() => handleExportData({
             data: dataFiltered,
             fileName: 'Invoice IT',
-            columns: headLabel,
+            columns: headLabel.invoice,
           })}
         />
       </Box >
@@ -187,7 +187,7 @@ export function InvoiceItView() {
                     dataFiltered.map((item) => item.id)
                   )
                 }
-                headLabel={headLabel}
+                headLabel={headLabel.invoice}
               />
               <TableBody>
                 {dataFiltered

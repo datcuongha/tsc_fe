@@ -1,14 +1,14 @@
 import axios from 'axios';
 
-const fetcher = axios.create({
-  baseURL: 'http://10.1.49.30:8168/api',
-  withCredentials: true,
-});
-
 // const fetcher = axios.create({
-//   baseURL: 'https://api.benthanhtsc.com/api',
+//   baseURL: 'http://10.1.49.30:8168/api',
 //   withCredentials: true,
 // });
+
+const fetcher = axios.create({
+  baseURL: 'https://api.benthanhtsc.com/api',
+  withCredentials: true,
+});
 // const fetcher = axios.create({
 //     baseURL:"http://10.1.48.35:8168/api",
 //          withCredentials:true

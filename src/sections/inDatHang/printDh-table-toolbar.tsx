@@ -42,7 +42,7 @@ export function PrintDhtableToolbar({
           fullWidth
           value={filterName}
           onChange={onFilterName}
-          placeholder="Search mã phiếu..."
+          placeholder="Tìm kiếm mã phiếu..."
           startAdornment={
             <InputAdornment position="start">
               <Iconify width={20} icon="eva:search-fill" sx={{ color: 'text.disabled' }} />

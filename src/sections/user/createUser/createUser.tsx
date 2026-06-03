@@ -90,7 +90,6 @@ export function CreateUser({ handleClose }: CreateUserPros) {
     queryKey: ['dataRole'],
     queryFn: getDataRole,
   });
-
   const { mutate } = useMutation({
     mutationFn: (values: CreateUserPayload) => {
       const forrmatValues = {
@@ -101,7 +100,7 @@ export function CreateUser({ handleClose }: CreateUserPros) {
       return createUser(forrmatValues);
     },
     onError: (error) => {
-      showAlert(error);
+      showAlert({ type: 'error', message: String(error)});
     },
     onSuccess: () => {
       showAlert({ message: 'Thành công', type: 'success' });

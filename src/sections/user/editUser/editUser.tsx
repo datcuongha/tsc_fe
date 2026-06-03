@@ -108,7 +108,7 @@ export function EditUser({ handleClose, rowSelect }: EditUserProps) {
     },
 
     onError: (error) => {
-      showAlert(error);
+      showAlert({ type: 'error', message: String(error) });
     },
 
     onSuccess: () => {

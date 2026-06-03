@@ -7,7 +7,7 @@ import { DashboardContent } from 'src/layouts/dashboard';
 
 import { showAlert } from 'src/components/alert';
 import { ModalManager } from 'src/components/modal';
-import { headLabelUser } from 'src/components/Item/item';
+import { headLabel } from 'src/components/Item/item';
 import { handleExportData } from 'src/components/export';
 import { useModal, ButtonGroup } from 'src/components/button';
 import { PageHeader, PrimaryTemp } from 'src/components/primary-temp/primary-temp';
@@ -87,7 +87,7 @@ export function UserView() {
               handleExportData({
                 data: dataFiltered,
                 fileName: 'Danh sách người dùng',
-                columns: headLabelUser,
+                columns: headLabel.user,
               })
             }
           />
@@ -118,7 +118,7 @@ export function UserView() {
                 dataFiltered.map((u) => u.userId)
               )
             }
-            headLabel={headLabelUser}
+            headLabel={headLabel.user}
           />
         }
         pagination={{
@@ -151,9 +151,7 @@ export function UserView() {
       <ModalManager open={!!open} handleClose={closeModal}>
         {open === 'createUser' && <CreateUser handleClose={closeModal} />}
         {open === 'editUser' && data && <EditUser rowSelect={data} handleClose={closeModal} />}
-        {open === 'changePassUser' && data && (
-          <ChangePass data={data} handleClose={closeModal} />
-        )}
+        {open === 'changePassUser' && data && <ChangePass data={data} handleClose={closeModal} />}
       </ModalManager>
     </DashboardContent>
   );

@@ -1,4 +1,3 @@
-import { format } from 'date-fns';
 import { useState, useCallback } from 'react';
 
 import Popover from '@mui/material/Popover';
@@ -19,7 +18,15 @@ export type PrintDhProps = {
   tenNcc: string;
   status: boolean;
   createDate?: string;
-  detailPhieuDatHang?: { id: string; maHang: string; tenSp: string; soLuong: number }[];
+  modifiedDate?: string;
+  detailPhieuDatHang?: {
+    id: string;
+    maHang: string;
+    tenSp: string;
+    soLuong: number;
+    donGia: number;
+    thueSuat: string;
+  }[];
 };
 
 type PrintDhTableRowProps = {
@@ -50,7 +57,20 @@ export function PrintDhTableRow({
   const handleClosePopover = useCallback(() => {
     setOpenPopover(null);
   }, []);
+  const tongSl =
+    row.detailPhieuDatHang?.reduce((sum, item) => sum + Number(item.soLuong || 0), 0) || 0;
 
+  const tongSauThue =
+    row.detailPhieuDatHang?.reduce((sum, item) => {
+      const soLuong = Number(item.soLuong || 0);
+      const donGia = Number(item.donGia || 0);
+      const thue = Number(item.thueSuat || 0);
+
+      const thanhTien = soLuong * donGia;
+      const tienVAT = thanhTien * thue;
+
+      return sum + thanhTien + tienVAT;
+    }, 0) || 0;
   return (
     <>
       <TableRow hover tabIndex={-1} role="checkbox" selected={selected}>
@@ -62,6 +82,11 @@ export function PrintDhTableRow({
         <TableCell>
           {row.createDate && new Date(row.createDate).toLocaleDateString('vi-VN')}
         </TableCell>
+        <TableCell>
+          {row.modifiedDate && new Date(row.modifiedDate).toLocaleDateString('vi-VN')}
+        </TableCell>
+        <TableCell>{tongSl}</TableCell>
+        <TableCell>{tongSauThue.toLocaleString('vn-VN')}</TableCell>
 
         <TableCell sx={{ paddingLeft: '36px' }}>
           {row.status ? (

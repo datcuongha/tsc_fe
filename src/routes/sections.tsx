@@ -26,7 +26,8 @@ export const Page404 = lazy(() => import('src/pages/page-not-found'));
 export const Profile = lazy(() => import('src/pages/profile'));
 export const DatHangPage = lazy(() => import('src/pages/datHang'));
 export const InDatHangPage = lazy(() => import('src/pages/inDatHang'));
-export const SoHoaPage = lazy(()=> import('src/pages/soHoa'))
+export const SoHoaPage = lazy(() => import('src/pages/soHoa'));
+export const HistoryPage = lazy(() => import('src/pages/histoty'));
 const renderFallback = () => (
   <Box
     sx={{
@@ -63,7 +64,7 @@ export const getRoutesSection = (reportMenus: any[]): RouteObject[] => [
 
       {
         element: (
-          <AuthGuard roles={[1,2,3,5]}>
+          <AuthGuard roles={[1, 2, 3, 5]}>
             <Outlet />
           </AuthGuard>
         ),
@@ -83,7 +84,7 @@ export const getRoutesSection = (reportMenus: any[]): RouteObject[] => [
 
       {
         element: (
-          <AuthGuard roles={[1,2,3,6]}>
+          <AuthGuard roles={[1, 2, 3, 6]}>
             <Outlet />
           </AuthGuard>
         ),
@@ -100,7 +101,7 @@ export const getRoutesSection = (reportMenus: any[]): RouteObject[] => [
           </AuthGuard>
         ),
         children: [
-          { path: 'dat-hang', element: <SoHoaPage /> },
+          { path: 'so-hoa', element: <SoHoaPage /> },
           // { path: 'in-dat-hang', element: <InDatHangPage /> },
         ],
       },
@@ -108,7 +109,7 @@ export const getRoutesSection = (reportMenus: any[]): RouteObject[] => [
       // admin only
       {
         element: (
-          <AuthGuard roles={[1,2]}>
+          <AuthGuard roles={[1, 2]}>
             <Outlet />
           </AuthGuard>
         ),
@@ -117,7 +118,7 @@ export const getRoutesSection = (reportMenus: any[]): RouteObject[] => [
           { path: 'user', element: <UserPage /> },
           { path: 'role', element: <RolePage /> },
           { path: 'dashboard-admin', element: <DashboardAdmin /> },
-          { path: 'products', element: <ProductsPage /> },
+          { path: 'history', element: <HistoryPage /> },
           { path: 'dat-hang', element: <DatHangPage /> },
           { path: 'in-dat-hang', element: <InDatHangPage /> },
         ],

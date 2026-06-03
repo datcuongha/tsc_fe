@@ -6,7 +6,8 @@ export default function Page() {
   return (
     <>
       <title>{`Số hoá - ${CONFIG.appName}`}</title>
-      <SoHoaView  />
+      
+      <SoHoaView />
     </>
   );
 }

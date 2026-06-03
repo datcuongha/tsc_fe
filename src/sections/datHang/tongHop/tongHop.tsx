@@ -19,12 +19,13 @@ import { processTotal } from 'src/apis/datHang';
 
 import { showAlert } from 'src/components/alert';
 import { ButtonGroup } from 'src/components/button';
+import { headLabel } from 'src/components/Item/item';
 import { handleExportData } from 'src/components/export';
-import { headLabelDatHang1 } from 'src/components/Item/item';
 
 import type { Props } from './type';
 
 export function TongHop({ data, setData, handleClose, userId }: Props) {
+  
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(0);
   const rowsPerPage = 50;
@@ -49,7 +50,7 @@ export function TongHop({ data, setData, handleClose, userId }: Props) {
     try {
       setLoading(true);
       const result = await processTotal(filteredData, userId);
-
+      
       if (result) {
         showAlert({
           type: 'success',
@@ -274,7 +275,7 @@ export function TongHop({ data, setData, handleClose, userId }: Props) {
             handleExportData({
               data: filteredData,
               fileName: 'Danh sách đơn hàng',
-              columns: headLabelDatHang1,
+              columns: headLabel.datHang,
             });
           }}
         />

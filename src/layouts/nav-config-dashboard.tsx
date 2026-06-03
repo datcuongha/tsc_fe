@@ -111,7 +111,7 @@ export const getNavData = (reportMenus: any[]): NavItem[] => [
       { title: 'Quản lý người dùng', path: '/user' },
       { title: 'Quản lý vai trò', path: '/role' },
       { title: 'Quản lý báo cáo', path: '/dashboard-admin' },
-      { title: 'Sản phẩm', path: '/products' },
+      { title: 'Lịch sử', path: '/history' },
       { title: 'Invoice IT', path: '/invoice-it' },
     ],
   },

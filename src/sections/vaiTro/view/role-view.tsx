@@ -14,7 +14,7 @@ import { DashboardContent } from 'src/layouts/dashboard';
 
 import { ModalManager } from 'src/components/modal';
 import { Scrollbar } from 'src/components/scrollbar';
-import { headLabelRole } from 'src/components/Item/item';
+import { headLabel } from 'src/components/Item/item';
 import { useModal, ButtonGroup } from 'src/components/button';
 
 import { CreateRole } from '../createRole';
@@ -87,7 +87,7 @@ export function RoleView() {
                     dataFiltered.map((name) => name.id)
                   )
                 }
-                headLabel={headLabelRole}
+                headLabel={headLabel.role}
               />
               <TableBody>
                 {dataFiltered

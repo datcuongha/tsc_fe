@@ -9,14 +9,13 @@ import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-type SoHoaTableToolbarProps = {
+type HistoryTableToolbarProps = {
   numSelected: number;
   filterName: string;
   onFilterName: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  delUser: () => void;
 };
 
-export function SoHoaTableToolbar({ numSelected, filterName, onFilterName,delUser }: SoHoaTableToolbarProps) {
+export function HistoryTableToolbar({ numSelected, filterName, onFilterName }: HistoryTableToolbarProps) {
   return (
     <Toolbar
       sx={{
@@ -39,7 +38,7 @@ export function SoHoaTableToolbar({ numSelected, filterName, onFilterName,delUse
           fullWidth
           value={filterName}
           onChange={onFilterName}
-          placeholder="Search người dùng..."
+          placeholder="Tìm kiếm nội dung..."
           startAdornment={
             <InputAdornment position="start">
               <Iconify width={20} icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
@@ -51,7 +50,7 @@ export function SoHoaTableToolbar({ numSelected, filterName, onFilterName,delUse
 
       {numSelected > 0 ? (
         <Tooltip title="Delete">
-          <IconButton onClick={delUser} sx={{ color: 'error.main' }}>
+          <IconButton>
             <Iconify icon="solar:trash-bin-trash-bold" />
           </IconButton>
         </Tooltip>

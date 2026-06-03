@@ -15,7 +15,7 @@ export type InDeXuatDetail = {
   slCoTheDat: string;
   slBanCuoi: number;
   slNhapNccCuoi: number;
-  kySoLieu:string;
+  kySoLieu: string;
 };
 
 export type InDeXuatData = {
@@ -23,6 +23,7 @@ export type InDeXuatData = {
   tenNcc: string;
   congTy: string;
   createDate: string;
+  maDatHangNhap: string;
   detailPhieuDatHang: InDeXuatDetail[];
 };
 
