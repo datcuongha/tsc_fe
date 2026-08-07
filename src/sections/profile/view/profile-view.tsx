@@ -7,8 +7,8 @@ import { getUserInfo } from 'src/apis/user';
 import { useAuth } from 'src/context/authContext';
 import { DashboardContent } from 'src/layouts/dashboard';
 
-import { ModalManager } from 'src/components/modal';
-import { useModal, ButtonGroup } from 'src/components/button';
+import {  ButtonGroup } from 'src/components/button';
+import { useModal, ModalManager } from 'src/components/modal';
 import { PageHeader } from 'src/components/primary-temp/primary-temp';
 
 import { ChangePass } from 'src/sections/user/changePass';

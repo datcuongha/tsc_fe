@@ -1,4 +1,4 @@
-import { InvoiceProps } from "../invoice-table-row";
+import type { InvoiceProps } from "../invoice-table-row";
 
 export type ViewXmlProps = {
     handleClose: () => void
@@ -7,6 +7,6 @@ export type ViewXmlProps = {
 }
 
 export type ViewXmlForm={
-    id:number;
+    id:string;
     file:File;
 }

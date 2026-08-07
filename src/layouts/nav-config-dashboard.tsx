@@ -87,10 +87,12 @@ export const getNavData = (reportMenus: any[]): NavItem[] => [
     title: 'Trung tâm',
     path: '#',
     icon: icon('ic-admin'),
-    roles: [1, 2, 3, 6],
+    roles: [1, 2, 3, 6,4,7,8],
     children: [
       { title: 'Đặt hàng', path: '/dat-hang' },
       { title: 'In đặt hàng', path: '/in-dat-hang' },
+      { title: 'Danh mục hàng hoá', path: '/danh-muc-hang-hoa' },
+      { title: 'Danh mục NCC', path: '/danh-muc-ncc' },
     ],
   },
 
@@ -108,11 +110,12 @@ export const getNavData = (reportMenus: any[]): NavItem[] => [
     icon: icon('ic-admin'),
     roles: [1, 2],
     children: [
+      { title: 'Invoice IT', path: '/invoice-it' },
+      { title: 'Quản lý báo cáo', path: '/dashboard-admin' },
       { title: 'Quản lý người dùng', path: '/user' },
       { title: 'Quản lý vai trò', path: '/role' },
-      { title: 'Quản lý báo cáo', path: '/dashboard-admin' },
+      { title: 'Quản lý bộ phận', path: '/bo-phan' },
       { title: 'Lịch sử', path: '/history' },
-      { title: 'Invoice IT', path: '/invoice-it' },
     ],
   },
 ];

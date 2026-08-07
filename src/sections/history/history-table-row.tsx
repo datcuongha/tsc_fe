@@ -6,7 +6,7 @@ import TableCell from '@mui/material/TableCell';
 // ----------------------------------------------------------------------
 
 export type HistoryProps = {
-  id: number;
+  id: string;
   userEdit: string;
   module: string;
   action: string;

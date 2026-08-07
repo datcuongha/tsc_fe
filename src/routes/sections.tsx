@@ -15,19 +15,28 @@ import { AuthGuard } from './authGuard';
 // ----------------------------------------------------------------------
 
 export const DashboardPage = lazy(() => import('src/pages/dashboard'));
-export const ReportViev = lazy(() => import('src/pages/report-view'));
-export const InvoiceItPage = lazy(() => import('src/pages/invoice-it'));
+export const SignInPage = lazy(() => import('src/pages/sign-in'));
+export const HistoryPage = lazy(() => import('src/pages/histoty'));
+
+export const Profile = lazy(() => import('src/pages/profile'));
 export const UserPage = lazy(() => import('src/pages/user'));
 export const RolePage = lazy(() => import('src/pages/role'));
+export const BpPage = lazy(() => import('src/pages/boPhan'));
+
 export const DashboardAdmin = lazy(() => import('src/pages/dashboard-admin'));
-export const SignInPage = lazy(() => import('src/pages/sign-in'));
-export const ProductsPage = lazy(() => import('src/pages/products'));
+export const ReportViev = lazy(() => import('src/pages/report-view'));
+
 export const Page404 = lazy(() => import('src/pages/page-not-found'));
-export const Profile = lazy(() => import('src/pages/profile'));
-export const DatHangPage = lazy(() => import('src/pages/datHang'));
-export const InDatHangPage = lazy(() => import('src/pages/inDatHang'));
+export const ProductsPage = lazy(() => import('src/pages/products'));
 export const SoHoaPage = lazy(() => import('src/pages/soHoa'));
-export const HistoryPage = lazy(() => import('src/pages/histoty'));
+export const InvoiceItPage = lazy(() => import('src/pages/invoice-it'));
+
+export const Dmhh = lazy(() => import('src/pages/dmhh'));
+export const DatHangPage = lazy(() => import('src/pages/datHang'));
+export const InDatHangPage = lazy(() => import('src/pages/donDatHang'));
+export const PheDuyetPage = lazy(() => import('src/pages/pheDuyet'));
+export const Dmncc = lazy(() => import('src/pages/dmhh'));
+
 const renderFallback = () => (
   <Box
     sx={{
@@ -84,13 +93,16 @@ export const getRoutesSection = (reportMenus: any[]): RouteObject[] => [
 
       {
         element: (
-          <AuthGuard roles={[1, 2, 3, 6]}>
+          <AuthGuard roles={[1, 2, 3, 6, 4, 7, 8]}>
             <Outlet />
           </AuthGuard>
         ),
         children: [
+          { path: 'danh-muc-hang-hoa', element: <Dmhh /> },
+          { path: 'danh-muc-ncc', element: <Dmncc /> },
           { path: 'dat-hang', element: <DatHangPage /> },
           { path: 'in-dat-hang', element: <InDatHangPage /> },
+          { path: 'phe-duyet/:id', element: <PheDuyetPage /> },
         ],
       },
 
@@ -100,10 +112,7 @@ export const getRoutesSection = (reportMenus: any[]): RouteObject[] => [
             <Outlet />
           </AuthGuard>
         ),
-        children: [
-          { path: 'so-hoa', element: <SoHoaPage /> },
-          // { path: 'in-dat-hang', element: <InDatHangPage /> },
-        ],
+        children: [{ path: 'so-hoa', element: <SoHoaPage /> }],
       },
 
       // admin only
@@ -121,6 +130,7 @@ export const getRoutesSection = (reportMenus: any[]): RouteObject[] => [
           { path: 'history', element: <HistoryPage /> },
           { path: 'dat-hang', element: <DatHangPage /> },
           { path: 'in-dat-hang', element: <InDatHangPage /> },
+          { path: 'bo-phan', element: <BpPage /> },
         ],
       },
 

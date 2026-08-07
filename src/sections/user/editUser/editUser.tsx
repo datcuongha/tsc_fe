@@ -8,7 +8,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Radio,
   Button,
-  MenuItem,
   TextField,
   RadioGroup,
   DialogTitle,
@@ -18,8 +17,8 @@ import {
 } from '@mui/material';
 
 import { editUser } from 'src/apis/user';
+import { getAllBp } from 'src/apis/boPhan';
 import { getDataRole } from 'src/apis/role';
-import { getDataBp } from 'src/apis/boPhan';
 
 import { FormField, SelectWithAdd } from 'src/components/form';
 import { showAlert, capitalizeFirstLetter } from 'src/components/alert';
@@ -63,7 +62,7 @@ export function EditUser({ handleClose, rowSelect }: EditUserProps) {
 
   const { data: dataBoPhan = [] } = useQuery<OptionType[]>({
     queryKey: ['boPhan'],
-    queryFn: getDataBp,
+    queryFn: getAllBp,
   });
 
   const {

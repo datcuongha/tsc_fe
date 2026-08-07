@@ -3,6 +3,8 @@ import { useState, useEffect, useContext, createContext } from 'react';
 
 import { useRouter } from 'src/routes/hooks';
 
+import { socket } from 'src/utils/socket';
+
 type AuthContextType = {
   user: any;
   loading: boolean;
@@ -22,22 +24,40 @@ export const AuthProvider = ({ children }: any) => {
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
 
-    if (token) {
-      try {
-        const decoded: any = jwtDecode(token);
-        setUser(decoded);
-      } catch {
-        localStorage.removeItem('accessToken');
-      }
+    if (!token) {
+      setLoading(false);
+      return;
     }
 
-    setLoading(false); // 🔥 bắt buộc
+    try {
+      const decoded: any = jwtDecode(token);
+      setUser(decoded);
+
+      const userId = decoded.data.userId;
+
+      socket.connect();
+
+      const join = () => {
+        socket.emit('join', userId);
+      };
+
+      if (socket.connected) {
+        join();
+      } else {
+        socket.once('connect', join);
+      }
+    } catch {
+      localStorage.removeItem('accessToken');
+    }
+
+    setLoading(false);
   }, []);
 
   const saveToken = (token: string) => {
     localStorage.setItem('accessToken', token);
 
     const decoded: any = jwtDecode(token);
+    console.log('Decoded JWT:', decoded);
     setUser(decoded);
   };
 

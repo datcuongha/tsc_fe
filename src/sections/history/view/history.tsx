@@ -4,12 +4,11 @@ import { useQuery } from '@tanstack/react-query';
 import { getAllHistory } from 'src/apis/history';
 import { DashboardContent } from 'src/layouts/dashboard';
 
+import { useTable } from 'src/components/use-table';
 import { ButtonGroup } from 'src/components/button';
 import { headLabel } from 'src/components/Item/item';
 import { handleExportData } from 'src/components/export';
 import { PageHeader, PrimaryTemp } from 'src/components/primary-temp/primary-temp';
-
-import { useTable } from 'src/sections/invoice-it/view';
 
 import { TableNoData } from '../table-no-data';
 import { TableEmptyRows } from '../table-empty-rows';

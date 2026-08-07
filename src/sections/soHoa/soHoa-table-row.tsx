@@ -17,46 +17,54 @@ import { Iconify } from 'src/components/iconify';
 
 export type SoHoaProps = {
   id: number;
-  loaiVb: string;
+  dmLoaiVb: {
+    name: string;
+  };
   soVb: string;
   ngayVb: string;
   noiDung: string;
-  boPhan: string;
-  file: string;
-  hopDongs?: {
+  ngayKy: string;
+  parentId: number | null;
+
+  boPhan?: {
     id: number;
-    loaiVb: string;
-    soVb: string;
-    ngayVb: string;
-    noiDung: string;
-    boPhan?: string;
-    file: string;
-  }[];
+    name: string;
+    status: boolean;
+    createDate: string;
+    modifiedDate: string | null;
+  };
+
+  file: string;
+
+  children?: SoHoaProps[];
 };
 
 type SoHoaTableRowProps = {
   row: SoHoaProps;
   selected: boolean;
   onSelectRow: () => void;
-  // onEditUser: () => void;
-  // onChangPass: () => void;
+  onEditSoHoa: (row: SoHoaProps) => void;
 };
 
 export function SoHoaTableRow({
   row,
   selected,
   onSelectRow,
-  // onEditUser,
+  onEditSoHoa,
   // onChangPass,
 }: SoHoaTableRowProps) {
   const [openPopover, setOpenPopover] = useState<HTMLButtonElement | null>(null);
+  const [selectedRow, setSelectedRow] = useState<SoHoaProps | null>(null);
   const [open, setOpen] = useState(false);
-  const handleOpenPopover = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
+
+  const handleOpenPopover = (event: React.MouseEvent<HTMLButtonElement>, item: SoHoaProps) => {
+    setSelectedRow(item);
     setOpenPopover(event.currentTarget);
-  }, []);
+  };
 
   const handleClosePopover = useCallback(() => {
     setOpenPopover(null);
+    setSelectedRow(null);
   }, []);
 
   return (
@@ -68,18 +76,19 @@ export function SoHoaTableRow({
           </TableCell>
 
           <TableCell width={10}>
-            {row.hopDongs && row.hopDongs.length > 0 && (
+            {row.children && row.children.length > 0 && (
               <IconButton size="small" onClick={() => setOpen(!open)}>
                 {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
               </IconButton>
             )}
           </TableCell>
 
-          <TableCell>{row.loaiVb}</TableCell>
+          <TableCell>{row.dmLoaiVb.name}</TableCell>
           <TableCell>{row.soVb}</TableCell>
-          <TableCell>{row.ngayVb}</TableCell>
+          <TableCell>{row.ngayVb && new Date(row.ngayVb).toLocaleDateString('vi-VN')}</TableCell>
           <TableCell>{row.noiDung}</TableCell>
-          <TableCell>{row.boPhan}</TableCell>
+          <TableCell>{row.boPhan?.name}</TableCell>
+          <TableCell>{row.ngayKy}</TableCell>
 
           <TableCell sx={{ paddingLeft: '36px' }}>
             {row.file ? (
@@ -90,39 +99,39 @@ export function SoHoaTableRow({
           </TableCell>
 
           <TableCell align="right">
-            <IconButton onClick={handleOpenPopover}>
+            <IconButton onClick={(e) => handleOpenPopover(e, row)}>
               <Iconify icon="eva:more-vertical-fill" />
             </IconButton>
           </TableCell>
         </TableRow>
 
         {open &&
-          row.hopDongs?.map((hd) => (
+          row.children?.map((hd) => (
             <TableRow key={hd.id}>
               <TableCell />
               <TableCell />
 
               <TableCell>
-                <Box sx={{ pl: 3 }}>↳ {hd.loaiVb}</Box>
+                <Box sx={{ pl: 1 }}>↳ {hd.dmLoaiVb?.name}</Box>
               </TableCell>
 
               <TableCell>{hd.soVb}</TableCell>
 
-              <TableCell>{hd.ngayVb}</TableCell>
+              <TableCell>{hd.ngayVb && new Date(hd.ngayVb).toLocaleDateString('vi-VN')}</TableCell>
 
               <TableCell>{hd.noiDung}</TableCell>
 
-              <TableCell>{hd.boPhan}</TableCell>
+              <TableCell>{hd.boPhan?.name}</TableCell>
 
-              <TableCell sx={{ pl: 4.4 }}>
-                {hd.file ? (
-                  <Iconify icon="solar:check-circle-bold" sx={{ color: 'success.main' }} />
-                ) : (
-                  <HighlightOffIcon sx={{ color: 'error.main' }} />
-                )}
-              </TableCell>
+              <TableCell>{hd.ngayKy}</TableCell>
 
               <TableCell />
+
+              <TableCell align="right">
+                <IconButton onClick={(e) => handleOpenPopover(e, hd)}>
+                  <Iconify icon="eva:more-vertical-fill" />
+                </IconButton>
+              </TableCell>
             </TableRow>
           ))}
       </Fragment>
@@ -153,7 +162,10 @@ export function SoHoaTableRow({
           <MenuItem
             onClick={() => {
               handleClosePopover();
-              // onEditUser();
+
+              if (selectedRow) {
+                onEditSoHoa(selectedRow);
+              }
             }}
           >
             <Iconify icon="solar:pen-bold" />
@@ -163,7 +175,6 @@ export function SoHoaTableRow({
           <MenuItem
             onClick={() => {
               handleClosePopover();
-              // onChangPass();
             }}
           >
             <Iconify icon="custom:change-pass" />

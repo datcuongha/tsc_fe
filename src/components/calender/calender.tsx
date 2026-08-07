@@ -14,7 +14,7 @@ type Props = {
 export function CalenderCustom({ value, onChange }: Props) {
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
-      <Box display="flex" gap={1}>
+      <Box display="flex" gap={1} > 
         <DatePicker
           label="Từ ngày"
           format="dd/MM/yyyy"

@@ -5,7 +5,7 @@ import { Popover, Checkbox, MenuItem, MenuList, TableRow, TableCell, IconButton,
 import { Iconify } from "src/components/iconify";
 
 export type InvoiceProps = {
-    id: number,
+    id: string,
     soHd: string,
     kyHieuHd: string,
     ngayHd: string,

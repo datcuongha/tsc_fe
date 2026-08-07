@@ -1,7 +1,7 @@
 import fetcher from './fetcher';
 
 // ----- LẤY THÔNG TIN BỘ PHẬN ----- //
-export const getDataBp = async () => {
+export const getAllBp = async () => {
   try {
     const response = await fetcher.get('/bophan/getDataBp');
     return response.data.content;
@@ -55,5 +55,28 @@ export const adminDelBp = async (id) => {
     return response.data.content;
   } catch (error) {
     throw error.response.data?.message;
+  }
+};
+
+// ----- IMPORT ----- //
+export const importBp = async (file) => {
+  try {
+    const formData = new FormData();
+
+    formData.append('file', file);
+
+    const response = await fetcher.post(
+      '/bophan/importBp',
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+
+    return response.data.content;
+  } catch (error) {
+    throw error.response?.data?.message;
   }
 };

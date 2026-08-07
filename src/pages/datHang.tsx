@@ -1,13 +1,13 @@
 import { CONFIG } from 'src/config-global';
 
-import { DatHangView } from 'src/sections/datHang/view';
+import { DatHangView } from 'src/sections/trungTam/datHang/view';
 
 // ----------------------------------------------------------------------
 
 export default function Page() {
   return (
     <>
-      <title>{`Tổng hợp đặt hàng - ${CONFIG.appName}`}</title>
+      <title>{`Đặt hàng - ${CONFIG.appName}`}</title>
 
       <DatHangView />
     </>

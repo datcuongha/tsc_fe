@@ -1,44 +1,51 @@
-import fetcher from "./fetcher";
+import fetcher from './fetcher';
 
-//-----------------------------------------
-//  LẤY DANH SÁCH NHÀ CUNG CÂP
+// ----- LẤY DANH SÁCH NHÀ CUNG CÂP ----- //
 export const getDataNcc = async () => {
   try {
-    const response = await fetcher.get("/ncc/LayDanhSachNCC");
+    const response = await fetcher.get('/ncc/LayDanhSachNCC');
     return response.data?.content;
   } catch (error) {
     throw error.response.data?.content;
   }
 };
 
-//   TẠO NHÀ CUNG CẤP
+// ----- LÁY DANH MỤC LOẠI VĂN BẢN ----- //
+export const getAllDmLoaiVb = async () => {
+  try {
+    const response = await fetcher.get('/danhMuc/getAllDmLoaiVb');
+    return response.data.content;
+  } catch (error) {
+    throw error.response.data?.content;
+  }
+};
+
+// ----- TẠO NHÀ CUNG CẤP ----- //
 export const createNcc = async (payload) => {
   try {
-    const response = await fetcher.post("ncc/TaoNCC", payload);
+    const response = await fetcher.post('ncc/TaoNCC', payload);
     return response.data?.content;
   } catch (error) {
     throw error.response.data?.messenge;
   }
 };
 
-//   CẬP NHẬT NHÀ CUNG CẤP
+// ----- CẬP NHẬT NHÀ CUNG CẤP ----- //
 export const editNcc = async (payload) => {
   try {
-    const response = await fetcher.post("/ncc/EditNCC", payload);
+    const response = await fetcher.post('/ncc/EditNCC', payload);
     return response.data?.content;
   } catch (error) {
     throw error.response?.data?.messenge;
   }
 };
 
-//   XÓA NHÀ CUNG CẤP
+// ----- XÓA NHÀ CUNG CẤP ----- //
 export const removeNcc = async (id) => {
-  console.log(id);
-
   try {
-    const response = await fetcher.delete("/ncc/XoaNCC", {
+    const response = await fetcher.delete('/ncc/XoaNCC', {
       params: {
-        id: id,
+        id,
       },
     });
     return response.data?.content;
@@ -47,36 +54,33 @@ export const removeNcc = async (id) => {
   }
 };
 
-//   IMPORT NHÀ CUNG CẤP
-export const getImportNcc = async (payload) => {
+// ----- LẤY DANH MỤC HÀNG HÓA ----- //
+export const getAllDmhh = async () => {
   try {
-    const response = await fetcher.post("/ncc/ImportNcc", payload);
-    return response.data?.content;
-  } catch (error) {
-    throw error.response?.data?.messenge;
-  }
-};
-
-//-----------------------------------------
-//  LẤY DANH MỤC HÀNG HÓA
-export const getDataSku = async () => {
-  try {
-    const response = await fetcher.get("/sku/LayDanhSachSku");
-    return response.data?.content;
+    const response = await fetcher.get('/danhMuc/getAllDmhh');
+    return response.data.content;
   } catch (error) {
     throw error.response.data?.content;
   }
 };
 
+// ----- LẤY DANH MỤC KHO -----//
+export const getAllKho = async () => {
+  try {
+    const response = await fetcher.get('/danhMuc/getAllKho');
+    return response.data.content;
+  } catch (error) {
+    throw error.response.data?.message;
+  }
+};
 
-//-----------------------------------------
-//   LẤY DANH MỤC NHÓM NGÀNH HÀNG
+// ----- LẤY DANH MỤC NHÓM NGÀNH HÀNG ----- //
 export const getDataLv = async () => {
   try {
-    const response = await fetcher.get("/nhomlv/LayDanhSachNhomLV");
+    const response = await fetcher.get('/nhomlv/LayDanhSachNhomLV');
 
     const dataTree = response.data?.content || [];
-    
+
     // Chuyển dữ liệu từ dạng cây sang danh sách phẳng ngay tại đây
     let result = [];
     for (let lv1 of dataTree) {
@@ -84,7 +88,7 @@ export const getDataLv = async () => {
       if (!lv1.children || lv1.children.length === 0) {
         result.push({
           id: `${lv1.id}`,
-          isActive:lv1.isActive,
+          isActive: lv1.isActive,
           idLevel1: lv1.id,
           name1: lv1.name,
           idLevel2: null,
@@ -94,13 +98,13 @@ export const getDataLv = async () => {
         });
         continue;
       }
-    
+
       for (let lv2 of lv1.children) {
         // Nếu không có con thì chỉ push đến level 2
         if (!lv2.children || lv2.children.length === 0) {
           result.push({
             id: `${lv1.id}-${lv2.id}`,
-            isActive:lv2.isActive,
+            isActive: lv2.isActive,
             idLevel1: lv1.id,
             name1: lv1.name,
             idLevel2: lv2.id,
@@ -110,13 +114,13 @@ export const getDataLv = async () => {
           });
           continue;
         }
-    
+
         // Có đủ lv1 -> lv2 -> lv3
         for (let lv3 of lv2.children) {
           const idLv3Formatted = String(lv3.id).padStart(3, '0');
           result.push({
             id: `${lv1.id}-${lv2.id}-${idLv3Formatted}`,
-            isActive:lv3.isActive,
+            isActive: lv3.isActive,
             idLevel1: lv1.id,
             name1: lv1.name,
             idLevel2: lv2.id,
@@ -129,67 +133,83 @@ export const getDataLv = async () => {
     }
 
     return result;
-    
   } catch (error) {
-    throw error.response?.data?.content || "Lỗi không xác định";
+    throw error.response?.data?.content || 'Lỗi không xác định';
   }
 };
 
-// TẠO NHÓM LEVEL 1
-
+// ----- TẠO NHÓM LEVEL 1 ----- //
 export const createLv1 = async (payload) => {
   try {
-    const response = await fetcher.post("/nhomlv/TaoNhomLv1", payload);
+    const response = await fetcher.post('/nhomlv/TaoNhomLv1', payload);
     return response.data?.content;
   } catch (error) {
     throw error.response.data?.message;
   }
 };
 
-// TẠO NHÓM LEVEL 2
-export const createLv2= async (payload)=>{
+// ----- TẠO NHÓM LEVEL 2 ----- //
+export const createLv2 = async (payload) => {
   try {
-    const response = await fetcher.post("/nhomlv/TaoNhomLv2",payload);
+    const response = await fetcher.post('/nhomlv/TaoNhomLv2', payload);
     return response.data?.content;
   } catch (error) {
-    throw error.response.data?.message
+    throw error.response.data?.message;
   }
-}
+};
 
-// TẠO NHÓM LEVEL 3
-export const createLv3= async (payload)=>{
-  console.log(payload);
-  
+// ----- TẠO NHÓM LEVEL 3 ----- //
+export const createLv3 = async (payload) => {
   try {
-    const response = await fetcher.post("/nhomlv/TaoNhomLv3",payload)
-    return response.data?.content
+    const response = await fetcher.post('/nhomlv/TaoNhomLv3', payload);
+    return response.data?.content;
   } catch (error) {
-    throw error.response.data?.message
+    throw error.response.data?.message;
   }
-}
+};
 
-//   XÓA NHÓM NGÀNH HÀNG
+// ----- XÓA NHÓM NGÀNH HÀNG ----- //
 export const removeLv = async (id) => {
-  const idLv3 = id.split("-")[2];
-  console.log(idLv3);
+  const idLv3 = id.split('-')[2];
   try {
-    const response = await fetcher.delete("/nhomlv/XoaNhomLV", {
+    const response = await fetcher.delete('/nhomlv/XoaNhomLV', {
       params: {
         id: idLv3,
-      }
+      },
     });
-    return response.data.content
+    return response.data.content;
   } catch (error) {
     throw error.response?.data?.content;
   }
 };
 
-// IMPORT NHÓM NGÀNH HÀNG
-export const getImportLv = async (payload)=>{
+// ----- IMPORT NHÓM NGÀNH HÀNG ----- //
+export const getImportLv = async (payload) => {
   try {
-    const response = await fetcher.post("/nhomlv/ImportLv",payload)
-    return response.data.content
+    const response = await fetcher.post('/nhomlv/ImportLv', payload);
+    return response.data.content;
   } catch (error) {
-    throw error.response.data?.message
+    throw error.response.data?.message;
   }
-}
+};
+
+// ----- IMPORT NHÀ CUNG CẤP ----- //
+export const importDmncc = async (payload) => {
+  try {
+    const response = await fetcher.post('/danhMuc/importDmncc', payload);
+    return response.data?.content;
+  } catch (error) {
+    throw error.response?.data?.messenge;
+  }
+};
+// ----- IMPORT DMHH ----- //
+export const importDmhh = async (file) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  try {
+    const response = await fetcher.post('/danhMuc/importDmhh', formData);
+    return response.data.content;
+  } catch (error) {
+    throw error.response?.data?.messenge;
+  }
+};

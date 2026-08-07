@@ -1,5 +1,5 @@
 import Swal from "sweetalert2";
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 
 import { Box, Card, Table, TableRow, TableBody, TableCell, Typography, TableContainer, TablePagination } from "@mui/material";
@@ -8,6 +8,7 @@ import { delInv, getInvoiceXlm } from "src/apis/it";
 import { DashboardContent } from "src/layouts/dashboard";
 
 import { showAlert } from "src/components/alert";
+import { useTable } from "src/components/use-table";
 import { ModalManager } from "src/components/modal";
 import { ButtonGroup } from "src/components/button";
 import { Scrollbar } from "src/components/scrollbar";
@@ -103,7 +104,7 @@ export function InvoiceItView() {
     }).then((result) => {
       if (result.isConfirmed) {
         table.selected.forEach((selectedId) => {
-          handleDelete(selectedId)
+          handleDelete(Number(selectedId))
         })
         table.onSelectAllRows(false, []);
       }
@@ -281,70 +282,4 @@ export function InvoiceItView() {
 
 }
 
-// ----------------------------------------------------------------------
 
-export function useTable() {
-  const [page, setPage] = useState(0);
-  const [orderBy, setOrderBy] = useState('ngayHd');
-  const [rowsPerPage, setRowsPerPage] = useState(30);
-  const [selected, setSelected] = useState<number[]>([]);
-  const [order, setOrder] = useState<'desc' | 'asc'>('desc');
-
-  const onSort = useCallback(
-    (id: string) => {
-      const isAsc = orderBy === id && order === 'asc';
-      setOrder(isAsc ? 'desc' : 'asc');
-      setOrderBy(id);
-    },
-    [order, orderBy]
-  );
-
-  const onSelectAllRows = useCallback((checked: boolean, newSelecteds: number[]) => {
-    if (checked) {
-      setSelected(newSelecteds);
-      return;
-    }
-    setSelected([]);
-  }, []);
-
-  const onSelectRow = useCallback(
-    (inputValue: number) => {
-      const newSelected = selected.includes(inputValue)
-        ? selected.filter((value) => value !== inputValue)
-        : [...selected, inputValue];
-
-      setSelected(newSelected);
-    },
-    [selected]
-  );
-
-  const onResetPage = useCallback(() => {
-    setPage(0);
-  }, []);
-
-  const onChangePage = useCallback((event: unknown, newPage: number) => {
-    setPage(newPage);
-  }, []);
-
-  const onChangeRowsPerPage = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      setRowsPerPage(parseInt(event.target.value, 30));
-      onResetPage();
-    },
-    [onResetPage]
-  );
-
-  return {
-    page,
-    order,
-    onSort,
-    orderBy,
-    selected,
-    rowsPerPage,
-    onSelectRow,
-    onResetPage,
-    onChangePage,
-    onSelectAllRows,
-    onChangeRowsPerPage,
-  };
-}

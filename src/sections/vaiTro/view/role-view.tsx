@@ -12,10 +12,10 @@ import TablePagination from '@mui/material/TablePagination';
 import { getDataRole } from 'src/apis/role';
 import { DashboardContent } from 'src/layouts/dashboard';
 
-import { ModalManager } from 'src/components/modal';
 import { Scrollbar } from 'src/components/scrollbar';
 import { headLabel } from 'src/components/Item/item';
-import { useModal, ButtonGroup } from 'src/components/button';
+import {  ButtonGroup } from 'src/components/button';
+import { useModal, ModalManager } from 'src/components/modal';
 
 import { CreateRole } from '../createRole';
 import { TableNoData } from '../table-no-data';
@@ -33,7 +33,7 @@ export function RoleView() {
   const queryClient = useQueryClient();
   const table = useTable();
   const [filterName, setFilterName] = useState('');
-  const { open, data, openModal, closeModal } = useModal();
+  const { open, data, openModal, closeModal } = useModal ();
 
   const { data: dataRole = [] } = useQuery({
     queryKey: ['dataRole'],

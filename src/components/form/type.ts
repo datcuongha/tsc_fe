@@ -11,6 +11,8 @@ export type SelectWithAddProps = {
   placeholder?: string;
   onChange: (value: any) => void;
   onOpen: () => void;
+  showAddButton?: boolean;
+  required?: boolean;
 };
 
 export type UploadFormProps = {

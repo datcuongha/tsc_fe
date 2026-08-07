@@ -6,10 +6,10 @@ import { DashboardContent } from 'src/layouts/dashboard';
 import { removeDashboardLink, getAllDashboardAdmin } from 'src/apis/dashboardAdmin';
 
 import { showAlert } from 'src/components/alert';
-import { ModalManager } from 'src/components/modal';
 // import { Iconify } from 'src/components/iconify';
 import { headLabel } from 'src/components/Item/item';
-import { useModal, ButtonGroup } from 'src/components/button';
+import {  ButtonGroup } from 'src/components/button';
+import { useModal, ModalManager } from 'src/components/modal';
 import { PageHeader, PrimaryTemp } from 'src/components/primary-temp/primary-temp';
 
 import { EditLink } from '../editLink';

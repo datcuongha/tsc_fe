@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 import { Dialog } from '@mui/material';
 
 import type { ModalTypeProps } from './type';
@@ -22,3 +24,22 @@ export function ModalManager({
     </Dialog>
   );
 }
+
+// ----- OPEN MODAL ----- //
+
+export const useModal = <T = any,>() => {
+  const [open, setOpen] = useState<string | null>(null);
+  const [data, setData] = useState<T | null>(null);
+
+  const openModal = (name: string, payload?: T) => {
+    setOpen(name);
+    setData(payload || null);
+  };
+
+  const closeModal = () => {
+    setOpen(null);
+    setData(null);
+  };
+
+  return { open, data, openModal, closeModal };
+};

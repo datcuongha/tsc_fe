@@ -3,9 +3,9 @@ import { object, string } from 'yup';
 import { useForm } from 'react-hook-form';
 import { useMutation } from '@tanstack/react-query';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import Box from '@mui/material/Box';
-import Link from '@mui/material/Link';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
@@ -32,6 +32,8 @@ const infoSchema = object({
 });
 
 export function SignInView() {
+  const navigate = useNavigate();
+  const location = useLocation();
   const router = useRouter();
   const { saveToken } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
@@ -50,10 +52,14 @@ export function SignInView() {
       const token = data?.token;
 
       saveToken(token); // 🔥 CHÍNH NÓ
+      const from = location.state?.from?.pathname || '/';
 
-      router.push('/');
+      navigate(from, { replace: true });
+      // router.push('/');
     },
     onError: (error: any) => {
+      console.log(error);
+      
       showAlert({
         type: 'error',
         message: error || 'Lỗi hệ thống',

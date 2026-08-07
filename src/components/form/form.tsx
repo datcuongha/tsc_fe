@@ -35,6 +35,8 @@ export const SelectWithAdd = ({
   error,
   onChange,
   onOpen,
+  showAddButton = true,
+  required = true,
 }: SelectWithAddProps) => {
   const [search, setSearch] = useState('');
 
@@ -44,7 +46,8 @@ export const SelectWithAdd = ({
     <Grid container spacing={2} alignItems="center" sx={{ mb: 1 }}>
       <Grid item xs={4}>
         <InputLabel>
-          {label} <span style={{ color: 'red' }}>*</span>
+          {label}
+          {required && <span style={{ color: 'red' }}> *</span>}
         </InputLabel>
       </Grid>
 
@@ -82,11 +85,13 @@ export const SelectWithAdd = ({
               </Select>
             </Grid>
 
-            <Grid item xs={2}>
-              <Button variant="contained" size="small" onClick={onOpen}>
-                +
-              </Button>
-            </Grid>
+            {showAddButton && (
+              <Grid item xs={2}>
+                <Button variant="contained" size="small" onClick={onOpen}>
+                  +
+                </Button>
+              </Grid>
+            )}
           </Grid>
         </FormControl>
       </Grid>

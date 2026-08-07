@@ -17,18 +17,17 @@ import {
 } from '@mui/material';
 
 import { createUser } from 'src/apis/user';
-import { getDataBp } from 'src/apis/boPhan';
+import { getAllBp } from 'src/apis/boPhan';
 import { getDataRole } from 'src/apis/role';
 
 import { Iconify } from 'src/components/iconify';
-import { useModal } from 'src/components/button';
-import { ModalManager } from 'src/components/modal';
+import { useModal, ModalManager } from 'src/components/modal';
 import { FormField, SelectWithAdd } from 'src/components/form';
 import { showAlert, capitalizeFirstLetter } from 'src/components/alert';
 
-import { BoPhan } from 'src/sections/boPhan/view';
 import { CreateRole } from 'src/sections/vaiTro/createRole';
 import { widthImport } from 'src/sections/invoice-it/utils';
+import { CreateBoPhan } from 'src/sections/boPhan/createBp';
 
 import type { FilterDataBp, CreateUserForm, CreateUserPros, CreateUserPayload } from './type';
 
@@ -83,7 +82,7 @@ export function CreateUser({ handleClose }: CreateUserPros) {
 
   const { data: dataBp = [] } = useQuery<FilterDataBp[]>({
     queryKey: ['dataBp'],
-    queryFn: getDataBp,
+    queryFn: getAllBp,
   });
 
   const { data: dataRole = [] } = useQuery({
@@ -100,7 +99,7 @@ export function CreateUser({ handleClose }: CreateUserPros) {
       return createUser(forrmatValues);
     },
     onError: (error) => {
-      showAlert({ type: 'error', message: String(error)});
+      showAlert({ type: 'error', message: String(error) });
     },
     onSuccess: () => {
       showAlert({ message: 'Thành công', type: 'success' });
@@ -204,19 +203,19 @@ export function CreateUser({ handleClose }: CreateUserPros) {
               )}
             </>
           ))}
-
-          <DialogActions>
-            <Button color="inherit" onClick={handleClose}>
-              Huỷ
-            </Button>
-            <Button type="submit" color="primary" variant="contained">
-              Tạo
-            </Button>
-          </DialogActions>
         </DialogContent>
+
+        <DialogActions>
+          <Button color="inherit" onClick={handleClose}>
+            Huỷ
+          </Button>
+          <Button type="submit" color="primary" variant="contained">
+            Tạo
+          </Button>
+        </DialogActions>
       </form>
       <ModalManager open={open === 'bp'} handleClose={closeModal}>
-        <BoPhan handleClose={closeModal} />
+        <CreateBoPhan handleClose={closeModal} />
       </ModalManager>
       <ModalManager open={open === 'role'} handleClose={closeModal}>
         <CreateRole handleClose={closeModal} />
