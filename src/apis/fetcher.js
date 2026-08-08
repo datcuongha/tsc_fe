@@ -1,17 +1,22 @@
 import axios from 'axios';
 
+const fetcher = axios.create({
+  baseURL: 'https://api.benthanhtsc.com/api',
+  withCredentials: true,
+});
 // const fetcher = axios.create({
 //   baseURL: 'http://10.1.49.30:8168/api',
 //   withCredentials: true,
 // });
-const fetcher = axios.create({
-  baseURL: 'http://10.1.52.16:8168/api',
-  withCredentials: true,
-});
+// const fetcher = axios.create({
+//   baseURL: 'http://10.1.52.16:8168/api',
+//   withCredentials: true,
+// });
 // const fetcher = axios.create({
 //   baseURL: 'http://localhost:8168/api',
 //   withCredentials: true,
 // });
+
 
 fetcher.interceptors.request.use((config) => {
   const token = localStorage.getItem('accessToken');
