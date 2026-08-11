@@ -8,6 +8,7 @@ export function ButtonGroup({
   handleExport,
   handleImport,
   handleChangePass,
+  handleGetApi,
 }: ButtonGroupProps) {
   return (
     <Grid>
@@ -34,6 +35,11 @@ export function ButtonGroup({
       {handleChangePass && (
         <Button variant="contained" color="warning" onClick={handleChangePass} sx={{ mr: 0.5 }}>
           Đổi mật khẩu
+        </Button>
+      )}
+      {handleGetApi && (
+        <Button variant="contained" color="info" onClick={handleGetApi} sx={{ mr: 0.5 }}>
+          Lấy API
         </Button>
       )}
     </Grid>

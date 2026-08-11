@@ -64,6 +64,16 @@ export const getAllDmhh = async () => {
   }
 };
 
+// ----- LẤY DANH MỤC NCC ----- //
+export const getAllDmncc = async () => {
+  try {
+    const response = await fetcher.get('/danhMuc/getAllDmncc');
+    return response.data.content;
+  } catch (error) {
+    throw error.response.data?.message;
+  }
+};
+
 // ----- LẤY DANH MỤC KHO -----//
 export const getAllKho = async () => {
   try {
@@ -194,9 +204,11 @@ export const getImportLv = async (payload) => {
 };
 
 // ----- IMPORT NHÀ CUNG CẤP ----- //
-export const importDmncc = async (payload) => {
+export const importDmncc = async (file) => {
+  const formData = new FormData();
+  formData.append('file', file);
   try {
-    const response = await fetcher.post('/danhMuc/importDmncc', payload);
+    const response = await fetcher.post('/danhMuc/importDmncc', file);
     return response.data?.content;
   } catch (error) {
     throw error.response?.data?.messenge;
@@ -211,5 +223,15 @@ export const importDmhh = async (file) => {
     return response.data.content;
   } catch (error) {
     throw error.response?.data?.messenge;
+  }
+};
+
+// ----- LẤY API DANH MỤC HÀNG HOÁ KIOT ----- //
+export const syncDmhhKiot = async () => {
+  try {
+    const response = await fetcher.get('/danhMuc/syncDmhhKiot');
+    return response.data.content;
+  } catch (error) {
+    throw new Error(error?.response?.data?.message || error?.message || 'Đồng bộ thất bại');
   }
 };

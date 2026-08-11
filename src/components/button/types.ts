@@ -4,5 +4,6 @@ export type ButtonGroupProps = {
   handleImport?: () => void;
   handleExport?: () => void;
   handleChangePass?: () => void;
+  handleGetApi?: () => void;
   disabled?: boolean;
 };

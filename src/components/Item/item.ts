@@ -128,6 +128,16 @@ export const headLabel = {
     { id: 'giaBan', label: 'Giá bán' },
     { id: 'trong', label: '' },
   ],
+  danhMucNcc:[
+    {id:'maNcc',label:'Mã NCC'},
+    {id:'tenNcc',label:'Tên NCC'},
+    {id:'email',label:'Email'},
+    {id:'phone',label:'Điện thoại'},
+    {id:'diaChi',label:'Đia chỉ'},
+    {id:'noteHd',label:'Hợp đồng'},
+    {id:'status',label:'Trạng thái'},
+    {id:'trong',label:''},
+  ],
   boPhan: [
     { id: 'maBp', label: 'Mã bộ phận' },
     { id: 'name', label: 'Tên bộ phận' },

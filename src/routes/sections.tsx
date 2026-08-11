@@ -16,12 +16,14 @@ import { AuthGuard } from './authGuard';
 
 export const DashboardPage = lazy(() => import('src/pages/dashboard'));
 export const SignInPage = lazy(() => import('src/pages/sign-in'));
-export const HistoryPage = lazy(() => import('src/pages/histoty'));
-
 export const Profile = lazy(() => import('src/pages/profile'));
+
 export const UserPage = lazy(() => import('src/pages/user'));
 export const RolePage = lazy(() => import('src/pages/role'));
 export const BpPage = lazy(() => import('src/pages/boPhan'));
+export const InvoiceItPage = lazy(() => import('src/pages/invoice-it'));
+export const HistoryPage = lazy(() => import('src/pages/histoty'));
+export const PhanQuyenPage = lazy(() => import('src/pages/phanQuyen'));
 
 export const DashboardAdmin = lazy(() => import('src/pages/dashboard-admin'));
 export const ReportViev = lazy(() => import('src/pages/report-view'));
@@ -29,13 +31,12 @@ export const ReportViev = lazy(() => import('src/pages/report-view'));
 export const Page404 = lazy(() => import('src/pages/page-not-found'));
 export const ProductsPage = lazy(() => import('src/pages/products'));
 export const SoHoaPage = lazy(() => import('src/pages/soHoa'));
-export const InvoiceItPage = lazy(() => import('src/pages/invoice-it'));
 
 export const Dmhh = lazy(() => import('src/pages/dmhh'));
 export const DatHangPage = lazy(() => import('src/pages/datHang'));
 export const InDatHangPage = lazy(() => import('src/pages/donDatHang'));
 export const PheDuyetPage = lazy(() => import('src/pages/pheDuyet'));
-export const Dmncc = lazy(() => import('src/pages/dmhh'));
+export const Dmncc = lazy(() => import('src/pages/dmncc'));
 
 const renderFallback = () => (
   <Box
@@ -131,6 +132,7 @@ export const getRoutesSection = (reportMenus: any[]): RouteObject[] => [
           { path: 'dat-hang', element: <DatHangPage /> },
           { path: 'in-dat-hang', element: <InDatHangPage /> },
           { path: 'bo-phan', element: <BpPage /> },
+          { path: 'phan-quyen', element: <PhanQuyenPage /> },
         ],
       },
 

@@ -11,7 +11,6 @@ import {
   Button,
   Tooltip,
   TableRow,
-  Backdrop,
   MenuItem,
   TableBody,
   TableCell,
@@ -21,13 +20,13 @@ import {
   DialogActions,
   TableContainer,
   TablePagination,
-  CircularProgress,
 } from '@mui/material';
 
 import { processTotal } from 'src/apis/datHang';
 import { getAllKho, getAllDmhh } from 'src/apis/danhMuc';
 
 import { showAlert } from 'src/components/alert';
+import { LoadingBackdrop } from 'src/components/loading';
 
 import type { Props } from './type';
 
@@ -102,7 +101,7 @@ export function TongHop({
       };
     });
   };
-  
+
   const handleDeleteRow = (row: any) => {
     setData((prev) => {
       if (!prev) return prev;
@@ -765,19 +764,7 @@ export function TongHop({
         </Button>
       </DialogActions>
 
-      <Backdrop
-        open={loading}
-        onClick={(e) => e.preventDefault()}
-        sx={(theme) => ({
-          color: '#fff',
-          zIndex: theme.zIndex.modal + 999,
-          flexDirection: 'column',
-          gap: 2,
-        })}
-      >
-        <CircularProgress color="inherit" />
-        <div>Đang tạo đơn hàng, vui lòng chờ...</div>
-      </Backdrop>
+      <LoadingBackdrop open={loading} message='Đang xử lý, vui lòng chờ...' />
     </>
   );
 }

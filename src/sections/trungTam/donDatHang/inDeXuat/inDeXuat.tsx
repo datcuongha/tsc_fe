@@ -8,18 +8,17 @@ import {
   Table,
   Button,
   TableRow,
-  Backdrop,
   TableHead,
   TableCell,
   TableBody,
   TextField,
   DialogActions,
-  CircularProgress,
 } from '@mui/material';
 
 import { guiDuyet, editDonDeXuat } from 'src/apis/datHang';
 
 import { showAlert } from 'src/components/alert';
+import { LoadingBackdrop } from 'src/components/loading';
 
 import type { InDeXuatProps } from './type';
 
@@ -47,7 +46,7 @@ export function InDeXuat({ data, handleClose, userButton }: InDeXuatProps) {
 
   const handleExportExcel = () => {
     const exportData = data.phieuDatHangDetail
-      .filter((item) => Number(item.soLuong) > 0)
+      .filter((item) => Number(item.soLuongGDDuyet) > 0)
       .map((item: any) => ({
         'Mã hàng': item.maHang,
         'Tên sản phẩm': item.tenSp,
@@ -64,6 +63,7 @@ export function InDeXuat({ data, handleClose, userButton }: InDeXuatProps) {
     XLSX.utils.book_append_sheet(workbook, worksheet, 'DeXuat');
 
     XLSX.writeFile(workbook, 'de-xuat.xlsx');
+    
   };
 
   const sendMutation = useMutation({
@@ -132,20 +132,15 @@ export function InDeXuat({ data, handleClose, userButton }: InDeXuatProps) {
     });
   };
 
-const dates = [
-  ...new Set(
-    (data.phieuDeXuatDetail ?? [])
-      .map((x: any) => x.ngayKhoDat)
-      .filter(
-        (d) =>
-          d &&
-          d !== '0' &&
-          d !== 0 &&
-          d !== '0000-00-00' &&
-          !isNaN(new Date(d).getTime())
-      )
-  ),
-].sort();
+  const dates = [
+    ...new Set(
+      (data.phieuDeXuatDetail ?? [])
+        .map((x: any) => x.ngayKhoDat)
+        .filter(
+          (d) => d && d !== '0' && d !== 0 && d !== '0000-00-00' && !isNaN(new Date(d).getTime())
+        )
+    ),
+  ].sort();
 
   return (
     <>
@@ -525,19 +520,7 @@ const dates = [
         </Box>
       </Box>
 
-      <Backdrop
-        open={sendMutation.isPending}
-        onClick={(e) => e.preventDefault()}
-        sx={(theme) => ({
-          color: '#fff',
-          zIndex: theme.zIndex.modal + 999,
-          flexDirection: 'column',
-          gap: 2,
-        })}
-      >
-        <CircularProgress color="inherit" />
-        <div>Đang xử lý, vui lòng chờ...</div>
-      </Backdrop>
+      <LoadingBackdrop open={sendMutation.isPending} message="Đang xử lý, vui lòng chờ..." />
     </>
   );
 }

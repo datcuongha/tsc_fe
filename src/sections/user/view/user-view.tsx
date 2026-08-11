@@ -11,15 +11,15 @@ import { ButtonGroup } from 'src/components/button';
 import { headLabel } from 'src/components/Item/item';
 import { handleExportData } from 'src/components/export';
 import { useModal, ModalManager } from 'src/components/modal';
+import { TableNoData } from 'src/components/table-empty/table-no-data';
+import { TableEmptyRows } from 'src/components/table-empty/table-empty-rows';
 import { PageHeader, PrimaryTemp } from 'src/components/primary-temp/primary-temp';
 
 import { EditUser } from '../editUser';
 import { ChangePass } from '../changePass';
 import { CreateUser } from '../createUser';
-import { TableNoData } from '../table-no-data';
 import { UserTableRow } from '../user-table-row';
 import { UserTableHead } from '../user-table-head';
-import { TableEmptyRows } from '../table-empty-rows';
 import { UserTableToolbar } from '../user-table-toolbar';
 import { emptyRows, applyFilter, getComparator } from '../utils';
 
@@ -157,4 +157,3 @@ export function UserView() {
     </DashboardContent>
   );
 }
-

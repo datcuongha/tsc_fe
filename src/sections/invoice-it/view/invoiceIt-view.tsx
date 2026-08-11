@@ -1,151 +1,161 @@
-import Swal from "sweetalert2";
-import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import Swal from 'sweetalert2';
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { Box, Card, Table, TableRow, TableBody, TableCell, Typography, TableContainer, TablePagination } from "@mui/material";
+import {
+  Box,
+  Card,
+  Table,
+  TableRow,
+  TableBody,
+  TableCell,
+  TextField,
+  Typography,
+  TableContainer,
+  TablePagination,
+} from '@mui/material';
 
-import { delInv, getInvoiceXlm } from "src/apis/it";
-import { DashboardContent } from "src/layouts/dashboard";
+import { delInv, getInvoiceXlm } from 'src/apis/it';
+import { DashboardContent } from 'src/layouts/dashboard';
 
-import { showAlert } from "src/components/alert";
-import { useTable } from "src/components/use-table";
-import { ModalManager } from "src/components/modal";
-import { ButtonGroup } from "src/components/button";
-import { Scrollbar } from "src/components/scrollbar";
-import { handleExportData } from "src/components/export";
-import { headLabel, itemHinhThucHoaDon } from "src/components/Item/item";
+import { showAlert } from 'src/components/alert';
+import { useTable } from 'src/components/use-table';
+import { ModalManager } from 'src/components/modal';
+import { ButtonGroup } from 'src/components/button';
+import { Scrollbar } from 'src/components/scrollbar';
+import { handleExportData } from 'src/components/export';
+import { TableNoData  } from 'src/components/table-empty/table-no-data';
+import { headLabel, itemHinhThucHoaDon } from 'src/components/Item/item';
+import { TableEmptyRows } from 'src/components/table-empty/table-empty-rows';
 
-import { TableNoData } from "src/sections/user/table-no-data";
-import { TableEmptyRows } from "src/sections/user/table-empty-rows";
+import { ViewXml } from '../viewXml';
+import { EditXml } from '../editXml';
+import { ImportXml } from '../importXml';
+import { CreateXml } from '../createXml';
+import { InvoiceTableRow } from '../invoice-table-row';
+import { InvoiceTableHead } from '../invoice-table-head';
+import { InvoiceTableToolbar } from '../invoice-table-toolbar';
+import { emptyRows, getComparator, applyFilterIvn } from '../utils';
 
-import { ViewXml } from "../viewXml";
-import { EditXml } from "../editXml";
-import { ImportXml } from "../importXml";
-import { CreateXml } from "../createXml";
-import { InvoiceTableRow } from "../invoice-table-row";
-import { InvoiceTableHead } from "../invoice-table-head";
-import { InvoiceTableToolbar } from "../invoice-table-toolbar";
-import { emptyRows, getComparator, applyFilterIvn, } from "../utils";
-
-import type { InvoiceProps} from "../invoice-table-row";
-
+import type { InvoiceProps } from '../invoice-table-row';
 
 export function InvoiceItView() {
-  const queryClient = useQueryClient()
-  const table = useTable()
-  const [filterName, setFilterName] = useState("")
-  const [openImport, setOpenImport] = useState(false)
-  const [openCreate, setOpenCreate] = useState(false)
-  const [openEdit, setOpenEdit] = useState(false)
+  const queryClient = useQueryClient();
+  const table = useTable();
+  const [filterName, setFilterName] = useState('');
+  const [openImport, setOpenImport] = useState(false);
+  const [openCreate, setOpenCreate] = useState(false);
+  const [openEdit, setOpenEdit] = useState(false);
   const [rowSelect, setRowSelect] = useState<InvoiceProps | null>(null);
-  const [openView, setOpenView] = useState(false)
-  
+  const [openView, setOpenView] = useState(false);
+  const [dinhMuc, setDinhMuc] = useState<number>(0);
   // Modal Create
   const handleOpenCreate = () => {
-    setOpenCreate(true)
-  }
+    setOpenCreate(true);
+  };
   const handleCloseCreate = () => {
-    setOpenCreate(false)
-  }
+    setOpenCreate(false);
+  };
 
   // Modal Import
   const handleOpenImport = () => {
-    setOpenImport(true)
-  }
+    setOpenImport(true);
+  };
   const handleCloseImport = () => {
-    setOpenImport(false)
-  }
+    setOpenImport(false);
+  };
 
   // Modal Edit
   const handleOpenEdit = (row: InvoiceProps) => {
     if (table.selected.length === 0) {
-      showAlert({ type: 'error', message: 'Vui lòng chọn 1 dòng muốn sửa' })
-      return
+      showAlert({ type: 'error', message: 'Vui lòng chọn 1 dòng muốn sửa' });
+      return;
     }
     if (table.selected.length > 1) {
-      showAlert({ type: 'error', message: 'Chỉ chọn 1 dòng' })
-      return
+      showAlert({ type: 'error', message: 'Chỉ chọn 1 dòng' });
+      return;
     }
-    setRowSelect(rowSelect)
-    setOpenEdit(true)
-  }
-  const handleCloseEdit = () => { 
-    setOpenEdit(false)
-    setRowSelect(null)
+    setRowSelect(rowSelect);
+    setOpenEdit(true);
+  };
+  const handleCloseEdit = () => {
+    setOpenEdit(false);
+    setRowSelect(null);
     table.onSelectAllRows(false, []);
-  }
+  };
 
   // Modal View
   const handeleOpenView = (row: InvoiceProps) => {
     if (table.selected.length === 0) {
-      showAlert({ type: 'error', message: 'Vui lòng chọn 1 dòng để xem' })
-      return
+      showAlert({ type: 'error', message: 'Vui lòng chọn 1 dòng để xem' });
+      return;
     }
     if (table.selected.length > 1) {
-      showAlert({ type: 'error', message: 'Chỉ chọn 1 dòng' })
-      return
+      showAlert({ type: 'error', message: 'Chỉ chọn 1 dòng' });
+      return;
     }
-    setRowSelect(rowSelect)
-    setOpenView(true)
-  }
+    setRowSelect(rowSelect);
+    setOpenView(true);
+  };
   const handleCloseView = () => {
-    setOpenView(false)
-    setRowSelect(null)
-    table.onSelectAllRows(false, [])
-
-  }
+    setOpenView(false);
+    setRowSelect(null);
+    table.onSelectAllRows(false, []);
+  };
 
   const handleRemove = () => {
     Swal.fire({
       title: 'Bạn có chắc sẽ xóa dòng hóa đơn này',
       showCancelButton: true,
       cancelButtonText: 'Hủy',
-      confirmButtonText: 'Xác nhận'
+      confirmButtonText: 'Xác nhận',
     }).then((result) => {
       if (result.isConfirmed) {
         table.selected.forEach((selectedId) => {
-          handleDelete(Number(selectedId))
-        })
+          handleDelete(Number(selectedId));
+        });
         table.onSelectAllRows(false, []);
       }
-    })
-  }
+    });
+  };
 
   const { mutate: handleDelete } = useMutation<void, Error, number>({
-    mutationFn: (id: number) => delInv(id),   // API xóa trên server
+    mutationFn: (id: number) => delInv(id), // API xóa trên server
     onError: () => {
-      showAlert({ type: 'error', message: 'Hóa đơn này không tồn tại hoặc đã được xóa' })
+      showAlert({ type: 'error', message: 'Hóa đơn này không tồn tại hoặc đã được xóa' });
     },
     onSuccess: () => {
-      showAlert({ type: 'success', message: 'Xóa thành công' })
+      showAlert({ type: 'success', message: 'Xóa thành công' });
       queryClient.invalidateQueries({
         queryKey: ['dataXml'],
-      })
+      });
     },
-  })
-
+  });
 
   const { data: dataXml = [] } = useQuery<InvoiceProps[]>({
-    queryKey: ["dataXml"],
-    queryFn: getInvoiceXlm
-  })
+    queryKey: ['dataXml'],
+    queryFn: getInvoiceXlm,
+  });
 
   const dataFiltered = applyFilterIvn({
-    inputData: dataXml.filter(item => item.status === true),
+    inputData: dataXml.filter((item) => item.status === true),
     comparator: getComparator(table.order, table.orderBy),
     filterName,
-  })
+  });
 
   const notFound = !dataFiltered.length && !!filterName;
 
-
+  const tongTien = dataFiltered.reduce((sum, r) => sum + (r.tongTien || 0), 0);
+  const tienThue = dataFiltered.reduce((sum, r) => sum + (r.tienThue || 0), 0);
+  const phanTram = dinhMuc > 0 ? (tongTien / dinhMuc) * 100 : 0;
+  const progress = Math.min(phanTram, 100);
   return (
     <DashboardContent>
       <Box
         sx={{
           mb: 3,
           display: 'flex',
-          alignItems: 'center'
+          alignItems: 'center',
         }}
       >
         <Typography variant="h4" sx={{ flexGrow: 1 }}>
@@ -154,13 +164,15 @@ export function InvoiceItView() {
         <ButtonGroup
           handleOpen={handleOpenCreate}
           handleImport={handleOpenImport}
-          handleExport={() => handleExportData({
-            data: dataFiltered,
-            fileName: 'Invoice IT',
-            columns: headLabel.invoice,
-          })}
+          handleExport={() =>
+            handleExportData({
+              data: dataFiltered,
+              fileName: 'Invoice IT',
+              columns: headLabel.invoice,
+            })
+          }
         />
-      </Box >
+      </Box>
       <Card>
         <InvoiceTableToolbar
           numSelected={table.selected.length}
@@ -170,7 +182,6 @@ export function InvoiceItView() {
             table.onResetPage();
           }}
           delInv={handleRemove}
-
         />
 
         <Scrollbar>
@@ -190,6 +201,66 @@ export function InvoiceItView() {
                 }
                 headLabel={headLabel.invoice}
               />
+              <TableRow>
+                <TableCell colSpan={6} align="right" sx={{ fontWeight: 'bold' }}>
+                  Tổng cộng:
+                </TableCell>
+
+                {/* Tiền thuế */}
+                <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                  {tienThue.toLocaleString('vi-VN')}
+                </TableCell>
+
+                {/* Tổng tiền */}
+                <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                  {tongTien.toLocaleString('vi-VN')}
+                </TableCell>
+
+                {/* Ô định mức */}
+                <TableCell align="right">
+                  <TextField
+                    size="small"
+                    label="Số định mức"
+                    value={dinhMuc ? dinhMuc.toLocaleString('vi-VN') : ''}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, '');
+                      setDinhMuc(Number(value));
+                    }}
+                    inputProps={{
+                      inputMode: 'numeric',
+                    }}
+                    sx={{ width: 120 }}
+                  />
+                </TableCell>
+
+                {/* % định mức */}
+                <TableCell align="right" sx={{ fontWeight: 'bold', minWidth: 180 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Box
+                      sx={{
+                        flex: 1,
+                        height: 12,
+                        borderRadius: 10,
+                        backgroundColor: '#e0e0e0',
+                        overflow: 'hidden',
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          width: `${progress}%`,
+                          height: '100%',
+                          backgroundColor:
+                            phanTram > 100 ? '#f44336' : phanTram >= 80 ? '#ff9800' : '#4caf50',
+                          transition: 'width 0.3s',
+                        }}
+                      />
+                    </Box>
+
+                    <span>{phanTram.toFixed(2)}%</span>
+                  </Box>
+                </TableCell>
+              </TableRow>
+
               <TableBody>
                 {dataFiltered
                   .slice(
@@ -201,25 +272,14 @@ export function InvoiceItView() {
                       key={row.id}
                       row={row}
                       selected={table.selected.includes(row.id)}
-                      onSelectRow={() => { table.onSelectRow(row.id); setRowSelect(row) }}
+                      onSelectRow={() => {
+                        table.onSelectRow(row.id);
+                        setRowSelect(row);
+                      }}
                       onEditRow={() => handleOpenEdit(row)}
                       onViewRow={() => handeleOpenView(row)}
                     />
                   ))}
-
-                <TableRow>
-                  <TableCell colSpan={6} align="right" sx={{ fontWeight: 'bold' }}>
-                    Tổng cộng:
-                  </TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 'bold' }}>
-                    {dataFiltered.reduce((sum, r) => sum + (r.tienThue || 0), 0).toLocaleString('vi-VN')}
-                  </TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 'bold' }}>
-                    {dataFiltered.reduce((sum, r) => sum + (r.tongTien || 0), 0).toLocaleString('vi-VN')}
-                  </TableCell>
-                  <TableCell />
-                </TableRow>
-
 
                 <TableEmptyRows
                   height={68}
@@ -227,11 +287,9 @@ export function InvoiceItView() {
                 />
                 {notFound && <TableNoData searchQuery={filterName} />}
               </TableBody>
-
             </Table>
           </TableContainer>
         </Scrollbar>
-
         <TablePagination
           component="div"
           page={table.page}
@@ -244,42 +302,28 @@ export function InvoiceItView() {
       </Card>
 
       {/* Modal Import */}
-      <ModalManager
-        open={openImport}
-        handleClose={handleCloseImport}
-      >
+      <ModalManager open={openImport} handleClose={handleCloseImport}>
         <ImportXml handleClose={handleCloseImport} />
       </ModalManager>
 
       {/* Modal Create*/}
-      <ModalManager
-        open={openCreate}
-        handleClose={handleCloseCreate}
-        maxWidth="xl"
-      >
+      <ModalManager open={openCreate} handleClose={handleCloseCreate} maxWidth="xl">
         <CreateXml handleClose={handleCloseCreate} dataLH={itemHinhThucHoaDon} />
       </ModalManager>
 
-      <ModalManager
-        open={openEdit}
-        handleClose={handleCloseEdit}
-        maxWidth="xl"
-      >
+      <ModalManager open={openEdit} handleClose={handleCloseEdit} maxWidth="xl">
         {rowSelect && (
-          <EditXml handleClose={handleCloseEdit} dataLH={itemHinhThucHoaDon} rowSelect={rowSelect} />
+          <EditXml
+            handleClose={handleCloseEdit}
+            dataLH={itemHinhThucHoaDon}
+            rowSelect={rowSelect}
+          />
         )}
       </ModalManager>
 
-      <ModalManager
-        open={openView}
-        handleClose={handleCloseView}
-        maxWidth="lg"
-      >
-        {rowSelect && (<ViewXml handleClose={handleCloseView} rowSelect={rowSelect} />)}
+      <ModalManager open={openView} handleClose={handleCloseView} maxWidth="lg">
+        {rowSelect && <ViewXml handleClose={handleCloseView} rowSelect={rowSelect} />}
       </ModalManager>
-    </DashboardContent >
+    </DashboardContent>
   );
-
 }
-
-

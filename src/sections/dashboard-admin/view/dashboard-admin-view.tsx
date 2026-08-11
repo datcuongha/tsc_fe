@@ -10,12 +10,12 @@ import { showAlert } from 'src/components/alert';
 import { headLabel } from 'src/components/Item/item';
 import {  ButtonGroup } from 'src/components/button';
 import { useModal, ModalManager } from 'src/components/modal';
+import { TableNoData } from 'src/components/table-empty/table-no-data';
+import { TableEmptyRows } from 'src/components/table-empty/table-empty-rows';
 import { PageHeader, PrimaryTemp } from 'src/components/primary-temp/primary-temp';
 
 import { EditLink } from '../editLink';
 import { CreateLink } from '../createLink';
-import { TableNoData } from '../table-no-data';
-import { TableEmptyRows } from '../table-empty-rows';
 import { DashboardTableHead } from '../dashboard-table-head';
 import { DahsboardAdminTableToolbar } from '../dashboard-table-toolbar';
 import { emptyRows, getComparator, applyFilterDashboardAmin } from '../units';

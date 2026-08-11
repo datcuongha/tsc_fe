@@ -16,12 +16,12 @@ import { Scrollbar } from 'src/components/scrollbar';
 import { headLabel } from 'src/components/Item/item';
 import {  ButtonGroup } from 'src/components/button';
 import { useModal, ModalManager } from 'src/components/modal';
+import { TableNoData } from 'src/components/table-empty/table-no-data';
+import { TableEmptyRows } from 'src/components/table-empty/table-empty-rows';
 
 import { CreateRole } from '../createRole';
-import { TableNoData } from '../table-no-data';
 import { RoleTableRow } from '../role-table-row';
 import { RoleTableHead } from '../role-table-head';
-import { TableEmptyRows } from '../table-empty-rows';
 import { RoleTableToolbar } from '../role-table-toolbar';
 import { emptyRows, applyFilter, getComparator } from '../utils';
 
