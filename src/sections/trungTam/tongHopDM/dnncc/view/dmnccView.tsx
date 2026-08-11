@@ -4,24 +4,24 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { getAllDmncc, importDmncc } from 'src/apis/danhMuc';
 
-import { useModal } from 'src/components/modal';
 import { showAlert } from 'src/components/alert';
 import { ButtonGroup } from 'src/components/button';
 import { useTable } from 'src/components/use-table';
 import { headLabel } from 'src/components/Item/item';
 import { LoadingBackdrop } from 'src/components/loading';
 import { handleExportData } from 'src/components/export';
+import { TableNoData } from 'src/components/table-empty/table-no-data';
+import { TableEmptyRows } from 'src/components/table-empty/table-empty-rows';
 import { PageHeader, PrimaryTemp } from 'src/components/primary-temp/primary-temp';
 
 import { DmnccTableRow } from '../dmncc-table-row';
 import { DmnccTableHead } from '../dmncc-table-head';
-import { applyFilter, getComparator } from '../utils';
 import { DmnccTableToolbar } from '../dmncc-table-toolbar';
+import { emptyRows, applyFilter, getComparator } from '../utils';
 
 import type { DmnccProps } from '../dmncc-table-row';
 
 export function Dmncc() {
-  const { open, openModal, closeModal, data } = useModal();
   const table = useTable();
   const [filterName, setFilterName] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
@@ -68,7 +68,6 @@ export function Dmncc() {
       });
     },
   });
-
 
   return (
     <>
@@ -137,6 +136,12 @@ export function Dmncc() {
                 onSelectRow={() => table.onSelectRow(row.id)}
               />
             ))}
+          <TableEmptyRows
+            height={68}
+            emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
+          >
+            {notFound && <TableNoData searchQuery={filterName} />}
+          </TableEmptyRows>
         </PrimaryTemp>
       </DashboardContent>
       <LoadingBackdrop

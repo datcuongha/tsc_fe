@@ -10,6 +10,7 @@ import { useTable } from 'src/components/use-table';
 import { ButtonGroup } from 'src/components/button';
 import { headLabel } from 'src/components/Item/item';
 import { handleExportData } from 'src/components/export';
+import { LoadingBackdrop } from 'src/components/loading';
 import { useModal, ModalManager } from 'src/components/modal';
 import { TableNoData } from 'src/components/table-empty/table-no-data';
 import { TableEmptyRows } from 'src/components/table-empty/table-empty-rows';
@@ -34,7 +35,7 @@ export function UserView() {
 
   const { open, data, openModal, closeModal } = useModal();
 
-  const { data: dataUser = [] } = useQuery<UserProps[]>({
+  const { data: dataUser = [], isLoading } = useQuery<UserProps[]>({
     queryKey: ['dataUser'],
     queryFn: getAllUser,
   });
@@ -77,83 +78,89 @@ export function UserView() {
   });
 
   return (
-    <DashboardContent>
-      <PageHeader
-        title="Quản lý người dùng"
-        action={
-          <ButtonGroup
-            handleOpen={() => openModal('createUser')}
-            handleImport={() => openModal('importUser')}
-            handleExport={() =>
-              handleExportData({
-                data: dataFiltered,
-                fileName: 'Danh sách người dùng',
-                columns: headLabel.user,
-              })
-            }
-          />
-        }
-      />
-      <PrimaryTemp
-        toolbar={
-          <UserTableToolbar
-            numSelected={table.selected.length}
-            filterName={filterName}
-            onFilterName={(e) => {
-              setFilterName(e.target.value);
-              table.onResetPage();
-            }}
-            delUser={handleRemove}
-          />
-        }
-        head={
-          <UserTableHead
-            order={table.order}
-            orderBy={table.orderBy}
-            rowCount={dataFiltered.length}
-            numSelected={table.selected.length}
-            onSort={table.onSort}
-            onSelectAllRows={(checked) =>
-              table.onSelectAllRows(
-                checked,
-                dataFiltered.map((u) => u.userId)
-              )
-            }
-            headLabel={headLabel.user}
-          />
-        }
-        pagination={{
-          page: table.page,
-          count: dataFiltered.length,
-          rowsPerPage: table.rowsPerPage,
-          onPageChange: table.onChangePage,
-          onRowsPerPageChange: table.onChangeRowsPerPage,
-        }}
-      >
-        {dataFiltered
-          .slice(table.page * table.rowsPerPage, table.page * table.rowsPerPage + table.rowsPerPage)
-          .map((row) => (
-            <UserTableRow
-              key={row.userId}
-              row={row}
-              selected={table.selected.includes(row.userId)}
-              onSelectRow={() => table.onSelectRow(row.userId)}
-              onEditUser={() => openModal('editUser', row)}
-              onChangPass={() => openModal('changePassUser', row)}
+    <>
+      <DashboardContent>
+        <PageHeader
+          title="Quản lý người dùng"
+          action={
+            <ButtonGroup
+              handleOpen={() => openModal('createUser')}
+              handleImport={() => openModal('importUser')}
+              handleExport={() =>
+                handleExportData({
+                  data: dataFiltered,
+                  fileName: 'Danh sách người dùng',
+                  columns: headLabel.user,
+                })
+              }
             />
-          ))}
-
-        <TableEmptyRows
-          height={68}
-          emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
+          }
         />
-        {notFound && <TableNoData searchQuery={filterName} />}
-      </PrimaryTemp>
-      <ModalManager open={!!open} handleClose={closeModal}>
-        {open === 'createUser' && <CreateUser handleClose={closeModal} />}
-        {open === 'editUser' && data && <EditUser rowSelect={data} handleClose={closeModal} />}
-        {open === 'changePassUser' && data && <ChangePass data={data} handleClose={closeModal} />}
-      </ModalManager>
-    </DashboardContent>
+        <PrimaryTemp
+          toolbar={
+            <UserTableToolbar
+              numSelected={table.selected.length}
+              filterName={filterName}
+              onFilterName={(e) => {
+                setFilterName(e.target.value);
+                table.onResetPage();
+              }}
+              delUser={handleRemove}
+            />
+          }
+          head={
+            <UserTableHead
+              order={table.order}
+              orderBy={table.orderBy}
+              rowCount={dataFiltered.length}
+              numSelected={table.selected.length}
+              onSort={table.onSort}
+              onSelectAllRows={(checked) =>
+                table.onSelectAllRows(
+                  checked,
+                  dataFiltered.map((u) => u.userId)
+                )
+              }
+              headLabel={headLabel.user}
+            />
+          }
+          pagination={{
+            page: table.page,
+            count: dataFiltered.length,
+            rowsPerPage: table.rowsPerPage,
+            onPageChange: table.onChangePage,
+            onRowsPerPageChange: table.onChangeRowsPerPage,
+          }}
+        >
+          {dataFiltered
+            .slice(
+              table.page * table.rowsPerPage,
+              table.page * table.rowsPerPage + table.rowsPerPage
+            )
+            .map((row) => (
+              <UserTableRow
+                key={row.userId}
+                row={row}
+                selected={table.selected.includes(row.userId)}
+                onSelectRow={() => table.onSelectRow(row.userId)}
+                onEditUser={() => openModal('editUser', row)}
+                onChangPass={() => openModal('changePassUser', row)}
+              />
+            ))}
+
+          <TableEmptyRows
+            height={68}
+            emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
+          />
+          {notFound && <TableNoData searchQuery={filterName} />}
+        </PrimaryTemp>
+        <ModalManager open={!!open} handleClose={closeModal}>
+          {open === 'createUser' && <CreateUser handleClose={closeModal} />}
+          {open === 'editUser' && data && <EditUser rowSelect={data} handleClose={closeModal} />}
+          {open === 'changePassUser' && data && <ChangePass data={data} handleClose={closeModal} />}
+        </ModalManager>
+      </DashboardContent>
+      <LoadingBackdrop open={isLoading} message="Đang tải, vui lòng chờ..." />
+    </>
   );
 }

@@ -204,12 +204,12 @@ export const getImportLv = async (payload) => {
 };
 
 // ----- IMPORT NHÀ CUNG CẤP ----- //
-export const importDmncc = async (file) => {
+export const importDmncc = async (file) => { 
   const formData = new FormData();
   formData.append('file', file);
   try {
-    const response = await fetcher.post('/danhMuc/importDmncc', file);
-    return response.data?.content;
+    const response = await fetcher.post('/danhMuc/importDmncc', formData);
+    return response.data.content;
   } catch (error) {
     throw error.response?.data?.messenge;
   }
