@@ -71,10 +71,9 @@ export function DmnccTableRow({
         </TableCell> */}
 
         <TableCell>{row.maNcc}</TableCell>
+        <TableCell>{row.congTy}</TableCell>
         <TableCell>{row.tenNcc}</TableCell>
         <TableCell>{row.mst}</TableCell>
-        <TableCell>{row.email}</TableCell>
-        <TableCell>{row.phone}</TableCell>
         <TableCell>{row.diaChi}</TableCell>
         <TableCell>{row.noteHd}</TableCell>
 

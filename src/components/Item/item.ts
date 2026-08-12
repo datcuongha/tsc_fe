@@ -130,10 +130,9 @@ export const headLabel = {
   ],
   danhMucNcc:[
     {id:'maNcc',label:'Mã NCC'},
+    {id:'congTy',label:'Tên công ty'},
     {id:'tenNcc',label:'Tên NCC'},
     {id:'mst',label:'MST'},
-    {id:'email',label:'Email'},
-    {id:'phone',label:'Điện thoại'},
     {id:'diaChi',label:'Đia chỉ'},
     {id:'noteHd',label:'Hợp đồng'},
     {id:'status',label:'Trạng thái'},
