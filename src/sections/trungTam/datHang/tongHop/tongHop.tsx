@@ -23,7 +23,7 @@ import {
 } from '@mui/material';
 
 import { processTotal } from 'src/apis/datHang';
-import { getAllKho, getAllDmhh } from 'src/apis/danhMuc';
+import { getAllKho, getDmhhByMaHang } from 'src/apis/danhMuc';
 
 import { showAlert } from 'src/components/alert';
 import { LoadingBackdrop } from 'src/components/loading';
@@ -52,11 +52,6 @@ export function TongHop({
     tenHang: '',
   });
 
-  const { data: dataDmhh = [] } = useQuery({
-    queryKey: ['dataDmhh'],
-    queryFn: getAllDmhh,
-  });
-
   const { data: dataKho = [] } = useQuery({
     queryKey: ['dmKho'],
     queryFn: getAllKho,
@@ -75,6 +70,7 @@ export function TongHop({
   const paginatedData = filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
   const fromDate = new Date(pivot[0]?.fromDate).toLocaleDateString('vi-VN');
   const toDate = new Date(pivot[0]?.toDate).toLocaleDateString('vi-VN');
+  console.log(pivot);
 
   const handleAddRow = () => {
     setData((prev) => {
@@ -113,73 +109,76 @@ export function TongHop({
     });
   };
 
-  // const branchOptions = [...new Set(pivotXnt.map((x) => x['Chi nhánh']))];
   const branchOptions = [...new Set(dataKho.map((x: any) => x.tenKho))] as string[];
 
-  const handleSelectMaHang = (row: any, maHang: string) => {
+  const handleSelectMaHang = async (row: any, maHang: string) => {
+    const code = maHang.trim().toUpperCase();
+
+    if (!code) return;
+
     const isDuplicate = pivot.some(
-      (item) => item !== row && item['Chi nhánh'] === row['Chi nhánh'] && item['Mã hàng'] === maHang
+      (item) => item !== row && item['Chi nhánh'] === row['Chi nhánh'] && item['Mã hàng'] === code
     );
 
     if (isDuplicate) {
       showAlert({
         type: 'error',
-        message: `Mã hàng ${maHang} đã tồn tại trong kho ${row['Chi nhánh']}.`,
+        message: `Mã hàng ${code} đã tồn tại trong kho ${row['Chi nhánh']}.`,
       });
       return;
     }
-    const code = maHang.trim().toUpperCase();
 
-    const productDmhh = dataDmhh.find((x: any) => x.maHang?.trim().toUpperCase() === code);
+    try {
+      // Tìm chính xác mã hàng trong DB
+      const productDmhh = await getDmhhByMaHang(code);
 
-    const product = pivotXnt.find(
-      (x) => x['Chi nhánh'] === row['Chi nhánh'] && x['Mã hàng'].trim().toUpperCase() === code
-    );
+      const product = pivotXnt.find(
+        (x) => x['Chi nhánh'] === row['Chi nhánh'] && x['Mã hàng']?.trim().toUpperCase() === code
+      );
 
-    // const product = pivotXnt.find(
-    //   (x) => x['Chi nhánh'] === row['Chi nhánh'] && x['Mã hàng'] === maHang
-    // );
+      if (!product && !productDmhh) {
+        showAlert({
+          type: 'error',
+          message: 'Không tìm thấy mã hàng',
+        });
+        return;
+      }
 
-    // const productDmhh = dataDmhh.find((x: any) => x.maHang === maHang);
+      const updated = pivot.map((item) =>
+        item === row
+          ? {
+              ...item,
+              ['Mã hàng']: code,
+              ['Tên hàng']: productDmhh?.tenHang ?? '',
+              ['Giá bán']: productDmhh?.giaBan ?? 0,
+              ['Giá vốn']: productDmhh?.giaMua ?? 0,
+              ['ĐVT']: productDmhh?.dvt ?? '',
+              ['Mức thuế VAT đầu vào']: productDmhh?.vat ?? 0,
 
-    // const ncc = dataNcc.find((x: any) => x.maNcc === productDmhh?.maNcc);
+              ['Tên nhà cung cấp']: product?.['Thương hiệu'] ?? productDmhh?.dmncc?.tenNcc ?? '',
 
-    if (!product && !productDmhh) {
+              ['Nhập chuyển']: product?.['Nhập chuyển'] ?? null,
+
+              ['Xuất bán']: product?.['Xuất bán'] ?? null,
+
+              ['Tồn cuối kì']: product?.['Tồn cuối kì'] ?? null,
+
+              ['Cảnh báo']: product?.['Cảnh báo'] ?? 'SKU chưa có trong định mức',
+            }
+          : item
+      );
+
+      setData((prev) => ({
+        ...prev!,
+        pivot: updated,
+      }));
+    } catch {
       showAlert({
         type: 'error',
-        message: 'Không tìm thấy mã hàng',
+        message: 'Không thể tìm thông tin mã hàng',
       });
-      return;
     }
-
-    const updated = pivot.map((item) =>
-      item === row
-        ? {
-            ...item,
-            ['Mã hàng']: maHang,
-            ['Tên hàng']: productDmhh?.tenHang ?? '',
-            ['Giá bán']: productDmhh?.giaBan ?? 0,
-            ['Giá vốn']: productDmhh?.giaMua ?? 0,
-            ['ĐVT']: productDmhh?.dvt ?? '',
-            ['Mức thuế VAT đầu vào']: productDmhh?.vat ?? 0,
-            // Nếu có trong pivotXnt thì lấy thương hiệu, không thì lấy từ dmhh (nếu có)
-            ['Tên nhà cung cấp']: product?.['Thương hiệu'] ?? productDmhh?.dmncc?.tenNcc ?? '',
-
-            // Nếu không có trong pivotXnt thì mặc định 0
-            ['Nhập chuyển']: product?.['Nhập chuyển'] ?? null,
-            ['Xuất bán']: product?.['Xuất bán'] ?? null,
-            ['Tồn cuối kì']: product?.['Tồn cuối kì'] ?? null,
-            ['Cảnh báo']: product?.['Cảnh báo'] ?? 'SKU chưa có trong định mức',
-          }
-        : item
-    );
-
-    setData((prev) => ({
-      ...prev!,
-      pivot: updated,
-    }));
   };
-
   const handleCreate = async () => {
     try {
       setLoading(true);
@@ -444,38 +443,6 @@ export function TongHop({
                         width: '100%',
                       }}
                     >
-                      {/* <TextField
-                        sx={{ flex: 1 }}
-                        size="small"
-                        value={row['Mã hàng'] ?? ''}
-                        disabled={!row['Chi nhánh']}
-                        onChange={(e) => {
-                          const value = e.target.value;
-
-                          const updated = pivot.map((item) =>
-                            item['Chi nhánh'] === row['Chi nhánh'] &&
-                            item['Tên hàng'] === row['Tên hàng'] &&
-                             item['Thời gian'] === row['Thời gian']
-                              ? {
-                                  ...item,
-                                  ['Mã hàng']: value,
-                                }
-                              : item
-                          );
-
-                          setData((prev) => ({
-                            ...prev!,
-                            pivot: updated,
-                          }));
-                        }}
-                        onPaste={(e) => {
-                          const value = e.clipboardData.getData('text');
-
-                          setTimeout(() => {
-                            handleSelectMaHang(row, value);
-                          }, 0);
-                        }}
-                      /> */}
                       <TextField
                         size="small"
                         defaultValue={row['Mã hàng'] ?? ''}
@@ -483,31 +450,31 @@ export function TongHop({
                         onChange={(e) => {
                           maHangRef.current[index] = e.target.value.toUpperCase();
                         }}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
+                        // onKeyDown={(e) => {
+                        //   if (e.key === 'Enter') {
+                        //     e.preventDefault();
 
-                            const value = maHangRef.current[index] ?? '';
+                        //     const value = maHangRef.current[index] ?? '';
 
-                            const updated = pivot.map((item) =>
-                              item === row
-                                ? {
-                                    ...item,
-                                    ['Mã hàng']: value,
-                                  }
-                                : item
-                            );
+                        //     const updated = pivot.map((item) =>
+                        //       item === row
+                        //         ? {
+                        //             ...item,
+                        //             ['Mã hàng']: value,
+                        //           }
+                        //         : item
+                        //     );
 
-                            setData((prev) => ({
-                              ...prev!,
-                              pivot: updated,
-                            }));
+                        //     setData((prev) => ({
+                        //       ...prev!,
+                        //       pivot: updated,
+                        //     }));
 
-                            handleSelectMaHang(row, value);
+                        //     handleSelectMaHang(row, value);
 
-                            thuMuaRefs.current[index + 1]?.focus();
-                          }
-                        }}
+                        //     thuMuaRefs.current[index + 1]?.focus();
+                        //   }
+                        // }}
                         onBlur={() => {
                           const value = maHangRef.current[index] ?? '';
 
@@ -696,37 +663,6 @@ export function TongHop({
                         }));
                       }}
                     />
-                    {/* <TextField
-                      size="small"
-                      defaultValue={row.chuThich ?? ''}
-                      onChange={(e) => {
-                        chuThichRefs.current[row['Mã hàng']] = e.target.value;
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                        }
-                      }}
-                      onBlur={() => {
-                        const value = chuThichRefs.current[row['Mã hàng']];
-
-                        const updated = pivot.map((item) =>
-                          item['Mã hàng'] === row['Mã hàng'] &&
-                          item['Chi nhánh'] === row['Chi nhánh'] &&
-                          item['Tên hàng'] === row['Tên hàng'] &&
-                          item['Thời gian'] === row['Thời gian']
-                            ? {
-                                ...item,
-                                chuThich: value === '' ? '' : value,
-                              }
-                            : item
-                        );
-                        setData((prev) => ({
-                          ...prev,
-                          pivot: updated,
-                        }));
-                      }}
-                    /> */}
                   </TableCell>
 
                   <TableCell align="center">
@@ -764,7 +700,7 @@ export function TongHop({
         </Button>
       </DialogActions>
 
-      <LoadingBackdrop open={loading} message='Đang xử lý, vui lòng chờ...' />
+      <LoadingBackdrop open={loading} message="Đang xử lý, vui lòng chờ..." />
     </>
   );
 }

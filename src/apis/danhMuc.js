@@ -237,3 +237,17 @@ export const syncDmhhKiot = async () => {
     throw new Error(error?.response?.data?.message || error?.message || 'Đồng bộ thất bại');
   }
 };
+
+// ----- TÌM MÃ HÀNG ----- //
+export const getDmhhByMaHang = async (maHang) => {
+  try {
+    const response = await fetcher.get('/danhMuc/getDmhhByMaHang', {
+      params: {
+        maHang,
+      },
+    });
+    return response.data.content;
+  } catch (error) {
+    throw error.response.data?.message;
+  }
+};

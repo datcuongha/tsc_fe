@@ -23,7 +23,7 @@ import {
 } from '@mui/material';
 
 import { editDatHangTM } from 'src/apis/datHang';
-import { getAllKho, getAllDmhh } from 'src/apis/danhMuc';
+import { getAllKho, getDmhhByMaHang } from 'src/apis/danhMuc';
 
 import { showAlert } from 'src/components/alert';
 import { ButtonGroup } from 'src/components/button';
@@ -35,6 +35,7 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
   const queryClient = useQueryClient();
   const thuMuaRefs = useRef<(HTMLInputElement | null)[]>([]);
   const chuThichRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const maHangRef = useRef<(HTMLInputElement | null)[]>([]);
   const [rows, setRows] = useState(
     [...data.phieuDeXuatDetail].sort((a, b) => a.chiNhanh.localeCompare(b.chiNhanh))
   );
@@ -56,11 +57,6 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
   );
 
   const paginatedData = filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-
-  const { data: dataDmhh = [] } = useQuery({
-    queryKey: ['dataDmhh'],
-    queryFn: getAllDmhh,
-  });
 
   const { data: dataKho = [] } = useQuery({
     queryKey: ['dmKho'],
@@ -128,17 +124,9 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
     setRows((prev) => prev.filter((item) => item !== row));
   };
 
-  // const branchOptions = [
-  //   ...new Set(
-  //     [
-  //       ...(data?.xntDetail ?? []).map((x) => x.chiNhanh),
-  //       ...(data?.phieuDeXuatDetail ?? []).map((x) => x.chiNhanh),
-  //     ].filter(Boolean)
-  //   ),
-  // ];
   const branchOptions = [...new Set(dataKho.map((x: any) => x.tenKho))] as string[];
 
-  const handleSelectMaHang = (rowId: number, maHang: string) => {
+  const handleSelectMaHang = async (rowId: number, maHang: string) => {
     const row = rows.find((x) => x.id === rowId);
     if (!row) return;
 
@@ -156,46 +144,70 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
     }
 
     const code = maHang.trim().toUpperCase();
+    try {
+      const productName = await getDmhhByMaHang(code);
+      const product = data?.xntDetail.find(
+        (x) => x.chiNhanh === row.chiNhanh && x.maHang?.trim().toUpperCase() === code
+      );
 
-    const productName = dataDmhh.find((x: any) => x.maHang?.trim().toUpperCase() === code);
+      // const canhBao =
+      //   data.phieuDatHangDetail?.find((x) => x.maHang === maHang)?.canhBao ??
+      //   'SKU chưa có trong định mức';
 
-    const product = data?.xntDetail.find(
-      (x) => x.chiNhanh === row.chiNhanh && x.maHang?.trim().toUpperCase() === code
-    );
+      // Tìm cảnh báo NGAY khi paste mã
+      const phieuDetail = data?.phieuDatHangDetail?.find(
+        (x) => x.maHang?.trim().toUpperCase() === code
+      );
 
-    const canhBao =
-      data.phieuDatHangDetail?.find((x) => x.maHang === maHang)?.canhBao ??
-      'SKU chưa có trong định mức';
+      const canhBao = phieuDetail?.canhBao ?? 'SKU chưa có trong định mức';
 
-    if (!productName) {
+      if (!productName) {
+        showAlert({
+          type: 'error',
+          message: 'Không tìm thấy mã hàng',
+        });
+        setRows((prev) =>
+          prev.map((item) =>
+            item.id === rowId
+              ? {
+                  ...item,
+                  maHang: code,
+                  canhBao,
+                }
+              : item
+          )
+        );
+
+        return;
+      }
+
+      setRows((prev) =>
+        prev.map((item) =>
+          item.id === rowId
+            ? {
+                ...item,
+                maHang,
+                tenHang: productName.tenHang,
+                giaBan: productName.giaBan,
+                giaVon: productName.giaMua,
+                dvt: productName.dvt,
+                thueSuat: productName.vat,
+                tenNhaCungCap: product?.tenNhaCungCap ?? productName.dmncc?.tenNcc ?? '',
+                nhapChuyen: product?.nhapChuyen ?? 0,
+                xuatBan: product?.xuatBan ?? 0,
+                tonCuoi: product?.tonCuoi ?? 0,
+
+                canhBao,
+              }
+            : item
+        )
+      );
+    } catch {
       showAlert({
         type: 'error',
-        message: 'Không tìm thấy mã hàng',
+        message: 'Không thể tìm thông tin mã hàng',
       });
-      return;
     }
-
-    setRows((prev) =>
-      prev.map((item) =>
-        item.id === rowId
-          ? {
-              ...item,
-              maHang,
-              tenHang: productName.tenHang,
-              giaBan: productName.giaBan,
-              giaVon: productName.giaMua,
-              dvt: productName.dvt,
-              thueSuat: productName.vat,
-              tenNhaCungCap: product?.tenNhaCungCap ?? productName.dmncc?.tenNcc ?? '',
-              nhapChuyen: product?.nhapChuyen ?? 0,
-              xuatBan: product?.xuatBan ?? 0,
-              tonCuoi: product?.tonCuoi ?? 0,
-
-              canhBao: canhBao ?? 'SKU chưa có trong định mức',
-            }
-          : item
-      )
-    );
   };
 
   return (
@@ -366,11 +378,15 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
                       <TextField
                         sx={{ flex: 1 }}
                         size="small"
-                        value={row['maHang'] ?? ''}
-                        disabled={!row['chiNhanh'] || !row.isNew}
+                        value={row.maHang ?? ''}
+                        disabled={!row.chiNhanh || !row.isNew}
+                        inputRef={(el) => {
+                          maHangRef.current[index] = el;
+                        }}
                         onChange={(e) => {
                           const value = e.target.value;
 
+                          // Chỉ cập nhật state, KHÔNG gọi API ở đây
                           setRows((prev) =>
                             prev.map((item) =>
                               item.id === row.id
@@ -382,14 +398,49 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
                             )
                           );
                         }}
-                        onPaste={(e) => {
-                          const value = e.clipboardData.getData('text');
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
 
-                          setTimeout(() => {
-                            handleSelectMaHang(row.id, value);
-                          }, 0);
+                            // Lấy từ row.maHang thay vì e.currentTarget.value
+                            const value = (row.maHang ?? '').trim().toUpperCase();
+
+                            if (value) {
+                              handleSelectMaHang(row.id, value);
+                            }
+
+                            // Chuyển xuống ô mã hàng tiếp theo
+                            const nextInput = maHangRef.current[index + 1];
+
+                            setTimeout(() => {
+                              nextInput?.focus();
+                            }, 0);
+                          }
+                        }}
+                        onPaste={(e) => {
+                          e.preventDefault();
+
+                          const value = e.clipboardData.getData('text').trim().toUpperCase();
+
+                          if (!value) return;
+
+                          // Cập nhật mã ngay lập tức để không bị mất giá trị paste
+                          setRows((prev) =>
+                            prev.map((item) =>
+                              item.id === row.id
+                                ? {
+                                    ...item,
+                                    maHang: value,
+                                  }
+                                : item
+                            )
+                          );
+
+                          // Sau đó mới tìm thông tin mã hàng
+                          handleSelectMaHang(row.id, value);
                         }}
                       />
+
                       <Tooltip
                         arrow
                         placement="right"
@@ -482,10 +533,7 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
                     />
                   </TableCell>
 
-                  <TableCell>
-                    {data.phieuDatHangDetail?.find((item) => item.maHang === row.maHang)?.canhBao ??
-                      ''}
-                  </TableCell>
+                  <TableCell>{row.canhBao ?? 'SKU chưa có trong định mức'}</TableCell>
 
                   <TableCell>
                     <TextField
