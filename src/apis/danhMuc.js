@@ -55,10 +55,12 @@ export const removeNcc = async (id) => {
 };
 
 // ----- LẤY DANH MỤC HÀNG HÓA ----- //
-export const getAllDmhh = async () => {
+export const getAllDmhh = async (params) => {
   try {
-    const response = await fetcher.get('/danhMuc/getAllDmhh');
-    return response.data.content;
+    const response = await fetcher.get('/danhMuc/getAllDmhh', {
+      params,
+    });
+    return response.data;
   } catch (error) {
     throw error.response.data?.content;
   }
@@ -204,7 +206,7 @@ export const getImportLv = async (payload) => {
 };
 
 // ----- IMPORT NHÀ CUNG CẤP ----- //
-export const importDmncc = async (file) => { 
+export const importDmncc = async (file) => {
   const formData = new FormData();
   formData.append('file', file);
   try {
