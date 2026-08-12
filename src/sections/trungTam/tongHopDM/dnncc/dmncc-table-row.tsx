@@ -75,6 +75,7 @@ export function DmnccTableRow({
         <TableCell>{row.tenNcc}</TableCell>
         <TableCell>{row.mst}</TableCell>
         <TableCell>{row.diaChi}</TableCell>
+        
         <TableCell>{row.noteHd}</TableCell>
 
         <TableCell sx={{ paddingLeft: '36px' }}>
