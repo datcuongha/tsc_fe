@@ -74,7 +74,7 @@ export const getRoutesSection = (reportMenus: any[]): RouteObject[] => [
 
       {
         element: (
-          <AuthGuard roles={[1, 2, 3, 5]}>
+          <AuthGuard roles={[1, 2, 3, 5, 7, 8]}>
             <Outlet />
           </AuthGuard>
         ),
