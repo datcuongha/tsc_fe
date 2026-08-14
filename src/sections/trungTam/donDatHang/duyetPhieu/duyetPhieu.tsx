@@ -33,16 +33,11 @@ export function DuyetPhieuView() {
   const lyDoTraLaiRef = useRef('');
   const queryClient = useQueryClient();
 
-  const {
-    data: dataDuyet = {} as any,
-    error,
-    isError,
-  } = useQuery({
+  const { data: dataDuyet = {} as any, error } = useQuery({
     queryKey: ['phieuDuyet', id],
     queryFn: () => getPhieuById(id),
     retry: false,
   });
-  console.log(dataDuyet);
 
   const duyetCap1 = dataDuyet.phieuDatHangDuyet?.find(
     (x: any) => x.capDuyet === 1 && x.trangThai === 'DA_DUYET'
@@ -53,26 +48,16 @@ export function DuyetPhieuView() {
   );
 
   useEffect(() => {
-    if (dataDuyet.status === 'DA_DUYET') {
+    if (error) {
       showAlert({
-        type: 'info',
-        message: dataDuyet.message,
+        type: 'error',
+        message: String(error),
       });
 
       navigate('/in-dat-hang', { replace: true });
       return;
     }
-
-    if (dataDuyet.status === 'TU_CHOI') {
-      showAlert({
-        type: 'warning',
-        message: dataDuyet.message,
-      });
-
-      navigate('/in-dat-hang', { replace: true });
-      return;
-    }
-  }, [dataDuyet, navigate]);
+  }, [dataDuyet, error, navigate]);
 
   useEffect(() => {
     if (!dataDuyet?.phieuDatHangDetail) return;
@@ -225,16 +210,10 @@ export function DuyetPhieuView() {
     } catch (err: any) {
       showAlert({
         type: 'error',
-        message: err?.message || 'Có lỗi xảy ra',
+        message: String(err.message),
       });
     }
   };
-
-  // const dates = [
-  //   ...new Set(
-  //     (dataDuyet?.phieuDeXuatDetail ?? []).map((x: any) => x.ngayKhoDat as string).filter(Boolean)
-  //   ),
-  // ].sort() as string[];
 
   const dates = [
     ...new Set(
@@ -315,14 +294,6 @@ export function DuyetPhieuView() {
           <b>Nhà cung cấp:</b> {dataDuyet.tenNcc}
         </Box>
 
-        {/* <Box mb={1}>
-          <b>Ngày kho đặt hàng:</b>{' '}
-          {dates.length
-            ? `${new Date(dates[0]).toLocaleDateString('vi-VN')} - ${new Date(
-                dates[dates.length - 1]
-              ).toLocaleDateString('vi-VN')}`
-            : ''}
-        </Box> */}
         <Box mb={1}>
           <b>Ngày kho đặt hàng:</b>{' '}
           {dates.length
@@ -344,11 +315,6 @@ export function DuyetPhieuView() {
             ),
           ].join(', ')}
         </Box>
-
-        {/* <Box mb={1}>
-          <b>Ngày thu mua đặt:</b>{' '}
-          {dataDuyet.createDate ? new Date(dataDuyet.createDate).toLocaleDateString('vi-VN') : ''}
-        </Box> */}
 
         <Box
           sx={{
@@ -535,28 +501,28 @@ export function DuyetPhieuView() {
               </Box>
             )}
           </Box>
-
-          <Box>
+          
+          <Box sx={{ textAlign: 'center' }}>
             <Box
               fontWeight="bold"
               sx={{
                 maxWidth: '160px',
+                mx: 'auto',
                 whiteSpace: 'normal',
                 wordBreak: 'break-word',
-                // lineHeight: 1.4,
                 textAlign: 'center',
               }}
             >
               PHÓ GĐTT / TRƯỞNG KHỐI VẬN HÀNH
             </Box>
+
             <Box fontWeight="bold" mt={21}>
-              {duyetCap1?.user?.fullName ?? ''}
+              {duyetCap1?.users?.fullName}
             </Box>
 
             {duyetCap1?.ngayDuyet && (
               <Box fontWeight="bold" mt={1}>
-                Ngày xét duyệt:
-                {duyetCap1.ngayDuyet ? new Date(duyetCap1.ngayDuyet).toLocaleString('vi-VN') : ''}
+                Ngày xét duyệt: {new Date(duyetCap1.ngayDuyet).toLocaleString('vi-VN')}
               </Box>
             )}
           </Box>
@@ -564,7 +530,7 @@ export function DuyetPhieuView() {
           <Box>
             <Box fontWeight="bold">GIÁM ĐỐC TRUNG TÂM</Box>
             <Box fontWeight="bold" mt={18}>
-              {duyetCap2?.user?.fullName ?? ''}
+              {duyetCap2?.users?.fullName}
             </Box>
           </Box>
         </Box>

@@ -24,7 +24,7 @@ export const getNavData = (reportMenus: any[]): NavItem[] => [
     title: 'Báo cáo',
     path: '#',
     icon: icon('ic-baocao'),
-    roles: [1, 2, 3, 5, 7, 8],
+    roles: [1, 2, 3, 5, 7, 8,9],
     children: [
       {
         title: 'Bến Thành Đông',
@@ -87,7 +87,7 @@ export const getNavData = (reportMenus: any[]): NavItem[] => [
     title: 'Trung tâm',
     path: '#',
     icon: icon('ic-admin'),
-    roles: [1, 2, 3, 6, 4, 7, 8],
+    roles: [1, 2, 3, 6, 4, 7, 8,9],
     children: [
       { title: 'Đặt hàng', path: '/dat-hang' },
       { title: 'In đặt hàng', path: '/in-dat-hang' },

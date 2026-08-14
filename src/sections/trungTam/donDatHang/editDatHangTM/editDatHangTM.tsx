@@ -32,6 +32,8 @@ import { handleExportData } from 'src/components/export';
 import type { EditDatHangTMProps } from './type';
 
 export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
+  console.log(data);
+
   const queryClient = useQueryClient();
   const thuMuaRefs = useRef<(HTMLInputElement | null)[]>([]);
   const chuThichRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -150,16 +152,13 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
         (x) => x.chiNhanh === row.chiNhanh && x.maHang?.trim().toUpperCase() === code
       );
 
-      // const canhBao =
-      //   data.phieuDatHangDetail?.find((x) => x.maHang === maHang)?.canhBao ??
-      //   'SKU chưa có trong định mức';
-
       // Tìm cảnh báo NGAY khi paste mã
       const phieuDetail = data?.phieuDatHangDetail?.find(
         (x) => x.maHang?.trim().toUpperCase() === code
       );
 
-      const canhBao = phieuDetail?.canhBao ?? 'SKU chưa có trong định mức';
+      const canhBao =
+        phieuDetail !== undefined ? (phieuDetail.canhBao ?? '') : 'SKU chưa có trong định mức';
 
       if (!productName) {
         showAlert({
@@ -323,6 +322,7 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
           <TableBody>
             {paginatedData.map((row, index) => {
               const xntRows = data.xntDetail.filter((item) => item['maHang'] === row['maHang']);
+
               return (
                 <TableRow
                   key={`${row['chiNhanh']}-${row['maHang']}-${row['tenHang']}-${page}-${index}`}
@@ -533,7 +533,7 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
                     />
                   </TableCell>
 
-                  <TableCell>{row.canhBao ?? 'SKU chưa có trong định mức'}</TableCell>
+                  <TableCell>{row.canhBao}</TableCell>
 
                   <TableCell>
                     <TextField

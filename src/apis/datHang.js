@@ -102,8 +102,9 @@ export const getPhieuById = async (id) => {
         id,
       },
     });
+    
     return response.data.content;
-  } catch (error) {
+  } catch (error) {   
     throw error.response.data?.message;
   }
 };

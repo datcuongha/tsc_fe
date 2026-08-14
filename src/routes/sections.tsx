@@ -74,7 +74,7 @@ export const getRoutesSection = (reportMenus: any[]): RouteObject[] => [
 
       {
         element: (
-          <AuthGuard roles={[1, 2, 3, 5, 7, 8]}>
+          <AuthGuard roles={[1, 2, 3, 5, 7, 8,9]}>
             <Outlet />
           </AuthGuard>
         ),
@@ -94,7 +94,7 @@ export const getRoutesSection = (reportMenus: any[]): RouteObject[] => [
 
       {
         element: (
-          <AuthGuard roles={[1, 2, 3, 6, 4, 7, 8]}>
+          <AuthGuard roles={[1, 2, 3, 6, 4, 7, 8,9]}>
             <Outlet />
           </AuthGuard>
         ),

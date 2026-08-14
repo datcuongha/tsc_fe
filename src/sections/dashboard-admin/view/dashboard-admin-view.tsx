@@ -1,11 +1,12 @@
 import Swal from 'sweetalert2';
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import { removeDashboardLink, getAllDashboardAdmin } from 'src/apis/dashboardAdmin';
 
 import { showAlert } from 'src/components/alert';
+import { useTable } from 'src/components/use-table';
 // import { Iconify } from 'src/components/iconify';
 import { headLabel } from 'src/components/Item/item';
 import {  ButtonGroup } from 'src/components/button';
@@ -136,164 +137,5 @@ export function AdminView() {
         {open === 'editLink' && data && <EditLink rowSelect={data} handleClose={closeModal} />}
       </ModalManager>
     </DashboardContent>
-    // <DashboardContent>
-    //   <Box
-    //     sx={{
-    //       mb: 3,
-    //       display: 'flex',
-    //       alignItems: 'center',
-    //     }}
-    //   >
-    //     <Typography variant="h4" sx={{ flexGrow: 1 }}>
-    //       Quản lý báo cáo
-    //     </Typography>
-    //     <ButtonGroup handleOpen={handleOpenCreateLink} />
-    //   </Box>
-
-    //   <Card>
-    //     <DahsboardAdminTableToolbar
-    //       numSelected={table.selected.length}
-    //       filterName={filterName}
-    //       onFilterName={(event: React.ChangeEvent<HTMLInputElement>) => {
-    //         setFilterName(event.target.value);
-    //         table.onResetPage();
-    //       }}
-    //       delDashboardAdmin={handleRemove}
-    //     />
-
-    //     <Scrollbar>
-    //       <TableContainer sx={{ overflow: 'unset' }}>
-    //         <Table sx={{ minWidth: 800 }}>
-    //           <DashboardTableHead
-    //             order={table.order}
-    //             orderBy={table.orderBy}
-    //             rowCount={dataFiltered.length}
-    //             numberSelected={table.selected.length}
-    //             onSort={table.onSort}
-    //             onSelectAllRows={(checked) =>
-    //               table.onSelectAllRows(
-    //                 checked,
-    //                 dataFiltered.map((user) => user.id)
-    //               )
-    //             }
-    //             headLabel={headLabelDashboadAdmin}
-    //           />
-    //           <TableBody>
-    //             {dataFiltered
-    //               .slice(
-    //                 table.page * table.rowsPerPage,
-    //                 table.page * table.rowsPerPage + table.rowsPerPage
-    //               )
-    //               .map((row) => (
-    //                 <DashboardTableRow
-    //                   key={row.id}
-    //                   row={row}
-    //                   selected={table.selected.includes(row.id)}
-    //                   onSelectRow={() => {
-    //                     table.onSelectRow(row.id);
-    //                     setRowSelect(row);
-    //                   }}
-    //                   onEditRow={() => handleOpenEditLink(row)}
-    //                 />
-    //               ))}
-
-    //             <TableEmptyRows
-    //               height={68}
-    //               emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
-    //             />
-
-    //             {notFound && <TableNoData searchQuery={filterName} />}
-    //           </TableBody>
-    //         </Table>
-    //       </TableContainer>
-    //     </Scrollbar>
-
-    //     <TablePagination
-    //       component="div"
-    //       page={table.page}
-    //       count={dataFiltered.length}
-    //       rowsPerPage={table.rowsPerPage}
-    //       onPageChange={table.onChangePage}
-    //       rowsPerPageOptions={[5, 10, 25]}
-    //       onRowsPerPageChange={table.onChangeRowsPerPage}
-    //     />
-    //   </Card>
-
-    //   <ModalManager open={openCreateLink} handleClose={handleCloseCreateLink}>
-    //     <CreateLink handleClose={handleCloseCreateLink} />
-    //   </ModalManager>
-
-    //   <ModalManager open={openEditUser} handleClose={handleCloseEditUser}>
-    //     {rowSelect && <EditLink handleClose={handleCloseEditUser} rowSelect={rowSelect} />}
-    //   </ModalManager>
-    // </DashboardContent>
   );
-}
-
-// ----------------------------------------------------------------------
-
-export function useTable() {
-  const [page, setPage] = useState(0);
-  const [orderBy, setOrderBy] = useState('name');
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [selected, setSelected] = useState<string[]>([]);
-  const [order, setOrder] = useState<'asc' | 'desc'>('asc');
-
-  const onSort = useCallback(
-    (id: string) => {
-      const isAsc = orderBy === id && order === 'asc';
-      setOrder(isAsc ? 'desc' : 'asc');
-      setOrderBy(id);
-    },
-    [order, orderBy]
-  );
-
-  const onSelectAllRows = useCallback((checked: boolean, newSelecteds: string[]) => {
-    if (checked) {
-      setSelected(newSelecteds);
-      return;
-    }
-    setSelected([]);
-  }, []);
-
-  const onSelectRow = useCallback(
-    (inputValue: string) => {
-      const newSelected = selected.includes(inputValue)
-        ? selected.filter((value) => value !== inputValue)
-        : [...selected, inputValue];
-
-      setSelected(newSelected);
-    },
-    [selected]
-  );
-
-  const onResetPage = useCallback(() => {
-    setPage(0);
-  }, []);
-
-  const onChangePage = useCallback((event: unknown, newPage: number) => {
-    setPage(newPage);
-  }, []);
-
-  const onChangeRowsPerPage = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      setRowsPerPage(parseInt(event.target.value, 10));
-      onResetPage();
-    },
-    [onResetPage]
-  );
-
-  return {
-    page,
-    order,
-    onSort,
-    orderBy,
-    selected,
-    rowsPerPage,
-    onSelectRow,
-    onResetPage,
-    onChangePage,
-    onSelectAllRows,
-    onChangeRowsPerPage,
-  };
 }

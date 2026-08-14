@@ -325,10 +325,6 @@ export function InDeXuat({ data, handleClose, userButton }: InDeXuatProps) {
             ', '
           )}
         </Box>
-        {/* <Box mb={1}>
-          <b>Ngày thu mua đặt:</b>{' '}
-          {data.createDate ? new Date(data.createDate).toLocaleDateString('vi-VN') : ''}
-        </Box> */}
 
         <Box
           sx={{

@@ -22,8 +22,6 @@ import { SoHoaTableHead } from '../soHoa-table-head';
 import { SoHoaTableToolbar } from '../soHoa-table-toolbar';
 import { SoHoaTableRow, type SoHoaProps } from '../soHoa-table-row';
 
-// ----------------------------------------------------------------------
-
 export function SoHoaView() {
   const table = useTable();
   const { open, data, closeModal, openModal } = useModal();

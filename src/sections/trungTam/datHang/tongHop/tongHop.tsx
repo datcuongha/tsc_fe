@@ -42,6 +42,7 @@ export function TongHop({
   const thuMuaRefs = useRef<(HTMLInputElement | null)[]>([]);
   const chuThichRefs = useRef<(HTMLInputElement | null)[]>([]);
   const maHangRef = useRef<Record<number, string>>({});
+  const [confirmedThuMua, setConfirmedThuMua] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(0);
   const rowsPerPage = 50;
@@ -58,19 +59,23 @@ export function TongHop({
   });
 
   const filteredData = pivot.filter((row) => {
-    if (row.isNew) return true;
+    const ncc = (row['Tên nhà cung cấp'] || '').toString().toLowerCase();
+    const chiNhanh = (row['Chi nhánh'] || '').toString().toLowerCase();
+    const maHang = (row['Mã hàng'] || '').toString().toLowerCase();
+    const tenHang = (row['Tên hàng'] || '').toString().toLowerCase();
 
     return (
-      (row['Tên nhà cung cấp'] || '').toString().toLowerCase().includes(search.ncc.toLowerCase()) &&
-      (row['Chi nhánh'] || '').toString().toLowerCase().includes(search.chiNhanh.toLowerCase()) &&
-      (row['Mã hàng'] || '').toString().toLowerCase().includes(search.maHang.toLowerCase()) &&
-      (row['Tên hàng'] || '').toString().toLowerCase().includes(search.tenHang.toLowerCase())
+      ncc.includes(search.ncc.toLowerCase()) &&
+      chiNhanh.includes(search.chiNhanh.toLowerCase()) &&
+      maHang.includes(search.maHang.toLowerCase()) &&
+      tenHang.includes(search.tenHang.toLowerCase())
     );
   });
+  
   const paginatedData = filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+
   const fromDate = new Date(pivot[0]?.fromDate).toLocaleDateString('vi-VN');
   const toDate = new Date(pivot[0]?.toDate).toLocaleDateString('vi-VN');
-  console.log(pivot);
 
   const handleAddRow = () => {
     setData((prev) => {
@@ -82,6 +87,7 @@ export function TongHop({
           ...prev.pivot,
           {
             isNew: true,
+            daNhapThuMua: false,
             'Chi nhánh': '',
             'Mã hàng': '',
             'Tên hàng': '',
@@ -314,7 +320,7 @@ export function TongHop({
             <TableRow
               sx={{
                 position: 'sticky',
-                top: 55,
+                top: 80,
                 backgroundColor: '#fff',
                 zIndex: 10,
               }}
@@ -567,7 +573,7 @@ export function TongHop({
                     {row['Giá bán'].toLocaleString('vi-VN')}
                   </TableCell>
 
-                  <TableCell>{row['Số lượng kho đặt']}</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>{row['Số lượng kho đặt']}</TableCell>
 
                   <TableCell>{row['Nhập chuyển']}</TableCell>
 
@@ -679,16 +685,15 @@ export function TongHop({
         </Table>
       </TableContainer>
 
-      <TablePagination
-        component="div"
-        count={filteredData.length}
-        page={page}
-        rowsPerPage={rowsPerPage}
-        rowsPerPageOptions={[50]}
-        onPageChange={(event, newPage) => setPage(newPage)}
-      />
-
       <DialogActions>
+        <TablePagination
+          component="div"
+          count={filteredData.length}
+          page={page}
+          rowsPerPage={rowsPerPage}
+          rowsPerPageOptions={[50]}
+          onPageChange={(event, newPage) => setPage(newPage)}
+        />
         <Button variant="outlined" onClick={handleClose}>
           Quay lại
         </Button>

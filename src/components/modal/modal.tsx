@@ -13,7 +13,14 @@ export function ModalManager({
   return (
     <Dialog
       open={open}
-      onClose={handleClose}
+      onClose={(event, reason) => {
+        // Chỉ cho phép đóng bằng cách khác, không cho click backdrop đóng
+        if (reason === 'backdropClick') {
+          return;
+        }
+
+        handleClose();
+      }}
       maxWidth={maxWidth}
       fullWidth
       disableEnforceFocus

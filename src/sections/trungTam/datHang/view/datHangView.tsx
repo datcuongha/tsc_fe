@@ -54,6 +54,21 @@ export function DatHangView() {
     toDate: getYesterday(),
   });
 
+  const getNumberOfDays = () => {
+    if (!dateRange.fromDate || !dateRange.toDate) return 0;
+
+    const from = new Date(dateRange.fromDate);
+    const to = new Date(dateRange.toDate);
+
+    // Bỏ phần giờ để tránh lệch ngày
+    from.setHours(0, 0, 0, 0);
+    to.setHours(0, 0, 0, 0);
+
+    const diffTime = to.getTime() - from.getTime();
+
+    return Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+  };
+
   const onSubmit = async (formDataValues: FormValues) => {
     if (!dateRange.fromDate || !dateRange.toDate) {
       showAlert({
@@ -74,8 +89,6 @@ export function DatHangView() {
 
     try {
       const result = await process(formDataValues.file1, formDataValues.file2);
-      console.log(result.hasDuplicate);
-      console.log(result.duplicates);
 
       if (result?.success === false) {
         showAlert({
@@ -147,9 +160,14 @@ export function DatHangView() {
                 display: 'flex',
                 justifyContent: 'flex-end',
                 marginBottom: 5,
+                alignItems: 'center',
               }}
             >
-              <Box sx={{ width: 500, mt: 1 }}>
+              <Box sx={{ ml: 2, fontWeight: 'bold' }}>
+                {dateRange.fromDate && dateRange.toDate ? `${getNumberOfDays()} ngày` : ''}
+              </Box>
+
+              <Box sx={{ width: 500, mt: 1, ml: 1 }}>
                 <CalenderCustom value={dateRange} onChange={setDateRange} />
               </Box>
             </Box>
