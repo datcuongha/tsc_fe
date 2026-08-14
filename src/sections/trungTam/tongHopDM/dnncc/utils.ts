@@ -69,13 +69,9 @@ export function applyFilter({ inputData, comparator, filterName }: ApplyFilterPr
 
   inputData = stabilizedThis.map((el) => el[0]);
 
-  if (filterName) {
-    inputData = inputData.filter(
-      (item) => item.tenNcc.toLowerCase().indexOf(filterName.toLowerCase()) !== -1
-    );
-  }
+  inputData = inputData.filter((item) =>
+    (item.tenNcc ?? '').toLowerCase().includes(filterName.toLowerCase())
+  );
 
   return inputData;
 }
-
-
