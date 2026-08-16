@@ -16,12 +16,12 @@ import { PageHeader, PrimaryTemp } from 'src/components/primary-temp/primary-tem
 import { ChonLoaiIn } from '../mauIn';
 import { InDeXuat } from '../inDeXuat';
 import { InDonDatHang } from '../inDonDatHang';
-import { EditDatHangTM } from '../editDatHangTM';
 import { PrintDhTableHead } from '../printDh-table-head';
 import { PrintDhtableToolbar } from '../printDh-table-toolbar';
 import { emptyRows, applyFilter, getComparator } from '../utils';
 import { DonHangFilters, type DonHangFiltersState } from '../filter';
 import { PrintDhTableRow, type PrintDhProps } from '../printDh-table-row';
+import { EditDatHangTM } from '../../donDatHang/editDatHangTM/editDatHangTM';
 
 export function InDatHangView() {
   const [openFilter, setOpenFilter] = useState(false);

@@ -216,7 +216,7 @@ export function PrintDhTableRow({
               handleClosePopover();
               editDatHangTM();
             }}
-            disabled={['DA_DUYET', 'TRA_LAI','CHO_DUYET'].includes(row.trangThai)}
+            disabled={['DA_DUYET', 'TRA_LAI'].includes(row.trangThai)}
           >
             <Iconify icon="solar:pen-bold" />
             Cập nhật đặt hàng

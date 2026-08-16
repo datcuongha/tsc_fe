@@ -15,45 +15,35 @@ import {
   DialogActions,
 } from '@mui/material';
 
-import { guiDuyet, editDonDeXuat } from 'src/apis/datHang';
+import { editDonDeXuat } from 'src/apis/datHang';
+import { useAuth } from 'src/context/authContext';
 
 import { showAlert } from 'src/components/alert';
-import { LoadingBackdrop } from 'src/components/loading';
 
-import type { InDeXuatProps } from './type';
+import type { EditDatHangTMProps } from './type';
 
-export function InDeXuat({ data, handleClose, userButton }: InDeXuatProps) {
-  const duyetCap1 = data.phieuDatHangDuyet?.find(
-    (x: any) => x.capDuyet === 1 && x.trangThai === 'DA_DUYET'
-  );
-
-  const duyetCap2 = data.phieuDatHangDuyet?.find(
-    (x: any) => x.capDuyet === 2 && x.trangThai === 'DA_DUYET'
-  );
-
+export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
+  console.log('🔥 CODE MỚI EditDatHangTM');
+  const { user } = useAuth();
+  const fullName = user.data.fullName;
   const printRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
-  const [rows, setRows] = useState(data.phieuDatHangDetail);
-  const [editMode, setEditMode] = useState(false);
-  const isChoDuyet = data.trangThai === 'CHO_DUYET';
-  const daDuyet = data.trangThai === 'DA_DUYET';
-  const showPGD = rows.some((item) => item.soLuongPGDDuyet !== null);
-  const showGD = rows.some((item) => item.soLuongGDDuyet !== null);
+
   const handlePrint = useReactToPrint({
     contentRef: printRef,
     documentTitle: `Phieu De Xuat-${data.maPhieu}`,
   });
 
   const handleExportExcel = () => {
-    const exportData = data.phieuDatHangDetail
-      .filter((item) => Number(item.soLuongGDDuyet) > 0)
+    const exportData = data.detailPhieuDatHang
+      .filter((item) => Number(item.soLuong) > 0)
       .map((item: any) => ({
         'Mã hàng': item.maHang,
         'Tên sản phẩm': item.tenSp,
         'Đơn vị tính': item.dvt,
         'Đơn giá': item.donGia,
         'Giảm giá': item.giamGia,
-        'Số lượng': item.soLuongGDDuyet,
+        'Số lượng': item.soLuong,
       }));
 
     const worksheet = XLSX.utils.json_to_sheet(exportData);
@@ -65,34 +55,8 @@ export function InDeXuat({ data, handleClose, userButton }: InDeXuatProps) {
     XLSX.writeFile(workbook, 'de-xuat.xlsx');
   };
 
-  const sendMutation = useMutation({
-    mutationFn: guiDuyet,
-
-    onSuccess: () => {
-      showAlert({
-        type: 'success',
-        message: 'Đã gửi duyệt',
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: ['dataDH'],
-      });
-
-      handleClose();
-    },
-
-    onError: (err) => {
-      showAlert({
-        type: 'error',
-        message: String(err),
-      });
-    },
-  });
-
-  const handleSendEmail = () => {
-    sendMutation.mutate(data.id);
-  };
-
+  const [rows, setRows] = useState(data.detailPhieuDatHang);
+  const [editMode, setEditMode] = useState(false);
   const handleChange = (index: number, field: string, value: string | number) => {
     const updated = [...rows];
     updated[index] = {
@@ -101,7 +65,6 @@ export function InDeXuat({ data, handleClose, userButton }: InDeXuatProps) {
     };
     setRows(updated);
   };
-
   const editMutation = useMutation({
     mutationFn: editDonDeXuat,
     onSuccess: () => {
@@ -120,26 +83,15 @@ export function InDeXuat({ data, handleClose, userButton }: InDeXuatProps) {
       });
     },
   });
-
   const handleUpdate = () => {
     editMutation.mutate({
       id: data.id,
-      phieuDatHangDetail: rows.map((item) => ({
+      detailPhieuDatHang: rows.map((item) => ({
         id: item.id,
         ghiChuHangHoa: item.ghiChuHangHoa || '',
       })),
     });
   };
-
-  const dates = [
-    ...new Set(
-      (data.phieuDeXuatDetail ?? [])
-        .map((x: any) => x.ngayKhoDat)
-        .filter(
-          (d) => d && d !== '0' && d !== 0 && d !== '0000-00-00' && !isNaN(new Date(d).getTime())
-        )
-    ),
-  ].sort();
 
   return (
     <>
@@ -214,6 +166,10 @@ export function InDeXuat({ data, handleClose, userButton }: InDeXuatProps) {
         display: none !important;
       }
 
+      body,
+      * {
+        font-family: "Times New Roman", serif !important;
+      }
     }
   `}
       </style>
@@ -223,7 +179,6 @@ export function InDeXuat({ data, handleClose, userButton }: InDeXuatProps) {
 
         <Button
           color={editMode ? 'success' : 'warning'}
-          disabled={isChoDuyet || daDuyet}
           variant="contained"
           onClick={() => {
             if (editMode) {
@@ -236,41 +191,20 @@ export function InDeXuat({ data, handleClose, userButton }: InDeXuatProps) {
           {editMode ? 'Lưu' : 'Sửa thông tin'}
         </Button>
 
-        {daDuyet && (
-          <Button variant="contained" color="info" onClick={handleExportExcel}>
-            Xuất file Kiot
-          </Button>
-        )}
+        <Button variant="contained" color="info" onClick={handleExportExcel}>
+          Xuất file Kiot
+        </Button>
         <Button variant="contained" onClick={() => handlePrint()}>
           In
         </Button>
-        {userButton?.data?.vaiTroId === 4 && (
-          <Button
-            variant="contained"
-            color="success"
-            onClick={handleSendEmail}
-            disabled={isChoDuyet || daDuyet}
-          >
-            {daDuyet ? 'Đã duyệt' : isChoDuyet ? 'Chờ duyệt' : 'Gửi duyệt'}
-          </Button>
-        )}
+        <Button variant="contained" color="success" >
+          Gửi duyệt
+        </Button>
       </DialogActions>
 
       <Box
         id="print-area"
         ref={printRef}
-        // sx={{
-        //   width: '297mm',
-        //   background: '#fff',
-        //   color: '#000',
-        //   p: 1,
-        //   pb: '20mm',
-        //   boxSizing: 'border-box',
-        //   margin: '0 auto',
-        //   '@media screen': {
-        //     boxShadow: 3,
-        //   },
-        // }}
         sx={{
           width: '297mm',
 
@@ -320,50 +254,34 @@ export function InDeXuat({ data, handleClose, userButton }: InDeXuatProps) {
 
         {/* INFO */}
         <Box mb={1}>
-          <b>Tên công ty:</b> {data.congTy}
+          <b>Nhà cung cấp:</b> {data.congTy}
         </Box>
 
         <Box mb={1}>
-          <b>Nhà cung cấp:</b> {data.tenNcc}
+          <b>Tên công ty:</b> {data.tenNcc}
         </Box>
-
         <Box mb={1}>
           <b>Ngày kho đặt hàng:</b>{' '}
-          {dates.length
-            ? dates.length === 1
-              ? new Date(dates[0]).toLocaleDateString('vi-VN')
-              : `${new Date(dates[0]).toLocaleDateString('vi-VN')} - ${new Date(
-                  dates[dates.length - 1]
-                ).toLocaleDateString('vi-VN')}`
+          {data.detailPhieuDatHang?.[0]?.ngayKhoDat
+            ? new Date(data.detailPhieuDatHang[0].ngayKhoDat).toLocaleDateString('vi-VN')
             : ''}
+        </Box>
+        <Box mb={1}>
+          <b>Phiếu kho đặt hàng:</b> {data.maDatHangNhap}
         </Box>
 
         <Box mb={1}>
-          <b>Phiếu kho đặt hàng:</b>{' '}
-          {[...new Set(data.phieuDeXuatDetail.map((x) => x.phieuDatHangNhap).filter(Boolean))].join(
-            ', '
-          )}
+          <b>Ngày thu mua đặt:</b>{' '}
+          {data.createDate ? new Date(data.createDate).toLocaleDateString('vi-VN') : ''}
         </Box>
 
-        <Box
-          sx={{
-            display: 'flex',
-            width: 'auto',
-            mx: 'auto',
-          }}
-        >
-          <Box sx={{ flex: 1, textAlign: 'left' }}>
-            <Box fontWeight="bold">Nội dung đề xuất như sau:</Box>
-          </Box>
-
-          <Box sx={{ flex: 1, textAlign: 'right' }}>
-            <Box fontWeight="bold">
-              <b>Kỳ số liệu tham khảo:</b>
-              {data.fromDate ? new Date(data.fromDate).toLocaleDateString('vi-VN') : ''} -{' '}
-              {data.toDate ? new Date(data.toDate).toLocaleDateString('vi-VN') : ''}
-            </Box>
-          </Box>
+        <Box mb={1}>
+          <b>Kỳ số liệu tham khảo:</b>
+          {data.fromDate ? new Date(data.fromDate).toLocaleDateString('vi-VN') : ''} -{' '}
+          {data.toDate ? new Date(data.toDate).toLocaleDateString('vi-VN') : ''}
         </Box>
+
+        <Box mb={1}>Nội dung đề xuất như sau:</Box>
 
         {/* TABLE */}
         <Table
@@ -380,34 +298,18 @@ export function InDeXuat({ data, handleClose, userButton }: InDeXuatProps) {
           <TableHead>
             <TableRow>
               <TableCell align="center">STT</TableCell>
-
               <TableCell align="center">Mã hàng</TableCell>
-
               <TableCell align="center">Tên sản phẩm</TableCell>
-
               <TableCell align="center">ĐVT</TableCell>
-
               <TableCell align="center">Đơn giá</TableCell>
-
-              <TableCell align="center">TM đề xuất</TableCell>
-
-              {showPGD && <TableCell align="center">PGD duyệt</TableCell>}
-
-              {showGD && <TableCell align="center">GD duyệt</TableCell>}
-
+              <TableCell align="center">Số lượng</TableCell>
               <TableCell align="center">Ghi chú hàng hoá</TableCell>
-
+              <TableCell align="center">SL tồn cuối kỳ tham khảo</TableCell>
               <TableCell align="center">SL kho đặt</TableCell>
-
-              <TableCell align="center">Chênh lệch Tồn cuối và Tồn tối ưu</TableCell>
-
               <TableCell align="center">SL tồn tối ưu</TableCell>
-
-              <TableCell align="center">SL tồn cuối kỳ</TableCell>
-
-              <TableCell align="center">SL bán kỳ</TableCell>
-
-              <TableCell align="center">SL nhập kỳ</TableCell>
+              <TableCell align="center">Chênh lệch Tồn cuối và Tồn tối ưu</TableCell>
+              <TableCell align="center">SL bán kỳ tham khảo </TableCell>
+              <TableCell align="center">SL nhập kỳ tham khảo</TableCell>
             </TableRow>
           </TableHead>
 
@@ -421,19 +323,9 @@ export function InDeXuat({ data, handleClose, userButton }: InDeXuatProps) {
                 <TableCell align="center" sx={{ width: 65 }}>
                   {Number(item.donGia || 0).toLocaleString('vi-VN')}
                 </TableCell>
-                <TableCell align="center" sx={{ width: 50 }}>
+                <TableCell align="center" sx={{ width: 45 }}>
                   {item.soLuong}
                 </TableCell>
-                {showPGD && (
-                  <TableCell align="center" sx={{ width: 45 }}>
-                    {item.soLuongPGDDuyet}
-                  </TableCell>
-                )}
-                {showGD && (
-                  <TableCell align="center" sx={{ width: 45 }}>
-                    {item.soLuongGDDuyet}
-                  </TableCell>
-                )}
                 <TableCell>
                   {editMode ? (
                     <TextField
@@ -448,28 +340,22 @@ export function InDeXuat({ data, handleClose, userButton }: InDeXuatProps) {
                     item.ghiChuHangHoa
                   )}
                 </TableCell>
-
+                <TableCell align="center" sx={{ width: 90 }}>
+                  {item.tonCuoi}
+                </TableCell>
                 <TableCell align="center" sx={{ width: 55 }}>
                   {item.slKhoDat}
                 </TableCell>
-
-                <TableCell align="center" sx={{ width: 120 }}>
-                  {item.slCoTheDat}
-                </TableCell>
-
                 <TableCell align="center" sx={{ width: 55 }}>
                   {item.slTonToiUu}
                 </TableCell>
-
-                <TableCell align="center" sx={{ width: 55 }}>
-                  {item.tonCuoi}
+                <TableCell align="center" sx={{ width: 120 }}>
+                  {item.slCoTheDat}
                 </TableCell>
-
-                <TableCell align="center" sx={{ width: 55 }}>
+                <TableCell align="center" sx={{ width: 75 }}>
                   {item.slBanCuoi}
                 </TableCell>
-
-                <TableCell align="center" sx={{ width: 55 }}>
+                <TableCell align="center" sx={{ width: 75 }}>
                   {item.slNhapNccCuoi}
                 </TableCell>
               </TableRow>
@@ -477,65 +363,50 @@ export function InDeXuat({ data, handleClose, userButton }: InDeXuatProps) {
           </TableBody>
         </Table>
 
-        {data.lyDoTraLai !== null && (
-          <Box m={1}>
-            <b>Lý do trả lại: </b>
-            {data.lyDoTraLai}
-          </Box>
-        )}
         {/* FOOTER */}
 
         {/* SIGN */}
         <Box
           sx={{
             display: 'flex',
+            justifyContent: 'space-between',
             mt: 4,
-            width: 'auto',
+            width: '80%',
             mx: 'auto',
+            textAlign: 'center',
             minHeight: '30mm',
           }}
         >
-          <Box sx={{ flex: 1, textAlign: 'center' }}>
+          <Box>
+            <Box fontWeight="bold">NGƯỜI LẬP</Box>
+            <Box fontWeight="bold" mt={18}>
+              {fullName}
+            </Box>
+          </Box>
+
+          <Box>
             <Box fontWeight="bold">THU MUA </Box>
-            <Box fontWeight="bold" mt={21}>
-              {data.tenNguoiGui}
+            <Box fontWeight="bold" mt={18}>
+              {fullName}
             </Box>
-            {data.ngayGui && (
-              <Box fontWeight="bold" mt={1}>
-                Ngày đề xuất: {data.ngayGui ? new Date(data.ngayGui).toLocaleString('vi-VN') : ''}
-              </Box>
-            )}
           </Box>
 
-          <Box sx={{ flex: 1, textAlign: 'center' }}>
-            <Box fontWeight="bold">PHÓ GĐTT / TRƯỞNG KHỐI VẬN HÀNH</Box>
-            <Box fontWeight="bold" mt={21}>
-              {duyetCap1?.users?.fullName ?? ''}
+          <Box>
+            <Box
+              fontWeight="bold"
+              sx={{
+                maxWidth: '160px',
+                whiteSpace: 'normal',
+                wordBreak: 'break-word',
+                // lineHeight: 1.4,
+                textAlign: 'center',
+              }}
+            >
+              PHÓ GĐTT / TRƯỞNG KHỐI VẬN HÀNH
             </Box>
-            {duyetCap1?.ngayDuyet && (
-              <Box fontWeight="bold" mt={1}>
-                Ngày xét duyệt:{' '}
-                {duyetCap1?.ngayDuyet ? new Date(duyetCap1?.ngayDuyet).toLocaleString('vi-VN') : ''}
-              </Box>
-            )}
-          </Box>
-
-          <Box sx={{ flex: 1, textAlign: 'center' }}>
-            <Box fontWeight="bold">GIÁM ĐỐC TRUNG TÂM</Box>
-            <Box fontWeight="bold" mt={21}>
-              {duyetCap2?.users?.fullName ?? ''}
-            </Box>
-            {duyetCap2?.ngayDuyet && (
-              <Box fontWeight="bold" mt={1}>
-                Ngày phê duyệt:{' '}
-                {duyetCap2?.ngayDuyet ? new Date(duyetCap2?.ngayDuyet).toLocaleString('vi-VN') : ''}
-              </Box>
-            )}
           </Box>
         </Box>
       </Box>
-
-      <LoadingBackdrop open={sendMutation.isPending} message="Đang xử lý, vui lòng chờ..." />
     </>
   );
 }
