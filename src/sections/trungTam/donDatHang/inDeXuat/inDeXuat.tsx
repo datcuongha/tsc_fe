@@ -23,6 +23,8 @@ import { LoadingBackdrop } from 'src/components/loading';
 import type { InDeXuatProps } from './type';
 
 export function InDeXuat({ data, handleClose, userButton }: InDeXuatProps) {
+  console.log(data);
+  
   const duyetCap1 = data.phieuDatHangDuyet?.find(
     (x: any) => x.capDuyet === 1 && x.trangThai === 'DA_DUYET'
   );
@@ -412,7 +414,7 @@ export function InDeXuat({ data, handleClose, userButton }: InDeXuatProps) {
           </TableHead>
 
           <TableBody>
-            {rows.map((item, index) => (
+            {rows.map((item, index) => (              
               <TableRow key={`${item.id}-${index}`}>
                 <TableCell align="center">{index + 1}</TableCell>
                 <TableCell sx={{ width: 120 }}>{item.maHang}</TableCell>

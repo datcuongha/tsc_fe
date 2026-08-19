@@ -20,7 +20,7 @@ export const process = async (file1, file2) => {
 };
 
 // ----- XỬ LÝ TỔNG HỢP ĐẶT HÀNG ----- //
-export const processTotal = async (payload) => {  
+export const processTotal = async (payload) => {
   try {
     const response = await fetcher.post('/python/processTotal', payload);
     return response.data;
@@ -97,15 +97,11 @@ export const guiDuyet = async (id) => {
 // ----- DUYỆT PHIẾU CẤP 1 ----- //
 export const getPhieuById = async (id) => {
   try {
-    const response = await fetcher.get('dat-hang/getPhieuById', {
-      params: {
-        id,
-      },
-    });
-    
-    return response.data.content;
-  } catch (error) {   
-    throw error.response.data?.message;
+    const response = await fetcher.get(`/dat-hang/getPhieuById?id=${id}`);
+
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Không thể lấy thông tin phiếu');
   }
 };
 

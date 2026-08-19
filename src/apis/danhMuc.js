@@ -228,6 +228,18 @@ export const importDmhh = async (file) => {
   }
 };
 
+// ----- IMPORT ĐỊNH MỨC ----- //
+export const importDinhMuc = async (file) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  try {
+    const response = await fetcher.post('/danhMuc/importDinhMuc', formData);
+    return response.data.content;
+  } catch (error) {
+    throw error.response?.data?.messenge;
+  }
+};
+
 // ----- LẤY API DANH MỤC HÀNG HOÁ KIOT ----- //
 export const syncDmhhKiot = async () => {
   try {

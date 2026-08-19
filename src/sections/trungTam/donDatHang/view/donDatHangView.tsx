@@ -49,11 +49,6 @@ export function DonDatHangView() {
   const navigate = useNavigate();
 
   const handleOpenPhieu = (row: PrintDhProps) => {
-    if (row.canApprove) {
-      navigate(`/phe-duyet/${row.id}`);
-      return;
-    }
-
     openModal('inDeXuat', row);
   };
   const dataFiltered: PrintDhProps[] = applyFilter({
@@ -65,6 +60,10 @@ export function DonDatHangView() {
 
   const notFound = !dataFiltered.length && !!filterName;
 
+  const handleApprove = (row: PrintDhProps) => {
+    navigate(`/phe-duyet/${row.id}`);
+  };
+
   const exportData =
     table.selected.length > 0
       ? dataFiltered
@@ -75,16 +74,23 @@ export function DonDatHangView() {
               .map((item) => ({
                 'Mã phiếu': phieu.maPhieu,
                 'Mã đặt hàng nhập': item.phieuDatHangNhap,
-                'Chi nhánh': item.chiNhanh,
                 'Thương hiệu': phieu.tenNcc,
+                'Chi nhánh': item.chiNhanh,
                 'Mã hàng': item.maHang,
                 'Tên hàng': item.tenHang,
                 'Ghi chú': item.ghiChuKho,
-                'Đơn giá': item.giaVon,
+                'Chú thích': item.chuThich,
                 'SL kho đặt': item.slKhoDat,
-                'SL tồn cuối': item.tonCuoi,
-                'SL bán': item.xuatBan,
                 'SL nhập': item.nhapChuyen,
+                'SL bán': item.xuatBan,
+                'SL tồn cuối': item.tonCuoi,
+                'Đơn giá': item.giaVon,
+                'Giá bán': item.giaBan,
+                'SL thu mua': item.thuMuaNhap,
+                'Cảnh báo': item.canhBao,
+                slCoTheDat:
+                  phieu.phieuDatHangDetail?.find((detail) => detail.maHang === item.maHang)
+                    ?.slCoTheDat ?? '',
               }))
           )
       : dataFiltered.flatMap((phieu) =>
@@ -93,16 +99,23 @@ export function DonDatHangView() {
             .map((item) => ({
               'Mã phiếu': phieu.maPhieu,
               'Mã đặt hàng nhập': item.phieuDatHangNhap,
-              'Chi nhánh': item.chiNhanh,
               'Thương hiệu': phieu.tenNcc,
+              'Chi nhánh': item.chiNhanh,
               'Mã hàng': item.maHang,
               'Tên hàng': item.tenHang,
               'Ghi chú': item.ghiChuKho,
-              'Đơn giá': item.giaVon,
+              'Chú thích': item.chuThich,
               'SL kho đặt': item.slKhoDat,
-              'SL tồn cuối': item.tonCuoi,
-              'SL bán': item.xuatBan,
               'SL nhập': item.nhapChuyen,
+              'SL bán': item.xuatBan,
+              'SL tồn cuối': item.tonCuoi,
+              'Đơn giá': item.giaVon,
+              'Giá bán': item.giaBan,
+              'SL thu mua': item.thuMuaNhap,
+              'Cảnh báo': item.canhBao,
+              slCoTheDat:
+                phieu.phieuDatHangDetail?.find((detail) => detail.maHang === item.maHang)
+                  ?.slCoTheDat ?? '',
             }))
         );
 
@@ -120,17 +133,21 @@ export function DonDatHangView() {
                   columns: [
                     { id: 'Mã phiếu', label: 'Mã phiếu' },
                     { id: 'Mã đặt hàng nhập', label: 'Mã đặt hàng nhập' },
-                    { id: 'Chi nhánh', label: 'Chi nhánh' },
                     { id: 'Thương hiệu', label: 'Thương hiệu' },
+                    { id: 'Chi nhánh', label: 'Chi nhánh' },
                     { id: 'Mã hàng', label: 'Mã hàng' },
                     { id: 'Tên hàng', label: 'Tên hàng' },
-                    { id: 'ĐVT', label: 'ĐVT' },
-                    { id: 'Đơn giá', label: 'Đơn giá' },
-                    { id: 'Ghi chú', label: 'Ghi chú' },
+                    { id: 'Ghi chú', label: 'Ghi chú hàng hoá' },
+                    { id: 'Chú thích', label: 'Chú thích' },
                     { id: 'SL kho đặt', label: 'SL kho đặt' },
-                    { id: 'SL tồn cuối', label: 'SL tồn cuối' },
-                    { id: 'SL bán', label: 'SL bán' },
                     { id: 'SL nhập', label: 'SL nhập' },
+                    { id: 'SL bán', label: 'SL bán' },
+                    { id: 'SL tồn cuối', label: 'SL tồn cuối' },
+                    { id: 'Đơn giá', label: 'Đơn giá' },
+                    { id: 'Giá bán', label: 'Giá bán' },
+                    { id: 'SL thu mua', label: 'SL thu mua' },
+                    { id: 'Cảnh báo', label: 'Cảnh báo' },
+                    { id: 'slCoTheDat', label: 'Cảnh báo file tổng' },
                   ],
                 })
               }
@@ -188,6 +205,7 @@ export function DonDatHangView() {
                 printDDH={() => openModal('inDonDatHang', row)}
                 editDDH={() => openModal('editDonDatHang', row)}
                 editDatHangTM={() => openModal('editDatHangTM', row)}
+                approveDDH={() => handleApprove(row)}
               />
             ))}
 
@@ -265,11 +283,8 @@ export function DonDatHangView() {
           }}
         />
       </DashboardContent>
-      
-      <LoadingBackdrop
-        open={isLoading}
-        message='Đang tải, vui lòng chờ...'
-      />
+
+      <LoadingBackdrop open={isLoading} message="Đang tải, vui lòng chờ..." />
     </>
   );
 }

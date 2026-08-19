@@ -19,6 +19,7 @@ export type CreateUserForm = {
   address?: string;
   vaiTro: string;
   boPhan: string;
+  managerId?: number | null;
 };
 
 export type CreateUserPayload = Omit<CreateUserForm, 'confirmPass'>;

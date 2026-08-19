@@ -49,9 +49,9 @@ export function PrimaryTemp({ toolbar, head, children, pagination }: Props) {
         component="div"
         page={pagination?.page || 0}
         count={pagination?.count || 0}
-        rowsPerPage={pagination?.rowsPerPage || 10}
+        rowsPerPage={pagination?.rowsPerPage || 25}
         onPageChange={pagination?.onPageChange}
-        rowsPerPageOptions={[25, 50, 100, 500]}
+        rowsPerPageOptions={[10, 25, 50, 100, 500]}
         onRowsPerPageChange={pagination?.onRowsPerPageChange}
       />
     </Card>

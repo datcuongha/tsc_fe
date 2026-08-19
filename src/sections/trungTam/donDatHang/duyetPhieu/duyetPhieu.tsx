@@ -1,9 +1,11 @@
 import { useParams, useNavigate } from 'react-router-dom';
+// import { useParams, useNavigate } from 'react-router-dom';
 import React, { useRef, useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import {
   Box,
+  Alert,
   Table,
   Button,
   Dialog,
@@ -23,44 +25,87 @@ import { editSLPGD, duyetPhieu, tuChoiPhieu, getPhieuById } from 'src/apis/datHa
 
 import { showAlert } from 'src/components/alert';
 
+// ----------------------------------------------------------------------
+
 export function DuyetPhieuView() {
   const { id } = useParams();
+
   const navigate = useNavigate();
 
-  const [openReject, setOpenReject] = useState(false);
-  const [rows, setRows] = useState<any[]>([]);
-  const [editMode, setEditMode] = useState(false);
-  const lyDoTraLaiRef = useRef('');
   const queryClient = useQueryClient();
 
-  const { data: dataDuyet = {} as any, error } = useQuery({
+  const [openReject, setOpenReject] = useState(false);
+
+  const [rows, setRows] = useState<any[]>([]);
+
+  const [editMode, setEditMode] = useState(false);
+
+  const lyDoTraLaiRef = useRef('');
+
+  // =====================================================
+  // GET PHIẾU
+  // =====================================================
+
+  const {
+    data: responseDuyet,
+    error,
+    isLoading,
+  } = useQuery({
     queryKey: ['phieuDuyet', id],
+
     queryFn: () => getPhieuById(id),
+
+    enabled: !!id,
+
     retry: false,
   });
 
-  const duyetCap1 = dataDuyet.phieuDatHangDuyet?.find(
+  // =====================================================
+  // RESPONSE BE
+  //
+  // {
+  //   status
+  //   canApprove
+  //   message
+  //   content
+  //   capDuyet
+  // }
+  // =====================================================
+
+  const dataDuyet = responseDuyet ?? {};
+
+  const canApprove = responseDuyet?.canApprove ?? false;
+
+  const approvalStatus = responseDuyet?.status ?? null;
+
+  const approvalMessage = responseDuyet?.message ?? '';
+
+  const capDuyet = Number(responseDuyet?.capDuyet) || 0;
+
+  // =====================================================
+  // NGƯỜI DUYỆT CẤP 1
+  // =====================================================
+
+  const duyetCap1 = dataDuyet?.phieuDatHangDuyet?.find(
     (x: any) => x.capDuyet === 1 && x.trangThai === 'DA_DUYET'
   );
 
-  const duyetCap2 = dataDuyet.phieuDatHangDuyet?.find(
+  // =====================================================
+  // NGƯỜI DUYỆT CẤP 2
+  // =====================================================
+
+  const duyetCap2 = dataDuyet?.phieuDatHangDuyet?.find(
     (x: any) => x.capDuyet === 2 && x.trangThai === 'DA_DUYET'
   );
 
-  useEffect(() => {
-    if (error) {
-      showAlert({
-        type: 'error',
-        message: String(error),
-      });
+  // =====================================================
+  // LOAD DETAIL
+  // =====================================================
 
-      navigate('/in-dat-hang', { replace: true });
+  useEffect(() => {
+    if (!dataDuyet?.phieuDatHangDetail) {
       return;
     }
-  }, [dataDuyet, error, navigate]);
-
-  useEffect(() => {
-    if (!dataDuyet?.phieuDatHangDetail) return;
 
     setRows(
       dataDuyet.phieuDatHangDetail.map((item: any) => {
@@ -68,12 +113,37 @@ export function DuyetPhieuView() {
 
         return {
           ...item,
+
           soLuongPGDDuyet,
+
           soLuongGDDuyet: item.soLuongGDDuyet ?? soLuongPGDDuyet,
         };
       })
     );
   }, [dataDuyet]);
+
+  // =====================================================
+  // XỬ LÝ ERROR
+  // =====================================================
+
+  useEffect(() => {
+    if (!error) {
+      return;
+    }
+
+    showAlert({
+      type: 'error',
+      message: (error as any)?.message || 'Không thể tải phiếu',
+    });
+
+    navigate('/in-dat-hang', {
+      replace: true,
+    });
+  }, [error, navigate]);
+
+  // =====================================================
+  // DUYỆT
+  // =====================================================
 
   const sendMutation = useMutation({
     mutationFn: duyetPhieu,
@@ -81,22 +151,31 @@ export function DuyetPhieuView() {
     onSuccess: () => {
       showAlert({
         type: 'success',
-        message: 'Đã duyệt',
+        message: 'Đã duyệt phiếu',
       });
 
       queryClient.invalidateQueries({
         queryKey: ['phieuDuyet', id],
       });
+
+      queryClient.invalidateQueries({
+        queryKey: ['dataDH'],
+      });
+
       navigate('/in-dat-hang');
     },
 
-    onError: (err) => {
+    onError: (err: any) => {
       showAlert({
         type: 'error',
-        message: String(err),
+        message: err?.message || 'Duyệt phiếu thất bại',
       });
     },
   });
+
+  // =====================================================
+  // TỪ CHỐI
+  // =====================================================
 
   const rejectMutation = useMutation({
     mutationFn: tuChoiPhieu,
@@ -109,6 +188,12 @@ export function DuyetPhieuView() {
 
       setOpenReject(false);
 
+      lyDoTraLaiRef.current = '';
+
+      queryClient.invalidateQueries({
+        queryKey: ['phieuDuyet', id],
+      });
+
       queryClient.invalidateQueries({
         queryKey: ['dataDH'],
       });
@@ -119,14 +204,18 @@ export function DuyetPhieuView() {
     onError: (err: any) => {
       showAlert({
         type: 'error',
-        message: err.message,
+        message: err?.message || 'Từ chối phiếu thất bại',
       });
     },
   });
 
-  // SỬA SỐ LƯƠNG
+  // =====================================================
+  // CẬP NHẬT SỐ LƯỢNG
+  // =====================================================
+
   const editMutation = useMutation({
     mutationFn: editSLPGD,
+
     onSuccess: (_, variables) => {
       if (variables.showMessage !== false) {
         showAlert({
@@ -139,7 +228,8 @@ export function DuyetPhieuView() {
         queryKey: ['phieuDuyet', id],
       });
     },
-    onError: (err, variables) => {
+
+    onError: (err: any, variables) => {
       if (variables.showMessage !== false) {
         showAlert({
           type: 'error',
@@ -149,45 +239,87 @@ export function DuyetPhieuView() {
     },
   });
 
+  // =====================================================
+  // THAY ĐỔI SỐ LƯỢNG
+  // =====================================================
+
   const handleChange = (index: number, field: string, value: string | number) => {
     const updated = [...rows];
+
     updated[index] = {
       ...updated[index],
+
       [field]: value,
     };
+
     setRows(updated);
   };
 
-  // HÀM CẬP NHẬT SỐ LƯỢNG
+  // =====================================================
+  // LƯU SỐ LƯỢNG
+  // =====================================================
+
   const handleUpdate = () => {
+    if (!canApprove) {
+      showAlert({
+        type: 'error',
+        message: 'Phiếu này không còn quyền chỉnh sửa',
+      });
+
+      return;
+    }
+
     editMutation.mutate({
       id: dataDuyet.id,
+
       showMessage: true,
+
       phieuDatHangDetail: rows.map((item) => ({
         id: item.id,
+
         soLuongPGDDuyet:
           item.soLuongPGDDuyet === '' || item.soLuongPGDDuyet == null
             ? null
             : Number(item.soLuongPGDDuyet),
+
+        soLuongGDDuyet:
+          item.soLuongGDDuyet === '' || item.soLuongGDDuyet == null
+            ? null
+            : Number(item.soLuongGDDuyet),
       })),
     });
   };
 
-  const currentApprove = dataDuyet?.phieuDatHangDuyet?.find(
-    (item: any) => item.trangThai === 'CHO_DUYET'
-  );
+  // =====================================================
+  // DUYỆT PHIẾU
+  //
+  // Lưu số lượng trước
+  // sau đó mới gọi API duyệt
+  // =====================================================
 
-  const capDuyet = currentApprove?.capDuyet;
+  const handleApprove = async () => {
+    if (!canApprove) {
+      showAlert({
+        type: 'error',
+        message: approvalMessage || 'Phiếu này không còn chờ bạn duyệt',
+      });
 
-  //  HÀM GỬI MAIL
-  const handleSendEmail = async () => {
+      return;
+    }
+
     try {
-      // 1. Cập nhật số lượng
+      // ===============================================
+      // 1. LƯU SỐ LƯỢNG
+      // ===============================================
+
       await editMutation.mutateAsync({
         id: dataDuyet.id,
+
         showMessage: false,
+
         phieuDatHangDetail: rows.map((item) => ({
           id: item.id,
+
           soLuongPGDDuyet:
             item.soLuongPGDDuyet === '' || item.soLuongPGDDuyet == null
               ? Number(item.soLuong)
@@ -200,20 +332,22 @@ export function DuyetPhieuView() {
         })),
       });
 
-      // 2. Sau khi sửa thành công mới gửi mail/duyệt
-      await sendMutation.mutateAsync(dataDuyet.id);
+      // ===============================================
+      // 2. DUYỆT
+      // ===============================================
 
-      showAlert({
-        type: 'success',
-        message: 'Duyệt thành công',
-      });
+      await sendMutation.mutateAsync(dataDuyet.id);
     } catch (err: any) {
       showAlert({
         type: 'error',
-        message: String(err.message),
+        message: err?.message || 'Duyệt phiếu thất bại',
       });
     }
   };
+
+  // =====================================================
+  // NGÀY KHO ĐẶT
+  // =====================================================
 
   const dates = [
     ...new Set(
@@ -221,45 +355,146 @@ export function DuyetPhieuView() {
         .map((x: any) => x.ngayKhoDat)
         .filter(
           (d: any) =>
-            d && d !== '0' && d !== 0 && d !== '0000-00-00' && !isNaN(new Date(d).getTime())
+            d && d !== '0' && d !== 0 && d !== '0000-00-00' && !Number.isNaN(new Date(d).getTime())
         )
     ),
   ].sort() as string[];
 
+  // =====================================================
+  // LOADING
+  // =====================================================
+
+  if (isLoading) {
+    return (
+      <Backdrop
+        open
+        sx={(theme) => ({
+          color: '#fff',
+
+          zIndex: theme.zIndex.modal + 999,
+
+          flexDirection: 'column',
+
+          gap: 2,
+        })}
+      >
+        <CircularProgress color="inherit" />
+
+        <div>Đang tải phiếu...</div>
+      </Backdrop>
+    );
+  }
+
+  // =====================================================
+  // RENDER
+  // =====================================================
+
   return (
     <>
-      <DialogActions>
-        <Button
-          variant="contained"
-          color={editMode ? 'success' : 'warning'}
-          onClick={() => {
-            if (editMode) {
-              handleUpdate();
-              setEditMode(false);
-            } else {
-              setEditMode(true);
-            }
+      {/* ================================================= */}
+      {/* THÔNG BÁO TRẠNG THÁI */}
+      {/* ================================================= */}
+
+      {!canApprove && approvalStatus === 'DA_DUYET' && (
+        <Alert
+          severity="success"
+          sx={{
+            m: 2,
           }}
         >
-          {editMode ? 'Lưu' : 'Sửa thông tin'}
-        </Button>
+          {approvalMessage || 'Phiếu này đã được duyệt rồi'}
+        </Alert>
+      )}
 
-        <Button variant="contained" color="success" onClick={handleSendEmail}>
-          Duyệt
-        </Button>
-
-        <Button
-          variant="contained"
-          color="error"
-          onClick={() => setOpenReject(true)}
-          disabled={editMode}
+      {!canApprove && approvalStatus === 'TU_CHOI' && (
+        <Alert
+          severity="warning"
+          sx={{
+            m: 2,
+          }}
         >
-          Từ chối
-        </Button>
+          {approvalMessage || 'Phiếu này đã được trả lại'}
+        </Alert>
+      )}
+
+      {!canApprove && approvalStatus === 'TRA_LAI' && (
+        <Alert
+          severity="warning"
+          sx={{
+            m: 2,
+          }}
+        >
+          {approvalMessage || 'Phiếu này đã được trả lại'}
+        </Alert>
+      )}
+
+      {canApprove && (
+        <Alert
+          severity="info"
+          sx={{
+            m: 2,
+          }}
+        >
+          {approvalMessage || 'Phiếu đang chờ bạn duyệt'}
+        </Alert>
+      )}
+
+      {/* ================================================= */}
+      {/* ACTION */}
+      {/* ================================================= */}
+
+      <DialogActions>
+        {canApprove ? (
+          <>
+            <Button
+              variant="contained"
+              color={editMode ? 'success' : 'warning'}
+              disabled={sendMutation.isPending || rejectMutation.isPending}
+              onClick={() => {
+                if (editMode) {
+                  handleUpdate();
+
+                  setEditMode(false);
+                } else {
+                  setEditMode(true);
+                }
+              }}
+            >
+              {editMode ? 'Lưu' : 'Sửa thông tin'}
+            </Button>
+
+            <Button
+              variant="contained"
+              color="success"
+              onClick={handleApprove}
+              disabled={editMode || sendMutation.isPending || editMutation.isPending}
+            >
+              Duyệt
+            </Button>
+
+            <Button
+              variant="contained"
+              color="error"
+              onClick={() => setOpenReject(true)}
+              disabled={editMode || sendMutation.isPending || rejectMutation.isPending}
+            >
+              Từ chối
+            </Button>
+          </>
+        ) : (
+          <Button variant="outlined" onClick={() => navigate('/in-dat-hang')}>
+            Quay lại
+          </Button>
+        )}
       </DialogActions>
+
+      {/* ================================================= */}
+      {/* NỘI DUNG PHIẾU */}
+      {/* ================================================= */}
 
       <Box m={1}>
         {/* HEADER */}
+
         <Box
           sx={{
             display: 'flex',
@@ -269,16 +504,19 @@ export function DuyetPhieuView() {
         >
           <Box textAlign="center">
             <Box fontWeight="bold">CN CÔNG TY CP TM-DV BẾN THÀNH</Box>
+
             <Box>Trung tâm Bến Thành Đông</Box>
           </Box>
 
           <Box textAlign="center">
             <Box fontWeight="bold">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</Box>
+
             <Box>Độc lập - Tự do - Hạnh phúc</Box>
           </Box>
         </Box>
 
         {/* TITLE */}
+
         <Box textAlign="center" mb={3}>
           <Box fontSize={24} fontWeight="bold">
             PHIẾU ĐỀ XUẤT ĐẶT HÀNG
@@ -286,6 +524,7 @@ export function DuyetPhieuView() {
         </Box>
 
         {/* INFO */}
+
         <Box mb={1}>
           <b>Tên công ty:</b> {dataDuyet.congTy}
         </Box>
@@ -323,28 +562,43 @@ export function DuyetPhieuView() {
             mx: 'auto',
           }}
         >
-          <Box sx={{ flex: 1, textAlign: 'left' }}>
+          <Box
+            sx={{
+              flex: 1,
+              textAlign: 'left',
+            }}
+          >
             <Box fontWeight="bold">Nội dung đề xuất như sau:</Box>
           </Box>
 
-          <Box sx={{ flex: 1, textAlign: 'right' }}>
+          <Box
+            sx={{
+              flex: 1,
+              textAlign: 'right',
+            }}
+          >
             <Box fontWeight="bold">
-              <b>Kỳ số liệu tham khảo:</b>
-              {dataDuyet.fromDate
-                ? new Date(dataDuyet.fromDate).toLocaleDateString('vi-VN')
-                : ''} -{' '}
+              <b>Kỳ số liệu tham khảo:</b>{' '}
+              {dataDuyet.fromDate ? new Date(dataDuyet.fromDate).toLocaleDateString('vi-VN') : ''}
+              {' - '}
               {dataDuyet.toDate ? new Date(dataDuyet.toDate).toLocaleDateString('vi-VN') : ''}
             </Box>
           </Box>
         </Box>
 
+        {/* ================================================= */}
         {/* TABLE */}
+        {/* ================================================= */}
+
         <Table
           sx={{
             border: '1px solid black',
+
             '& td, & th': {
               border: '1px solid black',
+
               padding: '4px',
+
               fontSize: 13,
             },
           }}
@@ -352,13 +606,21 @@ export function DuyetPhieuView() {
           <TableHead>
             <TableRow>
               <TableCell align="center">STT</TableCell>
+
               <TableCell align="center">Mã hàng</TableCell>
+
               <TableCell align="center">Tên sản phẩm</TableCell>
+
               <TableCell align="center">ĐVT</TableCell>
+
               <TableCell align="center">Đơn giá</TableCell>
+
               <TableCell align="center">Số lượng</TableCell>
+
               {capDuyet >= 1 && <TableCell align="center">PGD duyệt</TableCell>}
+
               {capDuyet >= 2 && <TableCell align="center">GD duyệt</TableCell>}
+
               <TableCell align="center">Ghi chú hàng hoá</TableCell>
 
               <TableCell align="center">SL kho đặt</TableCell>
@@ -378,23 +640,70 @@ export function DuyetPhieuView() {
           <TableBody>
             {rows.map((item, index) => (
               <TableRow key={`${item.id}-${index}`}>
-                <TableCell align="center" sx={{ width: 45 }}>
-                  {index + 1}{' '}
+                <TableCell
+                  align="center"
+                  sx={{
+                    width: 45,
+                  }}
+                >
+                  {index + 1}
                 </TableCell>
-                <TableCell sx={{ width: 120 }}>{item.maHang}</TableCell>
-                <TableCell sx={{ width: 250 }}>{item.tenSp}</TableCell>
-                <TableCell align="center" sx={{ width: 45 }}>
+
+                <TableCell
+                  sx={{
+                    width: 120,
+                  }}
+                >
+                  {item.maHang}
+                </TableCell>
+
+                <TableCell
+                  sx={{
+                    width: 250,
+                  }}
+                >
+                  {item.tenSp}
+                </TableCell>
+
+                <TableCell
+                  align="center"
+                  sx={{
+                    width: 45,
+                  }}
+                >
                   {item.dvt}
                 </TableCell>
-                <TableCell align="center" sx={{ width: 75 }}>
+
+                <TableCell
+                  align="center"
+                  sx={{
+                    width: 75,
+                  }}
+                >
                   {Number(item.donGia || 0).toLocaleString('vi-VN')}
                 </TableCell>
-                <TableCell align="center" sx={{ width: 45 }}>
+
+                <TableCell
+                  align="center"
+                  sx={{
+                    width: 45,
+                  }}
+                >
                   {item.soLuong}
                 </TableCell>
+
+                {/* =================================== */}
+                {/* PGD */}
+                {/* =================================== */}
+
                 {capDuyet >= 1 && (
-                  <TableCell align="center" sx={{ width: 45 }}>
-                    {editMode ? (
+                  <TableCell
+                    align="center"
+                    sx={{
+                      width: 45,
+                    }}
+                  >
+                    {editMode && canApprove ? (
                       <TextField
                         type="number"
                         variant="standard"
@@ -402,7 +711,9 @@ export function DuyetPhieuView() {
                         onChange={(e) =>
                           handleChange(
                             index,
+
                             'soLuongPGDDuyet',
+
                             e.target.value === '' ? '' : Number(e.target.value)
                           )
                         }
@@ -411,7 +722,9 @@ export function DuyetPhieuView() {
                             e.preventDefault();
                           }
                         }}
-                        inputProps={{ min: 0 }}
+                        inputProps={{
+                          min: 0,
+                        }}
                       />
                     ) : (
                       item.soLuongPGDDuyet
@@ -419,9 +732,18 @@ export function DuyetPhieuView() {
                   </TableCell>
                 )}
 
+                {/* =================================== */}
+                {/* GD */}
+                {/* =================================== */}
+
                 {capDuyet >= 2 && (
-                  <TableCell align="center" sx={{ width: 45 }}>
-                    {editMode ? (
+                  <TableCell
+                    align="center"
+                    sx={{
+                      width: 45,
+                    }}
+                  >
+                    {editMode && canApprove ? (
                       <TextField
                         type="number"
                         variant="standard"
@@ -429,7 +751,9 @@ export function DuyetPhieuView() {
                         onChange={(e) =>
                           handleChange(
                             index,
+
                             'soLuongGDDuyet',
+
                             e.target.value === '' ? '' : Number(e.target.value)
                           )
                         }
@@ -438,35 +762,75 @@ export function DuyetPhieuView() {
                             e.preventDefault();
                           }
                         }}
-                        inputProps={{ min: 0 }}
+                        inputProps={{
+                          min: 0,
+                        }}
                       />
                     ) : (
                       item.soLuongGDDuyet
                     )}
                   </TableCell>
                 )}
-                <TableCell sx={{ width: 120 }}>{item.ghiChuHangHoa}</TableCell>
-                <TableCell align="center" sx={{ width: 55 }}>
+
+                <TableCell
+                  sx={{
+                    width: 120,
+                  }}
+                >
+                  {item.ghiChuHangHoa}
+                </TableCell>
+
+                <TableCell
+                  align="center"
+                  sx={{
+                    width: 55,
+                  }}
+                >
                   {item.slKhoDat}
                 </TableCell>
 
-                <TableCell align="center" sx={{ width: 120 }}>
+                <TableCell
+                  align="center"
+                  sx={{
+                    width: 120,
+                  }}
+                >
                   {item.slCoTheDat}
                 </TableCell>
 
-                <TableCell align="center" sx={{ width: 55 }}>
+                <TableCell
+                  align="center"
+                  sx={{
+                    width: 55,
+                  }}
+                >
                   {item.slTonToiUu}
                 </TableCell>
 
-                <TableCell align="center" sx={{ width: 55 }}>
+                <TableCell
+                  align="center"
+                  sx={{
+                    width: 55,
+                  }}
+                >
                   {item.tonCuoi}
                 </TableCell>
 
-                <TableCell align="center" sx={{ width: 55 }}>
+                <TableCell
+                  align="center"
+                  sx={{
+                    width: 55,
+                  }}
+                >
                   {item.slBanCuoi}
                 </TableCell>
 
-                <TableCell align="center" sx={{ width: 55 }}>
+                <TableCell
+                  align="center"
+                  sx={{
+                    width: 55,
+                  }}
+                >
                   {item.slNhapNccCuoi}
                 </TableCell>
               </TableRow>
@@ -474,42 +838,61 @@ export function DuyetPhieuView() {
           </TableBody>
         </Table>
 
-        {/* FOOTER */}
-
+        {/* ================================================= */}
         {/* SIGN */}
+        {/* ================================================= */}
+
         <Box
           sx={{
             display: 'flex',
+
             justifyContent: 'space-between',
+
             mt: 4,
+
             width: '80%',
+
             mx: 'auto',
+
             textAlign: 'center',
+
             minHeight: '30mm',
           }}
         >
+          {/* THU MUA */}
+
           <Box>
-            <Box fontWeight="bold">THU MUA </Box>
+            <Box fontWeight="bold">THU MUA</Box>
+
             <Box fontWeight="bold" mt={28}>
               {dataDuyet.users?.fullName}
             </Box>
 
             {dataDuyet.ngayGui && (
               <Box fontWeight="bold" mt={1}>
-                Ngày đề xuất:
-                {dataDuyet.ngayGui ? new Date(dataDuyet.ngayGui).toLocaleString('vi-VN') : ''}
+                Ngày đề xuất: {new Date(dataDuyet.ngayGui).toLocaleString('vi-VN')}
               </Box>
             )}
           </Box>
-          
-          <Box sx={{ textAlign: 'center' }}>
+
+          {/* PGD */}
+
+          <Box
+            sx={{
+              textAlign: 'center',
+            }}
+          >
             <Box
               fontWeight="bold"
               sx={{
                 maxWidth: '160px',
+
                 mx: 'auto',
+
                 whiteSpace: 'normal',
+
                 wordBreak: 'break-word',
+
                 textAlign: 'center',
               }}
             >
@@ -527,14 +910,27 @@ export function DuyetPhieuView() {
             )}
           </Box>
 
+          {/* GD */}
+
           <Box>
             <Box fontWeight="bold">GIÁM ĐỐC TRUNG TÂM</Box>
+
             <Box fontWeight="bold" mt={18}>
               {duyetCap2?.users?.fullName}
             </Box>
+
+            {duyetCap2?.ngayDuyet && (
+              <Box fontWeight="bold" mt={1}>
+                Ngày xét duyệt: {new Date(duyetCap2.ngayDuyet).toLocaleString('vi-VN')}
+              </Box>
+            )}
           </Box>
         </Box>
       </Box>
+
+      {/* ================================================= */}
+      {/* DIALOG TỪ CHỐI */}
+      {/* ================================================= */}
 
       <Dialog open={openReject} onClose={() => setOpenReject(false)} maxWidth="sm" fullWidth>
         <DialogTitle>Từ chối phiếu</DialogTitle>
@@ -549,7 +945,9 @@ export function DuyetPhieuView() {
             onChange={(e) => {
               lyDoTraLaiRef.current = e.target.value;
             }}
-            sx={{ mt: 1 }}
+            sx={{
+              mt: 1,
+            }}
           />
         </DialogContent>
 
@@ -559,10 +957,24 @@ export function DuyetPhieuView() {
           <Button
             color="error"
             variant="contained"
+            disabled={rejectMutation.isPending}
             onClick={() => {
+              const lyDo = lyDoTraLaiRef.current.trim();
+
+              if (!lyDo) {
+                showAlert({
+                  type: 'error',
+                  message: 'Vui lòng nhập lý do từ chối',
+                });
+
+                return;
+              }
+
               rejectMutation.mutate({
                 id: dataDuyet.id,
-                lyDoTraLai: lyDoTraLaiRef.current,
+
+                lyDoTraLai: lyDo,
+
                 action: 'TU_CHOI',
               });
             }}
@@ -572,17 +984,25 @@ export function DuyetPhieuView() {
         </DialogActions>
       </Dialog>
 
+      {/* ================================================= */}
+      {/* BACKDROP */}
+      {/* ================================================= */}
+
       <Backdrop
-        open={sendMutation.isPending}
+        open={sendMutation.isPending || rejectMutation.isPending || editMutation.isPending}
         onClick={(e) => e.preventDefault()}
         sx={(theme) => ({
           color: '#fff',
+
           zIndex: theme.zIndex.modal + 999,
+
           flexDirection: 'column',
+
           gap: 2,
         })}
       >
         <CircularProgress color="inherit" />
+
         <div>Đang xử lý, vui lòng chờ...</div>
       </Backdrop>
     </>

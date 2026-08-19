@@ -21,6 +21,7 @@ export type EditUserPayload = {
   status: number;
   vaiTro: string;
   boPhan: string;
+  managerId?: number | null;
 };
 
 export type EditUserProps = {
@@ -36,6 +37,7 @@ export type EditUserProps = {
     status?: boolean;
     vaiTroId?: number;
     boPhanId?: number;
+    managerId?: number | null;
   };
 };
 

@@ -42,7 +42,6 @@ export function TongHop({
   const thuMuaRefs = useRef<(HTMLInputElement | null)[]>([]);
   const chuThichRefs = useRef<(HTMLInputElement | null)[]>([]);
   const maHangRef = useRef<Record<number, string>>({});
-  const [confirmedThuMua, setConfirmedThuMua] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(0);
   const rowsPerPage = 50;
@@ -71,37 +70,54 @@ export function TongHop({
       tenHang.includes(search.tenHang.toLowerCase())
     );
   });
-  
+
   const paginatedData = filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   const fromDate = new Date(pivot[0]?.fromDate).toLocaleDateString('vi-VN');
   const toDate = new Date(pivot[0]?.toDate).toLocaleDateString('vi-VN');
 
   const handleAddRow = () => {
+    // Lấy NCC hiện tại từ dữ liệu đang filter
+    // ưu tiên dòng đang hiển thị
+    const nccHienTai =
+      filteredData[0]?.['Tên nhà cung cấp'] ??
+      pivot.find((item) => item['Tên nhà cung cấp']?.trim())?.['Tên nhà cung cấp'] ??
+      '';
+
     setData((prev) => {
       if (!prev) return prev;
 
+      const newRow = {
+        isNew: true,
+        daNhapThuMua: false,
+
+        // Quan trọng:
+        // gán NCC hiện tại để không bị filter loại mất
+        'Tên nhà cung cấp': nccHienTai,
+
+        'Chi nhánh': '',
+        'Mã hàng': '',
+        'Tên hàng': '',
+        'SL kho đặt': 0,
+        'Giá vốn': 0,
+        'Giá bán': 0,
+        'Thu mua nhập': 0,
+        'Cảnh báo': '',
+        'SL có thể đặt hàng': 0,
+        'Ghi chú': '',
+        chuThich: '',
+      };
+
       return {
         ...prev,
-        pivot: [
-          ...prev.pivot,
-          {
-            isNew: true,
-            daNhapThuMua: false,
-            'Chi nhánh': '',
-            'Mã hàng': '',
-            'Tên hàng': '',
-            'SL kho đặt': 0,
-            'Giá vốn': 0,
-            'Giá bán': 0,
-            'Thu mua nhập': 0,
-            'Cảnh báo': '',
-            'Ghi chú': '',
-            chuThich: '',
-          },
-        ],
+
+        // Đưa row mới lên đầu để thấy ngay
+        pivot: [...prev.pivot, newRow],
       };
     });
+
+    // quay về trang đầu để thấy dòng vừa thêm
+    setPage(0);
   };
 
   const handleDeleteRow = (row: any) => {
@@ -141,6 +157,10 @@ export function TongHop({
       const product = pivotXnt.find(
         (x) => x['Chi nhánh'] === row['Chi nhánh'] && x['Mã hàng']?.trim().toUpperCase() === code
       );
+      const productByCode = pivotXnt.find(
+        (x) =>
+          x !== row && x['Mã hàng']?.trim().toUpperCase() === code && x['SL tồn kho tối ưu'] != null
+      ); // const product = pivotXnt.find((x) => x['Mã hàng']?.trim().toUpperCase() === code);
 
       if (!product && !productDmhh) {
         showAlert({
@@ -154,6 +174,7 @@ export function TongHop({
         item === row
           ? {
               ...item,
+              ['Tên nhà cung cấp']: productDmhh?.dmncc?.tenNcc ?? '',
               ['Mã hàng']: code,
               ['Tên hàng']: productDmhh?.tenHang ?? '',
               ['Giá bán']: productDmhh?.giaBan ?? 0,
@@ -161,15 +182,25 @@ export function TongHop({
               ['ĐVT']: productDmhh?.dvt ?? '',
               ['Mức thuế VAT đầu vào']: productDmhh?.vat ?? 0,
 
-              ['Tên nhà cung cấp']: product?.['Thương hiệu'] ?? productDmhh?.dmncc?.tenNcc ?? '',
-
               ['Nhập chuyển']: product?.['Nhập chuyển'] ?? null,
 
               ['Xuất bán']: product?.['Xuất bán'] ?? null,
 
               ['Tồn cuối kì']: product?.['Tồn cuối kì'] ?? null,
 
-              ['Cảnh báo']: product?.['Cảnh báo'] ?? 'SKU chưa có trong định mức',
+              // Cảnh báo có thể fallback theo mã
+              ['Cảnh báo']:
+                product?.['Cảnh báo'] ??
+                productByCode?.['Cảnh báo'] ??
+                'SKU chưa có trong định mức',
+
+              // Quan trọng:
+              // Có đúng kho -> lấy SL có thể đặt
+              // Không có kho -> lấy SL tồn kho tối ưu của mã đó
+              ['SL có thể đặt hàng']:
+                product?.['SL có thể đặt hàng'] ??
+                productByCode?.['SL tồn kho tối ưu'] ??
+                'SKU chưa có trong định mức',
             }
           : item
       );
@@ -312,6 +343,7 @@ export function TongHop({
               <TableCell sx={{ width: 30 }}>Tồn cuối</TableCell>
               <TableCell sx={{ width: 90 }}>SL thu mua đề xuất</TableCell>
               <TableCell sx={{ width: 50 }}>Cảnh báo</TableCell>
+              <TableCell sx={{ width: 50 }}>SL có thể đặt</TableCell>
               <TableCell sx={{ width: 120 }}>Chú thích</TableCell>
 
               <TableCell />
@@ -320,7 +352,7 @@ export function TongHop({
             <TableRow
               sx={{
                 position: 'sticky',
-                top: 80,
+                top: 100,
                 backgroundColor: '#fff',
                 zIndex: 10,
               }}
@@ -389,12 +421,14 @@ export function TongHop({
               <TableCell />
               <TableCell />
               <TableCell />
+              <TableCell />
             </TableRow>
           </TableHead>
 
           <TableBody>
             {paginatedData.map((row, index) => {
               const xntRows = pivotXnt.filter((item) => item['Mã hàng'] === row['Mã hàng']);
+
               return (
                 <TableRow
                   key={`${row['Chi nhánh']}-${row['Mã hàng']}-${row['Tên hàng']}-${page}-${index}`}
@@ -456,31 +490,6 @@ export function TongHop({
                         onChange={(e) => {
                           maHangRef.current[index] = e.target.value.toUpperCase();
                         }}
-                        // onKeyDown={(e) => {
-                        //   if (e.key === 'Enter') {
-                        //     e.preventDefault();
-
-                        //     const value = maHangRef.current[index] ?? '';
-
-                        //     const updated = pivot.map((item) =>
-                        //       item === row
-                        //         ? {
-                        //             ...item,
-                        //             ['Mã hàng']: value,
-                        //           }
-                        //         : item
-                        //     );
-
-                        //     setData((prev) => ({
-                        //       ...prev!,
-                        //       pivot: updated,
-                        //     }));
-
-                        //     handleSelectMaHang(row, value);
-
-                        //     thuMuaRefs.current[index + 1]?.focus();
-                        //   }
-                        // }}
                         onBlur={() => {
                           const value = maHangRef.current[index] ?? '';
 
@@ -628,6 +637,7 @@ export function TongHop({
                   </TableCell>
 
                   <TableCell>{row['Cảnh báo']}</TableCell>
+                  <TableCell>{row['SL có thể đặt hàng']}</TableCell>
 
                   <TableCell>
                     <TextField

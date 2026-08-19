@@ -17,6 +17,8 @@ export type EditDatHangTMDetail = {
   thuMuaNhap: number | '';
   ngayKhoDat: string;
   chuThich: string;
+  slCoTheDat: number;
+  slTonToiUu: number;
 };
 
 export type xntDetailProps = {
@@ -28,15 +30,20 @@ export type xntDetailProps = {
   xuatBan: number;
   tonCuoi: number;
   tenNhaCungCap: string;
+  slCoTheDat: number;
+  canhBao: string;
+  slTonToiUu:number;
 };
 
 export type EditDatHangTMData = {
   id: number;
+  tenNcc: string;
   phieuDeXuatDetail: EditDatHangTMDetail[];
   phieuDatHangDetail: EditDatHangTMDetail[];
   xntDetail: xntDetailProps[];
   maPhieu: string;
   trangThai: string;
+  slCoTheDat: number;
 };
 
 export type EditDatHangTMProps = {

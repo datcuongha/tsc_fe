@@ -32,24 +32,30 @@ export type PrintDhProps = {
     maHang: string;
     tenHang: string;
     giaVon: number;
+    giaBan: number;
     nhapChuyen: number;
     xuatBan: number;
     tonCuoi: number;
     slKhoDat: number;
+    thuMuaNhap: number;
     ngayKhoDat: string;
     ghiChuKho: string;
-    phieuDatHangNhap:string;
+    phieuDatHangNhap: string;
+    chuThich: string;
+    canhBao: string;
   }[];
   phieuDatHangDetail?: {
     tongTienHang: number;
     id: string;
     maHang: string;
     tenSp: string;
+    dvt: string;
     soLuong: number;
     soLuongPGDDuyet: number;
     soLuongGDDuyet: number;
     donGia: number;
     thueSuat: string;
+    slCoTheDat: number;
   }[];
 };
 
@@ -61,6 +67,7 @@ type PrintDhTableRowProps = {
   printDDH: () => void;
   editDDH: () => void;
   editDatHangTM: () => void;
+  approveDDH: () => void;
 };
 
 export function PrintDhTableRow({
@@ -71,6 +78,7 @@ export function PrintDhTableRow({
   printDDH,
   editDDH,
   editDatHangTM,
+  approveDDH,
 }: PrintDhTableRowProps) {
   const [openPopover, setOpenPopover] = useState<HTMLButtonElement | null>(null);
 
@@ -148,7 +156,6 @@ export function PrintDhTableRow({
               Trả lại
             </>
           )}
-
         </TableCell>
         <TableCell align="right">
           <IconButton onClick={handleOpenPopover}>
@@ -164,7 +171,7 @@ export function PrintDhTableRow({
         anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
-        <MenuList
+        {/* <MenuList
           disablePadding
           sx={{
             p: 0.5,
@@ -179,8 +186,8 @@ export function PrintDhTableRow({
               [`&.${menuItemClasses.selected}`]: { bgcolor: 'action.selected' },
             },
           }}
-        >
-          {/* <MenuItem
+        > */}
+        {/* <MenuItem
             onClick={() => {
               handleClosePopover();
               chonLoaiIn();
@@ -190,7 +197,7 @@ export function PrintDhTableRow({
             In
           </MenuItem> */}
 
-          <MenuItem
+        {/* <MenuItem
             onClick={() => {
               handleClosePopover();
               printDX();
@@ -216,7 +223,69 @@ export function PrintDhTableRow({
               handleClosePopover();
               editDatHangTM();
             }}
-            disabled={['DA_DUYET', 'TRA_LAI'].includes(row.trangThai)}
+            disabled={[ 'TRA_LAI'].includes(row.trangThai)}
+          >
+            <Iconify icon="solar:pen-bold" />
+            Cập nhật đặt hàng
+          </MenuItem>
+        </MenuList> */}
+        <MenuList
+          disablePadding
+          sx={{
+            p: 0.5,
+            gap: 0.5,
+            width: 210,
+            display: 'flex',
+            flexDirection: 'column',
+            [`& .${menuItemClasses.root}`]: {
+              px: 1,
+              gap: 2,
+              borderRadius: 0.75,
+              [`&.${menuItemClasses.selected}`]: {
+                bgcolor: 'action.selected',
+              },
+            },
+          }}
+        >
+          {row.canApprove && row.trangThai === 'CHO_DUYET' && (
+            <MenuItem
+              onClick={() => {
+                handleClosePopover();
+                approveDDH();
+              }}
+            >
+              <CheckCircleIcon fontSize="small" color="success" />
+              Duyệt phiếu
+            </MenuItem>
+          )}
+
+          <MenuItem
+            onClick={() => {
+              handleClosePopover();
+              printDX();
+            }}
+          >
+            <Iconify icon="solar:pen-bold" />
+            In đề xuất
+          </MenuItem>
+
+          <MenuItem
+            onClick={() => {
+              handleClosePopover();
+              printDDH();
+            }}
+            disabled={['CHO_DUYET', 'NHAP', 'TRA_LAI'].includes(row.trangThai)}
+          >
+            <Iconify icon="solar:print-bold" />
+            In đặt hàng
+          </MenuItem>
+
+          <MenuItem
+            onClick={() => {
+              handleClosePopover();
+              editDatHangTM();
+            }}
+            disabled={['TRA_LAI'].includes(row.trangThai)}
           >
             <Iconify icon="solar:pen-bold" />
             Cập nhật đặt hàng
