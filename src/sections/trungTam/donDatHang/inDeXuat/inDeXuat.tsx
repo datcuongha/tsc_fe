@@ -23,7 +23,6 @@ import { LoadingBackdrop } from 'src/components/loading';
 import type { InDeXuatProps } from './type';
 
 export function InDeXuat({ data, handleClose, userButton }: InDeXuatProps) {
-  console.log(data);
   
   const duyetCap1 = data.phieuDatHangDuyet?.find(
     (x: any) => x.capDuyet === 1 && x.trangThai === 'DA_DUYET'
@@ -246,7 +245,7 @@ export function InDeXuat({ data, handleClose, userButton }: InDeXuatProps) {
         <Button variant="contained" onClick={() => handlePrint()}>
           In
         </Button>
-        {userButton?.data?.vaiTroId === 4 && (
+        {userButton?.data?.vaiTroId === 6 && (
           <Button
             variant="contained"
             color="success"
@@ -261,18 +260,7 @@ export function InDeXuat({ data, handleClose, userButton }: InDeXuatProps) {
       <Box
         id="print-area"
         ref={printRef}
-        // sx={{
-        //   width: '297mm',
-        //   background: '#fff',
-        //   color: '#000',
-        //   p: 1,
-        //   pb: '20mm',
-        //   boxSizing: 'border-box',
-        //   margin: '0 auto',
-        //   '@media screen': {
-        //     boxShadow: 3,
-        //   },
-        // }}
+
         sx={{
           width: '297mm',
 
