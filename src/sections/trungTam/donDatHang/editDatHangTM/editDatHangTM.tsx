@@ -636,6 +636,8 @@ import { handleExportData } from 'src/components/export';
 import type { EditDatHangTMProps } from './type';
 
 export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
+  console.log(data);
+
   const queryClient = useQueryClient();
   const thuMuaRefs = useRef<(HTMLInputElement | null)[]>([]);
   const chuThichRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -791,7 +793,7 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
       const canhBao =
         detailXNTByCode?.canhBao ?? detailByCode?.canhBao ?? 'SKU chưa có trong định mức';
       const slCoTheDat =
-        detailXNTByCode?.slTonToiUu ?? detailByCode?.slCoTheDat ?? 'SKU chưa có trong định mức';
+        detailXNTByCode?.slTonToiUu ?? detailByCode?.slTonToiUu ?? 'SKU chưa có trong định mức';
 
       // =====================================================
       // KIỂM TRA NCC
@@ -1224,7 +1226,13 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
                   <TableCell>{canhBao}</TableCell>
 
                   <TableCell>
-                    {slCoTheDat === 0 ? 'SKU chưa có trong định mức' : slCoTheDat}
+                    <TableCell>
+                      {row.canhBao === 'Vượt tồn tối ưu'
+                        ? 'Vượt tồn tối ưu'
+                        : Number(row.slCoTheDat) === 0
+                          ? 'SKU chưa có trong định mức'
+                          : row.slCoTheDat}
+                    </TableCell>
                   </TableCell>
 
                   <TableCell>
@@ -1287,7 +1295,7 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
           variant="contained"
           startIcon={<Add />}
           onClick={handleAddRow}
-          disabled={['DA_DUYET', 'TRA_LAI','CHO_DUYET'].includes(data.trangThai)}
+          disabled={['DA_DUYET', 'TRA_LAI', 'CHO_DUYET'].includes(data.trangThai)}
         >
           Thêm
         </Button>

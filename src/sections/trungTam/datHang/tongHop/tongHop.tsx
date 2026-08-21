@@ -106,6 +106,9 @@ export function TongHop({
         'SL có thể đặt hàng': 0,
         'Ghi chú': '',
         chuThich: '',
+        tonCuoi: 0,
+        slBanCuoi: 0,
+        slNhapNccCuoi: 0,
       };
 
       return {
@@ -157,6 +160,7 @@ export function TongHop({
       const product = pivotXnt.find(
         (x) => x['Chi nhánh'] === row['Chi nhánh'] && x['Mã hàng']?.trim().toUpperCase() === code
       );
+
       const productByCode = pivotXnt.find(
         (x) =>
           x !== row && x['Mã hàng']?.trim().toUpperCase() === code && x['SL tồn kho tối ưu'] != null
@@ -194,12 +198,9 @@ export function TongHop({
                 productByCode?.['Cảnh báo'] ??
                 'SKU chưa có trong định mức',
 
-              // Quan trọng:
-              // Có đúng kho -> lấy SL có thể đặt
-              // Không có kho -> lấy SL tồn kho tối ưu của mã đó
               ['SL có thể đặt hàng']:
-                product?.['SL có thể đặt hàng'] ??
-                productByCode?.['SL tồn kho tối ưu'] ??
+                product?.['Cảnh báo'] ??
+                productByCode?.['Cảnh báo'] ??
                 'SKU chưa có trong định mức',
             }
           : item
@@ -226,7 +227,7 @@ export function TongHop({
         fromDate: pivot[0]?.fromDate,
         toDate: pivot[0]?.toDate,
       });
-
+      
       if (result) {
         showAlert({
           type: 'success',

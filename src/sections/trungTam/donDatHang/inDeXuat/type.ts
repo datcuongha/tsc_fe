@@ -19,6 +19,19 @@ export type InDeXuatDetail = {
   slNhapNccCuoi: number;
   kySoLieu: string;
 };
+
+export type XntDetailProps = {
+  id: number;
+  phieuId: number;
+  maHang: string;
+  chiNhanh?: string | null;
+  nhapChuyen?: number | null;
+  nhapNcc?: number | null;
+  xuatBan?: number | null;
+  tonCuoi?: number | null;
+  slTonToiUu?: number | null;
+};
+
 export type PhieuDatHangDuyet = {
   id: number;
   phieuId: number;
@@ -37,7 +50,7 @@ export type PhieuDatHangDuyet = {
 export type PhieuDeXuatDetail = {
   id: number;
   phieuDatHangNhap: string;
-  ngayKhoDat:string;
+  ngayKhoDat: string;
 };
 export type InDeXuatData = {
   id: string;
@@ -55,6 +68,7 @@ export type InDeXuatData = {
   phieuDatHangDetail: InDeXuatDetail[];
   phieuDeXuatDetail: PhieuDeXuatDetail[];
   phieuDatHangDuyet: PhieuDatHangDuyet[];
+  xntDetail?: XntDetailProps[];
 };
 
 export type InDeXuatProps = {

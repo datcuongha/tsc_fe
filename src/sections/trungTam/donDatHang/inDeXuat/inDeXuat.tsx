@@ -23,7 +23,6 @@ import { LoadingBackdrop } from 'src/components/loading';
 import type { InDeXuatProps } from './type';
 
 export function InDeXuat({ data, handleClose, userButton }: InDeXuatProps) {
-  
   const duyetCap1 = data.phieuDatHangDuyet?.find(
     (x: any) => x.capDuyet === 1 && x.trangThai === 'DA_DUYET'
   );
@@ -260,7 +259,6 @@ export function InDeXuat({ data, handleClose, userButton }: InDeXuatProps) {
       <Box
         id="print-area"
         ref={printRef}
-
         sx={{
           width: '297mm',
 
@@ -402,69 +400,181 @@ export function InDeXuat({ data, handleClose, userButton }: InDeXuatProps) {
           </TableHead>
 
           <TableBody>
-            {rows.map((item, index) => (              
-              <TableRow key={`${item.id}-${index}`}>
-                <TableCell align="center">{index + 1}</TableCell>
-                <TableCell sx={{ width: 120 }}>{item.maHang}</TableCell>
-                <TableCell sx={{ width: 180 }}>{item.tenSp}</TableCell>
-                <TableCell align="center">{item.dvt}</TableCell>
-                <TableCell align="center" sx={{ width: 65 }}>
-                  {Number(item.donGia || 0).toLocaleString('vi-VN')}
-                </TableCell>
-                <TableCell align="center" sx={{ width: 50 }}>
-                  {item.soLuong}
-                </TableCell>
-                {showPGD && (
-                  <TableCell align="center" sx={{ width: 45 }}>
-                    {item.soLuongPGDDuyet}
+            {rows.map((item, index) => {
+              const code = item.maHang?.trim().toUpperCase();
+
+              const xntByCode =
+                data.xntDetail?.filter((x) => x.maHang?.trim().toUpperCase() === code) ?? [];
+
+              const totalXnt = xntByCode.reduce(
+                (total, x) => ({
+                  tonCuoi: total.tonCuoi + (Number(x.tonCuoi) || 0),
+                  xuatBan: total.xuatBan + (Number(x.xuatBan) || 0),
+                }),
+                {
+                  tonCuoi: 0,
+                  xuatBan: 0,
+                }
+              );
+
+              const tonCuoi = Number(item.tonCuoi) || totalXnt.tonCuoi || 0;
+
+              const slBanCuoi = Number(item.slBanCuoi) || totalXnt.xuatBan || 0;
+
+              const slTonToiUu = Number(item.slTonToiUu) || Number(xntByCode[0]?.slTonToiUu) || 0;
+              return (
+                <TableRow key={`${item.id}-${index}`}>
+                  <TableCell align="center">{index + 1}</TableCell>
+                  <TableCell sx={{ width: 120 }}>{item.maHang}</TableCell>
+                  <TableCell sx={{ width: 180 }}>{item.tenSp}</TableCell>
+                  <TableCell align="center">{item.dvt}</TableCell>
+                  <TableCell align="center" sx={{ width: 65 }}>
+                    {Number(item.donGia || 0).toLocaleString('vi-VN')}
                   </TableCell>
-                )}
-                {showGD && (
-                  <TableCell align="center" sx={{ width: 45 }}>
-                    {item.soLuongGDDuyet}
+                  <TableCell align="center" sx={{ width: 50 }}>
+                    {item.soLuong}
                   </TableCell>
-                )}
-                <TableCell>
-                  {editMode ? (
-                    <TextField
-                      variant="standard"
-                      multiline
-                      fullWidth
-                      InputProps={{ disableUnderline: true }}
-                      value={item.ghiChuHangHoa || ''}
-                      onChange={(e) => handleChange(index, 'ghiChuHangHoa', e.target.value)}
-                    />
-                  ) : (
-                    item.ghiChuHangHoa
+                  {showPGD && (
+                    <TableCell align="center" sx={{ width: 45 }}>
+                      {item.soLuongPGDDuyet}
+                    </TableCell>
                   )}
-                </TableCell>
+                  {showGD && (
+                    <TableCell align="center" sx={{ width: 45 }}>
+                      {item.soLuongGDDuyet}
+                    </TableCell>
+                  )}
+                  <TableCell>
+                    {editMode ? (
+                      <TextField
+                        variant="standard"
+                        multiline
+                        fullWidth
+                        InputProps={{ disableUnderline: true }}
+                        value={item.ghiChuHangHoa || ''}
+                        onChange={(e) => handleChange(index, 'ghiChuHangHoa', e.target.value)}
+                      />
+                    ) : (
+                      item.ghiChuHangHoa
+                    )}
+                  </TableCell>
 
-                <TableCell align="center" sx={{ width: 55 }}>
-                  {item.slKhoDat}
-                </TableCell>
+                  <TableCell align="center" sx={{ width: 55 }}>
+                    {item.slKhoDat}
+                  </TableCell>
 
-                <TableCell align="center" sx={{ width: 120 }}>
-                  {item.slCoTheDat}
-                </TableCell>
+                  <TableCell align="center" sx={{ width: 120 }}>
+                    {item.slCoTheDat}
+                  </TableCell>
 
-                <TableCell align="center" sx={{ width: 55 }}>
-                  {item.slTonToiUu}
-                </TableCell>
+                  <TableCell align="center" sx={{ width: 55 }}>
+                    {slTonToiUu}
+                  </TableCell>
 
-                <TableCell align="center" sx={{ width: 55 }}>
-                  {item.tonCuoi}
-                </TableCell>
+                  <TableCell align="center" sx={{ width: 55 }}>
+                    {tonCuoi}
+                  </TableCell>
 
-                <TableCell align="center" sx={{ width: 55 }}>
-                  {item.slBanCuoi}
-                </TableCell>
+                  <TableCell align="center" sx={{ width: 55 }}>
+                    {slBanCuoi}
+                  </TableCell>
 
-                <TableCell align="center" sx={{ width: 55 }}>
-                  {item.slNhapNccCuoi}
-                </TableCell>
-              </TableRow>
-            ))}
+                  <TableCell align="center" sx={{ width: 55 }}>
+                    {item.slNhapNccCuoi}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
+          {/* <TableBody>
+            {rows.map((item, index) => {
+              const code = item.maHang?.trim().toUpperCase();
+
+              const xntByCode =
+                data.xntDetail?.find((x) => x.maHang?.trim().toUpperCase() === code) ?? null;
+
+              const slTonToiUu = Number(item.slTonToiUu) || Number(xntByCode?.slTonToiUu) || 0;
+
+              const tonCuoi = Number(item.tonCuoi) || Number(xntByCode?.tonCuoi) || 0;
+
+              const slBanCuoi = Number(item.slBanCuoi) || Number(xntByCode?.xuatBan) || 0;
+
+              const slNhapNccCuoi = Number(item.slNhapNccCuoi) || Number(xntByCode?.nhapNcc) || 0;
+
+              return (
+                <TableRow key={`${item.id}-${index}`}>
+                  <TableCell align="center">{index + 1}</TableCell>
+
+                  <TableCell sx={{ width: 120 }}>{item.maHang}</TableCell>
+
+                  <TableCell sx={{ width: 180 }}>{item.tenSp}</TableCell>
+
+                  <TableCell align="center">{item.dvt}</TableCell>
+
+                  <TableCell align="center" sx={{ width: 65 }}>
+                    {Number(item.donGia || 0).toLocaleString('vi-VN')}
+                  </TableCell>
+
+                  <TableCell align="center" sx={{ width: 50 }}>
+                    {item.soLuong}
+                  </TableCell>
+
+                  {showPGD && (
+                    <TableCell align="center" sx={{ width: 45 }}>
+                      {item.soLuongPGDDuyet}
+                    </TableCell>
+                  )}
+
+                  {showGD && (
+                    <TableCell align="center" sx={{ width: 45 }}>
+                      {item.soLuongGDDuyet}
+                    </TableCell>
+                  )}
+
+                  <TableCell>
+                    {editMode ? (
+                      <TextField
+                        variant="standard"
+                        multiline
+                        fullWidth
+                        InputProps={{
+                          disableUnderline: true,
+                        }}
+                        value={item.ghiChuHangHoa || ''}
+                        onChange={(e) => handleChange(index, 'ghiChuHangHoa', e.target.value)}
+                      />
+                    ) : (
+                      item.ghiChuHangHoa
+                    )}
+                  </TableCell>
+
+                  <TableCell align="center" sx={{ width: 55 }}>
+                    {item.slKhoDat}
+                  </TableCell>
+
+                  <TableCell align="center" sx={{ width: 120 }}>
+                    {item.slCoTheDat}
+                  </TableCell>
+
+                  <TableCell align="center" sx={{ width: 55 }}>
+                    {slTonToiUu}
+                  </TableCell>
+
+                  <TableCell align="center" sx={{ width: 55 }}>
+                    {tonCuoi}
+                  </TableCell>
+
+                  <TableCell align="center" sx={{ width: 55 }}>
+                    {slBanCuoi}
+                  </TableCell>
+
+                  <TableCell align="center" sx={{ width: 55 }}>
+                    {slNhapNccCuoi}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody> */}
         </Table>
 
         {data.lyDoTraLai !== null && (
