@@ -11,6 +11,7 @@ import { editUserInfo } from 'src/apis/user';
 import { useAuth } from 'src/context/authContext';
 
 import { FormField } from 'src/components/form';
+import { LoadingBackdrop } from 'src/components/loading';
 import { showAlert, capitalizeFirstLetter } from 'src/components/alert';
 
 import { widthImport } from 'src/sections/invoice-it/utils';
@@ -57,7 +58,7 @@ export function EditUserInfo({ handleClose, data }: EditUserInfoProps) {
     { name: 'address', label: 'Địa chỉ' },
   ];
 
-  const { mutate } = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: (values: EditUserPayload) => {
       const formatValue = {
         ...values,
@@ -102,30 +103,33 @@ export function EditUserInfo({ handleClose, data }: EditUserInfoProps) {
     mutate(payload);
   };
   return (
-    <form onSubmit={handleSubmit(handleForSubmit)}>
-      <DialogTitle>Sửa thông tin cá nhân</DialogTitle>
-      <DialogContent>
-        {fields.map((f, index) => (
-          <FormField key={f.name} label={f.label}>
-            <TextField
-              type={f.name === 'brithday' ? 'date' : 'text'}
-              variant="standard"
-              sx={{ ...widthImport }}
-              {...register(f.name)}
-              error={!!errors[f.name]}
-              helperText={errors[f.name]?.message}
-            />
-          </FormField>
-        ))}
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose} color="inherit">
-          Huỷ
-        </Button>
-        <Button type="submit" variant="contained">
-          Đồng ý
-        </Button>
-      </DialogActions>
-    </form>
+    <>
+      <form onSubmit={handleSubmit(handleForSubmit)}>
+        <DialogTitle>Sửa thông tin cá nhân</DialogTitle>
+        <DialogContent>
+          {fields.map((f, index) => (
+            <FormField key={f.name} label={f.label}>
+              <TextField
+                type={f.name === 'brithday' ? 'date' : 'text'}
+                variant="standard"
+                sx={{ ...widthImport }}
+                {...register(f.name)}
+                error={!!errors[f.name]}
+                helperText={errors[f.name]?.message}
+              />
+            </FormField>
+          ))}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="inherit">
+            Huỷ
+          </Button>
+          <Button type="submit" variant="contained">
+            Đồng ý
+          </Button>
+        </DialogActions>
+      </form>
+      <LoadingBackdrop open={isPending} message="Đang xử lý, vui lòng chờ..." />
+    </>
   );
 }

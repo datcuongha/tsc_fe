@@ -636,7 +636,6 @@ import { handleExportData } from 'src/components/export';
 import type { EditDatHangTMProps } from './type';
 
 export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
-
   const queryClient = useQueryClient();
   const thuMuaRefs = useRef<(HTMLInputElement | null)[]>([]);
   const chuThichRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -770,12 +769,16 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
           x.chiNhanh?.trim() === row.chiNhanh?.trim() && x.maHang?.trim().toUpperCase() === code
       );
 
-      // =====================================================
-      // TÌM DETAIL TỔNG THEO MÃ HÀNG
-      // =====================================================
+      const xntByCode = data?.xntDetail?.find(
+        (x) => x.maHang?.trim().toUpperCase() === code && x.slTonToiUu != null
+      );
       const detailByCode = data?.phieuDatHangDetail?.find(
         (x) => x.maHang?.trim().toUpperCase() === code
       );
+
+      const canhBao = detailByCode?.canhBao ?? xntByCode?.canhBao ?? 'SKU chưa có trong định mức';
+
+      const slCoTheDat = Number(detailByCode?.slCoTheDat ?? xntByCode?.slTonToiUu) || 0;
 
       // =====================================================
       // TÌM ĐỀ XUẤT CŨ ĐÚNG CHI NHÁNH + MÃ HÀNG
@@ -784,11 +787,6 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
         (x) =>
           x.chiNhanh?.trim() === row.chiNhanh?.trim() && x.maHang?.trim().toUpperCase() === code
       );
-
-      // =====================================================
-      // CẢNH BÁO
-      // =====================================================
-      const canhBao = detailByCode?.canhBao ?? 'SKU chưa có trong định mức';
 
       // =====================================================
       // KIỂM TRA NCC
@@ -841,7 +839,7 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
                 // định mức
                 canhBao,
 
-                slCoTheDat: Number(detailByCode?.slCoTheDat) || 0,
+                slCoTheDat,
               }
             : item
         )
@@ -1023,8 +1021,6 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
 
           <TableBody>
             {paginatedData.map((row, index) => {
-              console.log(paginatedData);
-
               const xntRows = data.xntDetail.filter((item) => item['maHang'] === row['maHang']);
               return (
                 <TableRow
@@ -1036,7 +1032,6 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
                       ? new Date(row['ngayKhoDat']).toLocaleDateString('vi-VN')
                       : ''}
                   </TableCell> */}
-
                   <TableCell>
                     <TextField
                       select
@@ -1068,7 +1063,6 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
                       ))}
                     </TextField>
                   </TableCell>
-
                   <TableCell>
                     <Box
                       sx={{
@@ -1152,7 +1146,6 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
                       </Tooltip>
                     </Box>
                   </TableCell>
-
                   <TableCell>{row['tenHang']}</TableCell>
                   <TableCell>{row['ghiChu']}</TableCell>
                   <TableCell>{row['slKhoDat']}</TableCell>
@@ -1161,7 +1154,6 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
                   <TableCell>{row['nhapChuyen']}</TableCell>
                   <TableCell>{row['xuatBan']}</TableCell>
                   <TableCell>{row['tonCuoi']}</TableCell>
-
                   <TableCell>
                     <TextField
                       inputRef={(el) => {
@@ -1197,17 +1189,12 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
                     />
                   </TableCell>
 
+                  <TableCell>{row['canhBao']}</TableCell>
                   <TableCell>
-                    {data.phieuDatHangDetail?.find((item) => item.maHang === row.maHang)?.canhBao ??
-                      ''}
-                  </TableCell>
-
-                  <TableCell>
-                    {data.phieuDatHangDetail?.find(
-                      (item) =>
-                        item.maHang?.trim().toUpperCase() === row.maHang?.trim().toUpperCase()
-                    )?.slCoTheDat ?? 0}
-                  </TableCell>
+                    {Number(row['slCoTheDat']) === 0
+                      ? 'SKU chưa có trong định mức'
+                      : row['slCoTheDat']}
+                  </TableCell>{' '}
                   <TableCell>
                     <TextField
                       inputRef={(el) => {
@@ -1238,7 +1225,6 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
                       }}
                     />
                   </TableCell>
-
                   <TableCell align="center">
                     {row.ghiChu === '' && (
                       <IconButton color="error" size="small" onClick={() => handleDeleteRow(row)}>

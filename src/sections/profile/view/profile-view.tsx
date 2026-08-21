@@ -7,7 +7,8 @@ import { getUserInfo } from 'src/apis/user';
 import { useAuth } from 'src/context/authContext';
 import { DashboardContent } from 'src/layouts/dashboard';
 
-import {  ButtonGroup } from 'src/components/button';
+import { ButtonGroup } from 'src/components/button';
+import { LoadingBackdrop } from 'src/components/loading';
 import { useModal, ModalManager } from 'src/components/modal';
 import { PageHeader } from 'src/components/primary-temp/primary-temp';
 
@@ -20,7 +21,7 @@ export function ProfileView() {
   const isLocalUser = user?.data?.authType === 'doamin';
   const { open, openModal, closeModal } = useModal();
 
-  const { data: dataUser = {} } = useQuery({
+  const { data: dataUser = {}, isLoading } = useQuery({
     queryKey: ['userInfo', user?.data.userId],
     queryFn: () => getUserInfo(user?.data.userId),
     enabled: !!user?.data.userId,
@@ -122,6 +123,8 @@ export function ProfileView() {
         {open === 'editProfileUser' && <EditUserInfo data={dataUser} handleClose={closeModal} />}
         {open === 'changePass' && <ChangePass data={dataUser} handleClose={closeModal} />}
       </ModalManager>
+
+      <LoadingBackdrop open={isLoading} message="Đang tải, vui lòng chờ..." />
     </>
   );
 }

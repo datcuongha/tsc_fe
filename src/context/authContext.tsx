@@ -57,7 +57,7 @@ export const AuthProvider = ({ children }: any) => {
     localStorage.setItem('accessToken', token);
 
     const decoded: any = jwtDecode(token);
-    console.log('Decoded JWT:', decoded);
+    // console.log('Decoded JWT:', decoded);
     setUser(decoded);
   };
 
