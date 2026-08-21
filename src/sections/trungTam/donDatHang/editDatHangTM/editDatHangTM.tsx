@@ -791,7 +791,7 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
       const canhBao =
         detailXNTByCode?.canhBao ?? detailByCode?.canhBao ?? 'SKU chưa có trong định mức';
       const slCoTheDat =
-        detailXNTByCode?.canhBao ?? detailByCode?.canhBao ?? 'SKU chưa có trong định mức';
+        detailXNTByCode?.slTonToiUu ?? detailByCode?.slCoTheDat ?? 'SKU chưa có trong định mức';
 
       // =====================================================
       // KIỂM TRA NCC
