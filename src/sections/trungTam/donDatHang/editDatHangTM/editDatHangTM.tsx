@@ -769,16 +769,13 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
           x.chiNhanh?.trim() === row.chiNhanh?.trim() && x.maHang?.trim().toUpperCase() === code
       );
 
-      const xntByCode = data?.xntDetail?.find(
-        (x) => x.maHang?.trim().toUpperCase() === code && x.slTonToiUu != null
-      );
+      // =====================================================
+      // TÌM DETAIL TỔNG THEO MÃ HÀNG
+      // =====================================================
       const detailByCode = data?.phieuDatHangDetail?.find(
         (x) => x.maHang?.trim().toUpperCase() === code
       );
-
-      const canhBao = detailByCode?.canhBao ?? xntByCode?.canhBao ?? 'SKU chưa có trong định mức';
-
-      const slCoTheDat = Number(detailByCode?.slCoTheDat ?? xntByCode?.slTonToiUu) || 0;
+      const detailXNTByCode = data?.xntDetail?.find((x) => x.maHang?.trim().toUpperCase() === code);
 
       // =====================================================
       // TÌM ĐỀ XUẤT CŨ ĐÚNG CHI NHÁNH + MÃ HÀNG
@@ -787,6 +784,14 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
         (x) =>
           x.chiNhanh?.trim() === row.chiNhanh?.trim() && x.maHang?.trim().toUpperCase() === code
       );
+
+      // =====================================================
+      // CẢNH BÁO
+      // =====================================================
+      const canhBao =
+        detailXNTByCode?.canhBao ?? detailByCode?.canhBao ?? 'SKU chưa có trong định mức';
+      const slCoTheDat =
+        detailXNTByCode?.canhBao ?? detailByCode?.canhBao ?? 'SKU chưa có trong định mức';
 
       // =====================================================
       // KIỂM TRA NCC
@@ -839,7 +844,7 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
                 // định mức
                 canhBao,
 
-                slCoTheDat,
+                slCoTheDat: Number(slCoTheDat),
               }
             : item
         )
@@ -1021,7 +1026,34 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
 
           <TableBody>
             {paginatedData.map((row, index) => {
+              const code = row.maHang?.trim().toUpperCase();
               const xntRows = data.xntDetail.filter((item) => item['maHang'] === row['maHang']);
+              const detailByCode = data.phieuDatHangDetail?.find(
+                (item) => item.maHang?.trim().toUpperCase() === code
+              );
+              // =====================================================
+              // XNT FALLBACK THEO MÃ HÀNG
+              // ưu tiên dòng có SL tồn tối ưu
+              // =====================================================
+              const xntByCode = data.xntDetail?.find(
+                (item) => item.maHang?.trim().toUpperCase() === code && item.slTonToiUu != null
+              );
+
+              // =====================================================
+              // CẢNH BÁO
+              // =====================================================
+              const canhBao =
+                detailByCode?.canhBao ??
+                xntByCode?.canhBao ??
+                row.canhBao ??
+                'SKU chưa có trong định mức';
+
+              // =====================================================
+              // SL CÓ THỂ ĐẶT
+              // =====================================================
+              const slCoTheDat = Number(
+                detailByCode?.slCoTheDat ?? xntByCode?.slTonToiUu ?? row.slCoTheDat ?? 0
+              );
               return (
                 <TableRow
                   key={`${row['chiNhanh']}-${row['maHang']}-${row['tenHang']}-${page}-${index}`}
@@ -1189,12 +1221,12 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
                     />
                   </TableCell>
 
-                  <TableCell>{row['canhBao']}</TableCell>
+                  <TableCell>{canhBao}</TableCell>
+
                   <TableCell>
-                    {Number(row['slCoTheDat']) === 0
-                      ? 'SKU chưa có trong định mức'
-                      : row['slCoTheDat']}
-                  </TableCell>{' '}
+                    {slCoTheDat === 0 ? 'SKU chưa có trong định mức' : slCoTheDat}
+                  </TableCell>
+
                   <TableCell>
                     <TextField
                       inputRef={(el) => {
@@ -1255,7 +1287,7 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
           variant="contained"
           startIcon={<Add />}
           onClick={handleAddRow}
-          disabled={['DA_DUYET', 'TRA_LAI'].includes(data.trangThai)}
+          disabled={['DA_DUYET', 'TRA_LAI','CHO_DUYET'].includes(data.trangThai)}
         >
           Thêm
         </Button>
