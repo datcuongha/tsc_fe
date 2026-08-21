@@ -1053,9 +1053,10 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
               // =====================================================
               // SL CÓ THỂ ĐẶT
               // =====================================================
-              const slCoTheDat = Number(
-                detailByCode?.slCoTheDat ?? xntByCode?.slTonToiUu ?? row.slCoTheDat ?? 0
-              );
+              const slCoTheDat: number | string =
+                detailByCode?.['slCoTheDat'] ??
+                xntByCode?.['slTonToiUu'] ??
+                'SKU chưa có trong định mức';
               return (
                 <TableRow
                   key={`${row['chiNhanh']}-${row['maHang']}-${row['tenHang']}-${page}-${index}`}
@@ -1230,8 +1231,8 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
                       {row.canhBao === 'Vượt tồn tối ưu'
                         ? 'Vượt tồn tối ưu'
                         : Number(row.slCoTheDat) === 0
-                          ? 'SKU chưa có trong định mức'
-                          : row.slCoTheDat}
+                          ? slCoTheDat
+                          : slCoTheDat}
                     </TableCell>
                   </TableCell>
 
