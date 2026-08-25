@@ -1030,11 +1030,16 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
             {paginatedData.map((row, index) => {
               const code = row.maHang?.trim().toUpperCase();
               const xntRows = data.xntDetail.filter((item) => item['maHang'] === row['maHang']);
+
+              const totalTon = xntRows.reduce((sum, item) => sum + Number(item.tonCuoi ?? 0), 0);
+
+              const tonToiUu = Number(xntRows[0]?.slTonToiUu ?? 0);
+
               const detailByCode = data.phieuDatHangDetail?.find(
                 (item) => item.maHang?.trim().toUpperCase() === code
               );
               // =====================================================
-              // XNT FALLBACK THEO MÃ HÀNG
+              // XNT FALLBACK THEO MÃ HÀNGÍ
               // ưu tiên dòng có SL tồn tối ưu
               // =====================================================
               const xntByCode = data.xntDetail?.find(
@@ -1053,10 +1058,18 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
               // =====================================================
               // SL CÓ THỂ ĐẶT
               // =====================================================
+              // const slCoTheDat: number | string =
+              //   detailByCode?.['slCoTheDat'] ??
+              //   xntByCode?.['slTonToiUu'] ??
+              //   'SKU chưa có trong định mức';
+
               const slCoTheDat: number | string =
-                detailByCode?.['slCoTheDat'] ??
-                xntByCode?.['slTonToiUu'] ??
-                'SKU chưa có trong định mức';
+                xntRows.length === 0
+                  ? 'SKU chưa có trong định mức'
+                  : totalTon <= tonToiUu
+                    ? tonToiUu - totalTon
+                    : 'Vượt tồn tối ưu';
+
               return (
                 <TableRow
                   key={`${row['chiNhanh']}-${row['maHang']}-${row['tenHang']}-${page}-${index}`}

@@ -42,8 +42,80 @@ export function InDeXuat({ data, handleClose, userButton }: InDeXuatProps) {
   const handlePrint = useReactToPrint({
     contentRef: printRef,
     documentTitle: `Phieu De Xuat-${data.maPhieu}`,
+
+    pageStyle: `
+    @page {
+      size: A4 landscape;
+      margin: 6mm 10mm;
+    }
+
+    @media print {
+      html,
+      body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #fff !important;
+        font-family: "Times New Roman", serif !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      * {
+        box-sizing: border-box;
+        font-family: "Times New Roman", serif !important;
+      }
+
+      .print-content {
+        width: 100% !important;
+        min-height: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        overflow: visible !important;
+      }
+
+      table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        table-layout: auto !important;
+        page-break-inside: auto;
+      }
+
+      thead {
+        display: table-header-group !important;
+      }
+
+      tbody {
+        display: table-row-group !important;
+      }
+
+      tr {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+
+      th,
+      td {
+        padding: 1.5px !important;
+        line-height: 1.15 !important;
+        font-size: 10px !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+
+      .keep-together {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+
+      .no-print {
+        display: none !important;
+      }
+    }
+  `,
   });
 
+  const fileName = `${data.maPhieu} - ${data.tenNcc}`;
   const handleExportExcel = () => {
     const exportData = data.phieuDatHangDetail
       .filter((item) => Number(item.soLuongGDDuyet) > 0)
@@ -62,7 +134,7 @@ export function InDeXuat({ data, handleClose, userButton }: InDeXuatProps) {
 
     XLSX.utils.book_append_sheet(workbook, worksheet, 'DeXuat');
 
-    XLSX.writeFile(workbook, 'de-xuat.xlsx');
+    XLSX.writeFile(workbook, `Đề xuất ${fileName} .xlsx`);
   };
 
   const sendMutation = useMutation({
@@ -143,7 +215,7 @@ export function InDeXuat({ data, handleClose, userButton }: InDeXuatProps) {
 
   return (
     <>
-      <style>
+      {/* <style>
         {`
     @media print {
 
@@ -216,421 +288,361 @@ export function InDeXuat({ data, handleClose, userButton }: InDeXuatProps) {
 
     }
   `}
-      </style>
-
-      <DialogActions className="no-print">
-        <Button onClick={handleClose}>Đóng</Button>
-
-        <Button
-          color={editMode ? 'success' : 'warning'}
-          disabled={isChoDuyet || daDuyet}
-          variant="contained"
-          onClick={() => {
-            if (editMode) {
-              handleUpdate();
-            } else {
-              setEditMode(true);
-            }
-          }}
-        >
-          {editMode ? 'Lưu' : 'Sửa thông tin'}
-        </Button>
-
-        {daDuyet && (
-          <Button variant="contained" color="info" onClick={handleExportExcel}>
-            Xuất file Kiot
-          </Button>
-        )}
-        <Button variant="contained" onClick={() => handlePrint()}>
-          In
-        </Button>
-        {userButton?.data?.vaiTroId === 6 && (
-          <Button
-            variant="contained"
-            color="success"
-            onClick={handleSendEmail}
-            disabled={isChoDuyet || daDuyet}
-          >
-            {daDuyet ? 'Đã duyệt' : isChoDuyet ? 'Chờ duyệt' : 'Gửi duyệt'}
-          </Button>
-        )}
-      </DialogActions>
-
+      </style> */}
       <Box
-        id="print-area"
         ref={printRef}
+        className="print-content"
         sx={{
           width: '297mm',
-
           background: '#fff',
           color: '#000',
-
           p: 1,
-          pb: '20mm',
-
           fontFamily: '"Times New Roman", serif',
           fontSize: 13,
-
           boxSizing: 'border-box',
-
           margin: '0 auto',
 
           '@media screen': {
+            minHeight: '210mm',
             boxShadow: 3,
+          },
+
+          '@media print': {
+            width: '100%',
+            minHeight: 0,
+            margin: 0,
+            padding: 0,
+            boxShadow: 'none',
+            overflow: 'visible',
           },
         }}
       >
-        {/* HEADER */}
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            mb: 4,
-          }}
-        >
-          <Box textAlign="center">
-            <Box fontWeight="bold">CN CÔNG TY CP TM-DV BẾN THÀNH</Box>
-            <Box>Trung tâm Bến Thành Đông</Box>
-          </Box>
+        <DialogActions className="no-print">
+          <Button onClick={handleClose}>Đóng</Button>
 
-          <Box textAlign="center">
-            <Box fontWeight="bold">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</Box>
-            <Box>Độc lập - Tự do - Hạnh phúc</Box>
-          </Box>
-        </Box>
+          <Button
+            color={editMode ? 'success' : 'warning'}
+            disabled={isChoDuyet || daDuyet}
+            variant="contained"
+            onClick={() => {
+              if (editMode) {
+                handleUpdate();
+              } else {
+                setEditMode(true);
+              }
+            }}
+          >
+            {editMode ? 'Lưu' : 'Sửa thông tin'}
+          </Button>
 
-        {/* TITLE */}
-        <Box textAlign="center" mb={3}>
-          <Box fontSize={24} fontWeight="bold">
-            PHIẾU ĐỀ XUẤT ĐẶT HÀNG
-          </Box>
-        </Box>
-
-        {/* INFO */}
-        <Box mb={1}>
-          <b>Tên công ty:</b> {data.congTy}
-        </Box>
-
-        <Box mb={1}>
-          <b>Nhà cung cấp:</b> {data.tenNcc}
-        </Box>
-
-        <Box mb={1}>
-          <b>Ngày kho đặt hàng:</b>{' '}
-          {dates.length
-            ? dates.length === 1
-              ? new Date(dates[0]).toLocaleDateString('vi-VN')
-              : `${new Date(dates[0]).toLocaleDateString('vi-VN')} - ${new Date(
-                  dates[dates.length - 1]
-                ).toLocaleDateString('vi-VN')}`
-            : ''}
-        </Box>
-
-        <Box mb={1}>
-          <b>Phiếu kho đặt hàng:</b>{' '}
-          {[...new Set(data.phieuDeXuatDetail.map((x) => x.phieuDatHangNhap).filter(Boolean))].join(
-            ', '
+          {daDuyet && (
+            <Button variant="contained" color="info" onClick={handleExportExcel}>
+              Xuất file Kiot
+            </Button>
           )}
-        </Box>
+          <Button variant="contained" onClick={() => handlePrint()}>
+            In
+          </Button>
+          {userButton?.data?.vaiTroId === 6 && (
+            <Button
+              variant="contained"
+              color="success"
+              onClick={handleSendEmail}
+              disabled={isChoDuyet || daDuyet}
+            >
+              {daDuyet ? 'Đã duyệt' : isChoDuyet ? 'Chờ duyệt' : 'Gửi duyệt'}
+            </Button>
+          )}
+        </DialogActions>
 
         <Box
+          id="print-area"
+          ref={printRef}
           sx={{
-            display: 'flex',
-            width: 'auto',
-            mx: 'auto',
-          }}
-        >
-          <Box sx={{ flex: 1, textAlign: 'left' }}>
-            <Box fontWeight="bold">Nội dung đề xuất như sau:</Box>
-          </Box>
+            width: '297mm',
 
-          <Box sx={{ flex: 1, textAlign: 'right' }}>
-            <Box fontWeight="bold">
-              <b>Kỳ số liệu tham khảo:</b>
-              {data.fromDate ? new Date(data.fromDate).toLocaleDateString('vi-VN') : ''} -{' '}
-              {data.toDate ? new Date(data.toDate).toLocaleDateString('vi-VN') : ''}
-            </Box>
-          </Box>
-        </Box>
+            background: '#fff',
+            color: '#000',
 
-        {/* TABLE */}
-        <Table
-          sx={{
-            border: '1px solid black',
-            '& td, & th': {
-              border: '1px solid black',
-              padding: '4px',
-              fontFamily: '"Times New Roman", serif',
-              fontSize: 13,
+            p: 1,
+            pb: '20mm',
+
+            fontFamily: '"Times New Roman", serif',
+            fontSize: 13,
+
+            boxSizing: 'border-box',
+
+            margin: '0 auto',
+
+            '@media screen': {
+              boxShadow: 3,
             },
           }}
         >
-          <TableHead>
-            <TableRow>
-              <TableCell align="center">STT</TableCell>
+          {/* HEADER */}
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              mb: 4,
+            }}
+          >
+            <Box textAlign="center">
+              <Box fontWeight="bold">CN CÔNG TY CP TM-DV BẾN THÀNH</Box>
+              <Box>Trung tâm Bến Thành Đông</Box>
+            </Box>
 
-              <TableCell align="center">Mã hàng</TableCell>
+            <Box textAlign="center">
+              <Box fontWeight="bold">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</Box>
+              <Box>Độc lập - Tự do - Hạnh phúc</Box>
+            </Box>
+          </Box>
 
-              <TableCell align="center">Tên sản phẩm</TableCell>
+          {/* TITLE */}
+          <Box textAlign="center" mb={3}>
+            <Box fontSize={24} fontWeight="bold">
+              PHIẾU ĐỀ XUẤT ĐẶT HÀNG
+            </Box>
+          </Box>
 
-              <TableCell align="center">ĐVT</TableCell>
+          {/* INFO */}
+          <Box mb={1}>
+            <b>Tên công ty:</b> {data.congTy}
+          </Box>
 
-              <TableCell align="center">Đơn giá</TableCell>
+          <Box mb={1}>
+            <b>Nhà cung cấp:</b> {data.tenNcc}
+          </Box>
 
-              <TableCell align="center">TM đề xuất</TableCell>
+          <Box mb={1}>
+            <b>Ngày kho đặt hàng:</b>{' '}
+            {dates.length
+              ? dates.length === 1
+                ? new Date(dates[0]).toLocaleDateString('vi-VN')
+                : `${new Date(dates[0]).toLocaleDateString('vi-VN')} - ${new Date(
+                    dates[dates.length - 1]
+                  ).toLocaleDateString('vi-VN')}`
+              : ''}
+          </Box>
 
-              {showPGD && <TableCell align="center">PGD duyệt</TableCell>}
+          <Box mb={1}>
+            <b>Phiếu kho đặt hàng:</b>{' '}
+            {[
+              ...new Set(data.phieuDeXuatDetail.map((x) => x.phieuDatHangNhap).filter(Boolean)),
+            ].join(', ')}
+          </Box>
 
-              {showGD && <TableCell align="center">GD duyệt</TableCell>}
+          <Box
+            sx={{
+              display: 'flex',
+              width: 'auto',
+              mx: 'auto',
+            }}
+          >
+            <Box sx={{ flex: 1, textAlign: 'left' }}>
+              <Box fontWeight="bold">Nội dung đề xuất như sau:</Box>
+            </Box>
 
-              <TableCell align="center">Ghi chú hàng hoá</TableCell>
+            <Box sx={{ flex: 1, textAlign: 'right' }}>
+              <Box fontWeight="bold">
+                <b>Kỳ số liệu tham khảo:</b>
+                {data.fromDate ? new Date(data.fromDate).toLocaleDateString('vi-VN') : ''} -{' '}
+                {data.toDate ? new Date(data.toDate).toLocaleDateString('vi-VN') : ''}
+              </Box>
+            </Box>
+          </Box>
 
-              <TableCell align="center">SL kho đặt</TableCell>
+          {/* TABLE */}
+          <Table
+            sx={{
+              border: '1px solid black',
+              '& td, & th': {
+                border: '1px solid black',
+                padding: '4px',
+                fontFamily: '"Times New Roman", serif',
+                fontSize: 13,
+              },
+            }}
+          >
+            <TableHead>
+              <TableRow>
+                <TableCell align="center">STT</TableCell>
 
-              <TableCell align="center">Chênh lệch Tồn cuối và Tồn tối ưu</TableCell>
+                <TableCell align="center">Mã hàng</TableCell>
 
-              <TableCell align="center">SL tồn tối ưu</TableCell>
+                <TableCell align="center">Tên sản phẩm</TableCell>
 
-              <TableCell align="center">SL tồn cuối kỳ</TableCell>
+                <TableCell align="center">ĐVT</TableCell>
 
-              <TableCell align="center">SL bán kỳ</TableCell>
+                <TableCell align="center">Đơn giá</TableCell>
 
-              <TableCell align="center">SL nhập kỳ</TableCell>
-            </TableRow>
-          </TableHead>
+                <TableCell align="center">TM đề xuất</TableCell>
 
-          <TableBody>
-            {rows.map((item, index) => {
-              const code = item.maHang?.trim().toUpperCase();
+                {showPGD && <TableCell align="center">PGD duyệt</TableCell>}
 
-              const xntByCode =
-                data.xntDetail?.filter((x) => x.maHang?.trim().toUpperCase() === code) ?? [];
+                {showGD && <TableCell align="center">GD duyệt</TableCell>}
 
-              const totalXnt = xntByCode.reduce(
-                (total, x) => ({
-                  tonCuoi: total.tonCuoi + (Number(x.tonCuoi) || 0),
-                  xuatBan: total.xuatBan + (Number(x.xuatBan) || 0),
-                }),
-                {
-                  tonCuoi: 0,
-                  xuatBan: 0,
-                }
-              );
+                <TableCell align="center">Ghi chú hàng hoá</TableCell>
 
-              const tonCuoi = Number(item.tonCuoi) || totalXnt.tonCuoi || 0;
+                <TableCell align="center">SL kho đặt</TableCell>
 
-              const slBanCuoi = Number(item.slBanCuoi) || totalXnt.xuatBan || 0;
+                <TableCell align="center">Chênh lệch Tồn cuối và Tồn tối ưu</TableCell>
 
-              const slTonToiUu = Number(item.slTonToiUu) || Number(xntByCode[0]?.slTonToiUu) || 0;
-              return (
-                <TableRow key={`${item.id}-${index}`}>
-                  <TableCell align="center">{index + 1}</TableCell>
-                  <TableCell sx={{ width: 120 }}>{item.maHang}</TableCell>
-                  <TableCell sx={{ width: 180 }}>{item.tenSp}</TableCell>
-                  <TableCell align="center">{item.dvt}</TableCell>
-                  <TableCell align="center" sx={{ width: 65 }}>
-                    {Number(item.donGia || 0).toLocaleString('vi-VN')}
-                  </TableCell>
-                  <TableCell align="center" sx={{ width: 50 }}>
-                    {item.soLuong}
-                  </TableCell>
-                  {showPGD && (
-                    <TableCell align="center" sx={{ width: 45 }}>
-                      {item.soLuongPGDDuyet}
+                <TableCell align="center">SL tồn tối ưu</TableCell>
+
+                <TableCell align="center">SL tồn cuối kỳ</TableCell>
+
+                <TableCell align="center">SL bán kỳ</TableCell>
+
+                <TableCell align="center">SL nhập kỳ</TableCell>
+              </TableRow>
+            </TableHead>
+
+            <TableBody>
+              {rows.map((item, index) => {
+                const code = item.maHang?.trim().toUpperCase();
+
+                const xntByCode =
+                  data.xntDetail?.filter((x) => x.maHang?.trim().toUpperCase() === code) ?? [];
+
+                const totalXnt = xntByCode.reduce(
+                  (total, x) => ({
+                    tonCuoi: total.tonCuoi + (Number(x.tonCuoi) || 0),
+                    xuatBan: total.xuatBan + (Number(x.xuatBan) || 0),
+                  }),
+                  {
+                    tonCuoi: 0,
+                    xuatBan: 0,
+                  }
+                );
+
+                const tonCuoi = Number(item.tonCuoi) || totalXnt.tonCuoi || 0;
+
+                const slBanCuoi = Number(item.slBanCuoi) || totalXnt.xuatBan || 0;
+
+                const slTonToiUu = Number(item.slTonToiUu) || Number(xntByCode[0]?.slTonToiUu) || 0;
+                return (
+                  <TableRow key={`${item.id}-${index}`}>
+                    <TableCell align="center">{index + 1}</TableCell>
+                    <TableCell sx={{ width: 120 }}>{item.maHang}</TableCell>
+                    <TableCell sx={{ width: 180 }}>{item.tenSp}</TableCell>
+                    <TableCell align="center">{item.dvt}</TableCell>
+                    <TableCell align="center" sx={{ width: 65 }}>
+                      {Number(item.donGia || 0).toLocaleString('vi-VN')}
                     </TableCell>
-                  )}
-                  {showGD && (
-                    <TableCell align="center" sx={{ width: 45 }}>
-                      {item.soLuongGDDuyet}
+                    <TableCell align="center" sx={{ width: 50 }}>
+                      {item.soLuong}
                     </TableCell>
-                  )}
-                  <TableCell>
-                    {editMode ? (
-                      <TextField
-                        variant="standard"
-                        multiline
-                        fullWidth
-                        InputProps={{ disableUnderline: true }}
-                        value={item.ghiChuHangHoa || ''}
-                        onChange={(e) => handleChange(index, 'ghiChuHangHoa', e.target.value)}
-                      />
-                    ) : (
-                      item.ghiChuHangHoa
+                    {showPGD && (
+                      <TableCell align="center" sx={{ width: 45 }}>
+                        {item.soLuongPGDDuyet}
+                      </TableCell>
                     )}
-                  </TableCell>
-
-                  <TableCell align="center" sx={{ width: 55 }}>
-                    {item.slKhoDat}
-                  </TableCell>
-
-                  <TableCell align="center" sx={{ width: 120 }}>
-                    {item.slCoTheDat}
-                  </TableCell>
-
-                  <TableCell align="center" sx={{ width: 55 }}>
-                    {slTonToiUu}
-                  </TableCell>
-
-                  <TableCell align="center" sx={{ width: 55 }}>
-                    {tonCuoi}
-                  </TableCell>
-
-                  <TableCell align="center" sx={{ width: 55 }}>
-                    {slBanCuoi}
-                  </TableCell>
-
-                  <TableCell align="center" sx={{ width: 55 }}>
-                    {item.slNhapNccCuoi}
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-          {/* <TableBody>
-            {rows.map((item, index) => {
-              const code = item.maHang?.trim().toUpperCase();
-
-              const xntByCode =
-                data.xntDetail?.find((x) => x.maHang?.trim().toUpperCase() === code) ?? null;
-
-              const slTonToiUu = Number(item.slTonToiUu) || Number(xntByCode?.slTonToiUu) || 0;
-
-              const tonCuoi = Number(item.tonCuoi) || Number(xntByCode?.tonCuoi) || 0;
-
-              const slBanCuoi = Number(item.slBanCuoi) || Number(xntByCode?.xuatBan) || 0;
-
-              const slNhapNccCuoi = Number(item.slNhapNccCuoi) || Number(xntByCode?.nhapNcc) || 0;
-
-              return (
-                <TableRow key={`${item.id}-${index}`}>
-                  <TableCell align="center">{index + 1}</TableCell>
-
-                  <TableCell sx={{ width: 120 }}>{item.maHang}</TableCell>
-
-                  <TableCell sx={{ width: 180 }}>{item.tenSp}</TableCell>
-
-                  <TableCell align="center">{item.dvt}</TableCell>
-
-                  <TableCell align="center" sx={{ width: 65 }}>
-                    {Number(item.donGia || 0).toLocaleString('vi-VN')}
-                  </TableCell>
-
-                  <TableCell align="center" sx={{ width: 50 }}>
-                    {item.soLuong}
-                  </TableCell>
-
-                  {showPGD && (
-                    <TableCell align="center" sx={{ width: 45 }}>
-                      {item.soLuongPGDDuyet}
-                    </TableCell>
-                  )}
-
-                  {showGD && (
-                    <TableCell align="center" sx={{ width: 45 }}>
-                      {item.soLuongGDDuyet}
-                    </TableCell>
-                  )}
-
-                  <TableCell>
-                    {editMode ? (
-                      <TextField
-                        variant="standard"
-                        multiline
-                        fullWidth
-                        InputProps={{
-                          disableUnderline: true,
-                        }}
-                        value={item.ghiChuHangHoa || ''}
-                        onChange={(e) => handleChange(index, 'ghiChuHangHoa', e.target.value)}
-                      />
-                    ) : (
-                      item.ghiChuHangHoa
+                    {showGD && (
+                      <TableCell align="center" sx={{ width: 45 }}>
+                        {item.soLuongGDDuyet}
+                      </TableCell>
                     )}
-                  </TableCell>
+                    <TableCell>
+                      {editMode ? (
+                        <TextField
+                          variant="standard"
+                          multiline
+                          fullWidth
+                          InputProps={{ disableUnderline: true }}
+                          value={item.ghiChuHangHoa || ''}
+                          onChange={(e) => handleChange(index, 'ghiChuHangHoa', e.target.value)}
+                        />
+                      ) : (
+                        item.ghiChuHangHoa
+                      )}
+                    </TableCell>
 
-                  <TableCell align="center" sx={{ width: 55 }}>
-                    {item.slKhoDat}
-                  </TableCell>
+                    <TableCell align="center" sx={{ width: 55 }}>
+                      {item.slKhoDat}
+                    </TableCell>
 
-                  <TableCell align="center" sx={{ width: 120 }}>
-                    {item.slCoTheDat}
-                  </TableCell>
+                    <TableCell align="center" sx={{ width: 120 }}>
+                      {item.slCoTheDat}
+                    </TableCell>
 
-                  <TableCell align="center" sx={{ width: 55 }}>
-                    {slTonToiUu}
-                  </TableCell>
+                    <TableCell align="center" sx={{ width: 55 }}>
+                      {slTonToiUu}
+                    </TableCell>
 
-                  <TableCell align="center" sx={{ width: 55 }}>
-                    {tonCuoi}
-                  </TableCell>
+                    <TableCell align="center" sx={{ width: 55 }}>
+                      {tonCuoi}
+                    </TableCell>
 
-                  <TableCell align="center" sx={{ width: 55 }}>
-                    {slBanCuoi}
-                  </TableCell>
+                    <TableCell align="center" sx={{ width: 55 }}>
+                      {slBanCuoi}
+                    </TableCell>
 
-                  <TableCell align="center" sx={{ width: 55 }}>
-                    {slNhapNccCuoi}
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody> */}
-        </Table>
+                    <TableCell align="center" sx={{ width: 55 }}>
+                      {item.slNhapNccCuoi}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
 
-        {data.lyDoTraLai !== null && (
-          <Box m={1}>
-            <b>Lý do trả lại: </b>
-            {data.lyDoTraLai}
-          </Box>
-        )}
-        {/* FOOTER */}
-
-        {/* SIGN */}
-        <Box
-          sx={{
-            display: 'flex',
-            mt: 4,
-            width: 'auto',
-            mx: 'auto',
-            minHeight: '30mm',
-          }}
-        >
-          <Box sx={{ flex: 1, textAlign: 'center' }}>
-            <Box fontWeight="bold">THU MUA </Box>
-            <Box fontWeight="bold" mt={21}>
-              {data.tenNguoiGui}
+          {data.lyDoTraLai && (
+            <Box mt={1}>
+              <b>Lý do trả lại: </b>
+              {data.lyDoTraLai}
             </Box>
-            {data.ngayGui && (
-              <Box fontWeight="bold" mt={1}>
-                Ngày đề xuất: {data.ngayGui ? new Date(data.ngayGui).toLocaleString('vi-VN') : ''}
-              </Box>
-            )}
-          </Box>
+          )}
 
-          <Box sx={{ flex: 1, textAlign: 'center' }}>
-            <Box fontWeight="bold">PHÓ GĐTT / TRƯỞNG KHỐI VẬN HÀNH</Box>
-            <Box fontWeight="bold" mt={21}>
-              {duyetCap1?.users?.fullName ?? ''}
-            </Box>
-            {duyetCap1?.ngayDuyet && (
-              <Box fontWeight="bold" mt={1}>
-                Ngày xét duyệt:{' '}
-                {duyetCap1?.ngayDuyet ? new Date(duyetCap1?.ngayDuyet).toLocaleString('vi-VN') : ''}
-              </Box>
-            )}
-          </Box>
+          <Box
+            className="signature-section"
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              mt: 2,
+              width: '100%',
+              textAlign: 'center',
+            }}
+          >
+            <Box sx={{ flex: 1 }}>
+              <Box fontWeight="bold">THU MUA</Box>
 
-          <Box sx={{ flex: 1, textAlign: 'center' }}>
-            <Box fontWeight="bold">GIÁM ĐỐC TRUNG TÂM</Box>
-            <Box fontWeight="bold" mt={21}>
-              {duyetCap2?.users?.fullName ?? ''}
-            </Box>
-            {duyetCap2?.ngayDuyet && (
-              <Box fontWeight="bold" mt={1}>
-                Ngày phê duyệt:{' '}
-                {duyetCap2?.ngayDuyet ? new Date(duyetCap2?.ngayDuyet).toLocaleString('vi-VN') : ''}
+              <Box fontWeight="bold" mt={15}>
+                {data.tenNguoiGui}
               </Box>
-            )}
+
+              {data.ngayGui && (
+                <Box mt={0.5}>Ngày đề xuất: {new Date(data.ngayGui).toLocaleString('vi-VN')}</Box>
+              )}
+            </Box>
+
+            <Box sx={{ flex: 1 }}>
+              <Box fontWeight="bold">PHÓ GĐTT / TRƯỞNG KHỐI VẬN HÀNH</Box>
+
+              <Box fontWeight="bold" mt={15}>
+                {duyetCap1?.users?.fullName ?? ''}
+              </Box>
+
+              {duyetCap1?.ngayDuyet && (
+                <Box mt={0.5}>
+                  Ngày duyệt: {new Date(duyetCap1.ngayDuyet).toLocaleString('vi-VN')}
+                </Box>
+              )}
+            </Box>
+
+            <Box sx={{ flex: 1 }}>
+              <Box fontWeight="bold">GIÁM ĐỐC</Box>
+
+              <Box fontWeight="bold" mt={15}>
+                {duyetCap2?.users?.fullName ?? ''}
+              </Box>
+
+              {duyetCap2?.ngayDuyet && (
+                <Box mt={0.5}>
+                  Ngày duyệt: {new Date(duyetCap2.ngayDuyet).toLocaleString('vi-VN')}
+                </Box>
+              )}
+            </Box>
           </Box>
         </Box>
       </Box>

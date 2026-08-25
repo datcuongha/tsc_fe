@@ -30,6 +30,11 @@ import { LoadingBackdrop } from 'src/components/loading';
 
 import type { Props } from './type';
 
+const normalize = (value: unknown): string =>
+  String(value ?? '')
+    .trim()
+    .toUpperCase();
+
 export function TongHop({
   pivot,
   pivotXnt,
@@ -124,6 +129,8 @@ export function TongHop({
     // quay về trang đầu để thấy dòng vừa thêm
     setPage(0);
   };
+  console.log('pivot:', pivot);
+  console.log('pivotXnt:', pivotXnt);
 
   const handleDeleteRow = (row: any) => {
     setData((prev) => {
@@ -135,18 +142,108 @@ export function TongHop({
       };
     });
   };
-  console.log(pivotXnt);
-  console.log('pivot:', pivot);
 
   const branchOptions = [...new Set(dataKho.map((x: any) => x.tenKho))] as string[];
 
-  const handleSelectMaHang = async (row: any, maHang: string) => {
-    const code = maHang.trim().toUpperCase();
+  // const handleSelectMaHang = async (row: any, maHang: string) => {
+  //   const code = maHang.trim().toUpperCase();
 
-    if (!code) return;
+  //   if (!code) return;
+
+  //   const isDuplicate = pivot.some(
+  //     (item) => item !== row && item['Chi nhánh'] === row['Chi nhánh'] && item['Mã hàng'] === code
+  //   );
+
+  //   if (isDuplicate) {
+  //     showAlert({
+  //       type: 'error',
+  //       message: `Mã hàng ${code} đã tồn tại trong kho ${row['Chi nhánh']}.`,
+  //     });
+  //     return;
+  //   }
+
+  //   try {
+  //     // Tìm chính xác mã hàng trong DB
+  //     const productDmhh = await getDmhhByMaHang(code);
+
+  //     const product = pivotXnt.find(
+  //       (x) => x['Chi nhánh'] === row['Chi nhánh'] && x['Mã hàng']?.trim().toUpperCase() === code
+  //     );
+
+  //     const productByCode = pivotXnt.find(
+  //       (x) => x !== row && x['Mã hàng']?.trim().toUpperCase() === code
+  //     ); // const product = pivotXnt.find((x) => x['Mã hàng']?.trim().toUpperCase() === code);
+
+  //     if (!product && !productDmhh) {
+  //       showAlert({
+  //         type: 'error',
+  //         message: 'Không tìm thấy mã hàng',
+  //       });
+  //       return;
+  //     }
+
+  //     const updated = pivot.map((item) =>
+  //       item === row
+  //         ? {
+  //             ...item,
+  //             ['Tên nhà cung cấp']: productDmhh?.dmncc?.tenNcc ?? '',
+  //             ['Mã hàng']: code,
+  //             ['Tên hàng']: productDmhh?.tenHang ?? '',
+  //             ['Giá bán']: productDmhh?.giaBan ?? 0,
+  //             ['Giá vốn']: productDmhh?.giaMua ?? 0,
+  //             ['ĐVT']: productDmhh?.dvt ?? '',
+  //             ['Mức thuế VAT đầu vào']: productDmhh?.vat ?? 0,
+
+  //             ['Nhập chuyển']: product?.['Nhập chuyển'] ?? null,
+
+  //             ['Xuất bán']: product?.['Xuất bán'] ?? null,
+
+  //             ['Tồn cuối kì']: product?.['Tồn cuối kì'] ?? null,
+
+  //             // Cảnh báo có thể fallback theo mã
+  //             ['Cảnh báo']:
+  //               product?.['Cảnh báo'] ??
+  //               productByCode?.['Cảnh báo'] ??
+  //               'SKU chưa có trong định mức',
+
+  //             ['SL có thể đặt hàng']:
+  //               product?.['Cảnh báo'] ??
+  //               productByCode?.['Cảnh báo'] ??
+  //               'SKU chưa có trong định mức',
+  //           }
+  //         : item
+  //     );
+
+  //     setData((prev) => ({
+  //       ...prev!,
+  //       pivot: updated,
+  //     }));
+  //   } catch {
+  //     showAlert({
+  //       type: 'error',
+  //       message: 'Không thể tìm thông tin mã hàng',
+  //     });
+  //   }
+  // };
+
+  const findXntByCodeAndBranch = (maHang: unknown, chiNhanh: unknown) =>
+    pivotXnt.find(
+      (item) =>
+        normalize(item['Mã hàng']) === normalize(maHang) &&
+        normalize(item['Chi nhánh']) === normalize(chiNhanh)
+    );
+
+  const handleSelectMaHang = async (row: any, maHang: string) => {
+    const code = normalize(maHang);
+    const branch = normalize(row['Chi nhánh']);
+
+    if (!code || !branch) return;
 
     const isDuplicate = pivot.some(
-      (item) => item !== row && item['Chi nhánh'] === row['Chi nhánh'] && item['Mã hàng'] === code
+      (item) =>
+        item !== row &&
+        normalize(item['Chi nhánh']) === branch &&
+        normalize(item['Mã hàng']) === code
     );
 
     if (isDuplicate) {
@@ -158,18 +255,12 @@ export function TongHop({
     }
 
     try {
-      // Tìm chính xác mã hàng trong DB
       const productDmhh = await getDmhhByMaHang(code);
 
-      const product = pivotXnt.find(
-        (x) => x['Chi nhánh'] === row['Chi nhánh'] && x['Mã hàng']?.trim().toUpperCase() === code
-      );
+      // Chỉ lấy đúng một dòng theo mã hàng + chi nhánh
+      const productXnt = findXntByCodeAndBranch(code, row['Chi nhánh']);
 
-      const productByCode = pivotXnt.find(
-        (x) => x !== row && x['Mã hàng']?.trim().toUpperCase() === code
-      ); // const product = pivotXnt.find((x) => x['Mã hàng']?.trim().toUpperCase() === code);
-
-      if (!product && !productDmhh) {
+      if (!productDmhh && !productXnt) {
         showAlert({
           type: 'error',
           message: 'Không tìm thấy mã hàng',
@@ -181,30 +272,23 @@ export function TongHop({
         item === row
           ? {
               ...item,
-              ['Tên nhà cung cấp']: productDmhh?.dmncc?.tenNcc ?? '',
-              ['Mã hàng']: code,
-              ['Tên hàng']: productDmhh?.tenHang ?? '',
-              ['Giá bán']: productDmhh?.giaBan ?? 0,
-              ['Giá vốn']: productDmhh?.giaMua ?? 0,
-              ['ĐVT']: productDmhh?.dvt ?? '',
-              ['Mức thuế VAT đầu vào']: productDmhh?.vat ?? 0,
+              'Tên nhà cung cấp': productDmhh?.dmncc?.tenNcc ?? '',
+              'Mã hàng': code,
+              'Tên hàng': productDmhh?.tenHang ?? '',
+              'Giá bán': productDmhh?.giaBan ?? 0,
+              'Giá vốn': productDmhh?.giaMua ?? 0,
+              ĐVT: productDmhh?.dvt ?? '',
+              'Mức thuế VAT đầu vào': productDmhh?.vat ?? 0,
 
-              ['Nhập chuyển']: product?.['Nhập chuyển'] ?? null,
+              'Nhập chuyển': productXnt?.['Nhập chuyển'] ?? null,
+              'Xuất bán': productXnt?.['Xuất bán'] ?? null,
+              'Tồn cuối kì': productXnt?.['Tồn cuối kì'] ?? null,
 
-              ['Xuất bán']: product?.['Xuất bán'] ?? null,
+              // Cảnh báo chỉ lấy tại đây
+              'Cảnh báo': productXnt?.['Cảnh báo'] ?? 'SKU chưa có trong định mức',
 
-              ['Tồn cuối kì']: product?.['Tồn cuối kì'] ?? null,
-
-              // Cảnh báo có thể fallback theo mã
-              ['Cảnh báo']:
-                product?.['Cảnh báo'] ??
-                productByCode?.['Cảnh báo'] ??
-                'SKU chưa có trong định mức',
-
-              ['SL có thể đặt hàng']:
-                product?.['Cảnh báo'] ??
-                productByCode?.['Cảnh báo'] ??
-                'SKU chưa có trong định mức',
+              // Không lấy nhầm dữ liệu Cảnh báo
+              'SL có thể đặt hàng': productXnt?.['SL tồn kho tối ưu'] ?? 0,
             }
           : item
       );
@@ -213,13 +297,16 @@ export function TongHop({
         ...prev!,
         pivot: updated,
       }));
-    } catch {
+    } catch (error) {
+      console.error(error);
+
       showAlert({
         type: 'error',
         message: 'Không thể tìm thông tin mã hàng',
       });
     }
   };
+
   const handleCreate = async () => {
     try {
       setLoading(true);
@@ -431,28 +518,47 @@ export function TongHop({
 
           <TableBody>
             {paginatedData.map((row, index) => {
-              const code = (row['Mã hàng'] ?? '').trim().toUpperCase();
+              // const code = (row['Mã hàng'] ?? '').trim().toUpperCase();
 
-              const xntRows = pivotXnt.filter((item) => item['Mã hàng'] === code);
+              // const xntRows = pivotXnt.filter((item) => item['Mã hàng'] === code);
 
-              const detailByCode = pivot?.find(
-                (item) => item['Mã hàng']?.trim().toUpperCase() === code
+              // const detailByCode = pivot?.find(
+              //   (item) => item['Mã hàng']?.trim().toUpperCase() === code
+              // );
+
+              // const xntByCode = pivotXnt?.find(
+              //   (item) => item['Mã hàng']?.trim().toUpperCase() === code
+              // );
+
+              // const canhBao =
+              //   detailByCode?.['Cảnh báo'] ??
+              //   xntByCode?.['Cảnh báo'] ??
+              //   row['Cảnh báo'] ??
+              //   'SKU chưa có trong định mức';
+
+              // const slCoTheDat: number | string =
+              //   detailByCode?.['SL có thể đặt hàng'] ??
+              //   xntByCode?.['SL tồn kho tối ưu'] ??
+              //   'SKU chưa có trong định mức';
+              const code = normalize(row['Mã hàng']);
+
+              const xntRows = pivotXnt.filter((item) => normalize(item['Mã hàng']) === code);
+
+              const totalTon = xntRows.reduce(
+                (sum, item) => sum + Number(item['Tồn cuối kì'] ?? 0),
+                0
               );
 
-              const xntByCode = pivotXnt?.find(
-                (item) => item['Mã hàng']?.trim().toUpperCase() === code
-              );
+              const tonToiUu = Number(xntRows[0]?.['SL tồn kho tối ưu'] ?? 0);
 
-              const canhBao =
-                detailByCode?.['Cảnh báo'] ??
-                xntByCode?.['Cảnh báo'] ??
-                row['Cảnh báo'] ??
-                'SKU chưa có trong định mức';
+              const canhBao = row['Cảnh báo'] ?? 'SKU chưa có trong định mức';
 
               const slCoTheDat: number | string =
-                detailByCode?.['SL có thể đặt hàng'] ??
-                xntByCode?.['SL tồn kho tối ưu'] ??
-                'SKU chưa có trong định mức';
+                xntRows.length === 0
+                  ? 'SKU chưa có trong định mức'
+                  : totalTon <= tonToiUu
+                    ? tonToiUu - totalTon
+                    : 'Vượt tồn tối ưu';
 
               return (
                 <TableRow
@@ -660,14 +766,23 @@ export function TongHop({
                       }}
                     />
                   </TableCell>
-
+                  {/* 
                   <TableCell>{canhBao}</TableCell>
+
                   <TableCell>
                     {slCoTheDat === 'Vượt tồn tối ưu'
                       ? 'Vượt tồn tối ưu'
                       : Number(row.slCoTheDat) === 0
                         ? slCoTheDat
                         : slCoTheDat}
+                  </TableCell> */}
+
+                  <TableCell>{canhBao}</TableCell>
+
+                  <TableCell>
+                    {typeof slCoTheDat === 'number'
+                      ? slCoTheDat.toLocaleString('vi-VN')
+                      : slCoTheDat}
                   </TableCell>
                   <TableCell>
                     <TextField

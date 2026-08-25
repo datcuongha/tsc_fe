@@ -27,7 +27,7 @@ export function InDonDatHang({ data, handleClose }: InDonDatHangProps) {
 
   const queryClient = useQueryClient();
   const [thoiGianGiaoHang, setThoiGianGiaoHang] = useState(
-    data?.thoiGianGiaoHang?.toString() || ''
+    data?.thoiGianGiaoHang?.toString() || '7'
   );
   const printRef = useRef<HTMLDivElement>(null);
 
@@ -68,31 +68,95 @@ export function InDonDatHang({ data, handleClose }: InDonDatHangProps) {
 
   const today = new Date();
 
+  // const handlePrint = useReactToPrint({
+  //   contentRef: printRef,
+  //   documentTitle: `Don dat hang-${data.maPhieu}`,
+  //   pageStyle: `
+  //     @page {
+  //       size: A4;
+  //       margin: 7mm;
+  //     }
+
+  //     @media print {
+  //       body {
+  //         margin: 0;
+  //         padding: 0;
+  //         -webkit-print-color-adjust: exact;
+  //         print-color-adjust: exact;
+  //         font-family: "Times New Roman", serif !important;
+  //       }
+
+  //       * {
+  //         font-family: "Times New Roman", serif !important;
+  //       }
+  //     }
+  //   `,
+  //   onAfterPrint: () => {
+  //     handleClose(); // Đóng modal sau khi đóng hộp thoại in
+  //   },
+  // });
+
   const handlePrint = useReactToPrint({
     contentRef: printRef,
     documentTitle: `Don dat hang-${data.maPhieu}`,
+
     pageStyle: `
-      @page {
-        size: A4;
-        margin: 7mm;
-      }
+  @page {
+    size: A4 portrait;
+    margin: 6mm 10mm;
+  }
 
-      @media print {
-        body {
-          margin: 0;
-          padding: 0;
-          -webkit-print-color-adjust: exact;
-          print-color-adjust: exact;
-          font-family: "Times New Roman", serif !important;
-        }
+  @media print {
+    html,
+    body {
+      margin: 0 !important;
+      padding: 0 !important;
+      font-family: "Times New Roman", serif !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
 
-        * {
-          font-family: "Times New Roman", serif !important;
-        }
-      }
-    `,
+    .print-content {
+      width: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow: visible !important;
+    }
+
+    table {
+      width: 100% !important;
+      border-collapse: collapse !important;
+      font-size: 11px !important;
+    }
+
+    thead {
+      display: table-header-group !important;
+    }
+
+    tr {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    th,
+    td {
+      padding: 1.5px !important;
+      line-height: 1.15 !important;
+    }
+
+    .keep-together {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .no-print {
+      display: none !important;
+    }
+  }
+`,
+
     onAfterPrint: () => {
-      handleClose(); // Đóng modal sau khi đóng hộp thoại in
+      handleClose();
     },
   });
 
@@ -120,24 +184,29 @@ export function InDonDatHang({ data, handleClose }: InDonDatHangProps) {
 
       <Box
         ref={printRef}
+        className="print-content"
         sx={{
           width: '210mm',
-          minHeight: '297mm',
           background: '#fff',
           color: '#000',
           p: 1,
-          pb: '30mm',
           fontFamily: '"Times New Roman", serif',
-          fontSize: 14,
+          fontSize: 13,
           boxSizing: 'border-box',
           margin: '0 auto',
 
           '@media screen': {
+            minHeight: '297mm',
             boxShadow: 3,
           },
 
           '@media print': {
+            width: '100%',
+            minHeight: 0,
+            margin: 0,
+            padding: 0,
             boxShadow: 'none',
+            overflow: 'visible',
           },
         }}
       >
