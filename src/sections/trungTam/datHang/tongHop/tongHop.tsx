@@ -129,9 +129,6 @@ export function TongHop({
     // quay về trang đầu để thấy dòng vừa thêm
     setPage(0);
   };
-  console.log('pivot:', pivot);
-  console.log('pivotXnt:', pivotXnt);
-
   const handleDeleteRow = (row: any) => {
     setData((prev) => {
       if (!prev) return prev;
@@ -260,6 +257,21 @@ export function TongHop({
       // Chỉ lấy đúng một dòng theo mã hàng + chi nhánh
       const productXnt = findXntByCodeAndBranch(code, row['Chi nhánh']);
 
+      const xntRows = pivotXnt.filter((item) => normalize(item['Mã hàng']) === code);
+
+      const totalTon = xntRows.reduce((sum, item) => sum + Number(item['Tồn cuối kì'] ?? 0), 0);
+
+      const tonToiUu = Number(xntRows[0]?.['SL tồn kho tối ưu'] ?? 0);
+
+      // const canhBao = row['Cảnh báo'] ?? 'SKU chưa có trong định mức';
+
+      const slCoTheDat: number | string =
+        xntRows.length === 0
+          ? 'SKU chưa có trong định mức'
+          : totalTon <= tonToiUu
+            ? tonToiUu - totalTon
+            : 'Vượt tồn tối ưu';
+
       if (!productDmhh && !productXnt) {
         showAlert({
           type: 'error',
@@ -288,7 +300,8 @@ export function TongHop({
               'Cảnh báo': productXnt?.['Cảnh báo'] ?? 'SKU chưa có trong định mức',
 
               // Không lấy nhầm dữ liệu Cảnh báo
-              'SL có thể đặt hàng': productXnt?.['SL tồn kho tối ưu'] ?? 0,
+              // 'SL có thể đặt hàng': productXnt?.['SL tồn kho tối ưu'] ?? 0,
+              'SL có thể đặt hàng': slCoTheDat,
             }
           : item
       );
@@ -317,6 +330,7 @@ export function TongHop({
         fromDate: pivot[0]?.fromDate,
         toDate: pivot[0]?.toDate,
       });
+      console.log(result);
 
       if (result) {
         showAlert({

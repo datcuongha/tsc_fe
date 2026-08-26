@@ -635,6 +635,11 @@ import { handleExportData } from 'src/components/export';
 
 import type { EditDatHangTMProps } from './type';
 
+const normalize = (value: unknown): string =>
+  String(value ?? '')
+    .trim()
+    .toUpperCase();
+
 export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
   console.log(data);
 
@@ -694,6 +699,7 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
       details: rows.map((item) => ({
         ...item,
         thuMuaNhap: Number(item.thuMuaNhap || 0),
+        slCoTheDat: Number(item.slCoTheDat || 0),
       })),
     });
   };
@@ -750,7 +756,8 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
       return;
     }
     try {
-      const code = maHang.trim().toUpperCase();
+      // const code = maHang.trim().toUpperCase();
+      const code = normalize(maHang);
 
       const productName = await getDmhhByMaHang(code);
 
@@ -759,41 +766,89 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
           type: 'error',
           message: 'Không tìm thấy mã hàng',
         });
-
         return;
       }
 
-      // =====================================================
-      // TÌM XNT ĐÚNG CHI NHÁNH + MÃ HÀNG
-      // =====================================================
-      const xntProduct = data?.xntDetail?.find(
+      const productByXntDetail = data?.xntDetail?.filter((item) => normalize(item.maHang) === code);
+
+      const totalTon = productByXntDetail.reduce((sum, item) => sum + Number(item.tonCuoi ?? 0), 0);
+
+      const tonToiUu = Number(productByXntDetail[0]?.slTonToiUu ?? 0);
+
+      const slCoTheDat: number | string =
+        productByXntDetail.length === 0
+          ? 'SKU chưa có trong định mức'
+          : totalTon <= tonToiUu
+            ? tonToiUu - totalTon
+            : 'Vượt tồn tối ưu';
+
+      const xntProductByBranch = data?.xntDetail?.find(
         (x) =>
           x.chiNhanh?.trim() === row.chiNhanh?.trim() && x.maHang?.trim().toUpperCase() === code
       );
 
-      // =====================================================
-      // TÌM DETAIL TỔNG THEO MÃ HÀNG
-      // =====================================================
-      const detailByCode = data?.phieuDatHangDetail?.find(
-        (x) => x.maHang?.trim().toUpperCase() === code
-      );
-      const detailXNTByCode = data?.xntDetail?.find((x) => x.maHang?.trim().toUpperCase() === code);
+      // const detailByCode = data?.phieuDatHangDetail?.find(
+      //   (x) => x.maHang?.trim().toUpperCase() === code
+      // );
 
-      // =====================================================
-      // TÌM ĐỀ XUẤT CŨ ĐÚNG CHI NHÁNH + MÃ HÀNG
-      // =====================================================
-      const deXuatByCode = data?.phieuDeXuatDetail?.find(
-        (x) =>
-          x.chiNhanh?.trim() === row.chiNhanh?.trim() && x.maHang?.trim().toUpperCase() === code
-      );
+      // const detailXNTByCode = data?.xntDetail?.find((x) => x.maHang?.trim().toUpperCase() === code);
 
-      // =====================================================
-      // CẢNH BÁO
-      // =====================================================
-      const canhBao =
-        detailXNTByCode?.canhBao ?? detailByCode?.canhBao ?? 'SKU chưa có trong định mức';
-      const slCoTheDat =
-        detailXNTByCode?.slTonToiUu ?? detailByCode?.slTonToiUu ?? 'SKU chưa có trong định mức';
+      // const deXuatByCode = data?.phieuDeXuatDetail?.find(
+      //   (x) =>
+      //     x.chiNhanh?.trim() === row.chiNhanh?.trim() && x.maHang?.trim().toUpperCase() === code
+      // );
+
+      // // Tất cả dữ liệu XNT cùng mã hàng
+      // const xntRows = data?.xntDetail?.filter((x) => x.maHang?.trim().toUpperCase() === code) ?? [];
+
+      // // Cộng tồn cuối của tất cả chi nhánh
+      // const totalTon = xntRows.reduce((sum, item) => sum + Number(item.tonCuoi ?? 0), 0);
+
+      // const tonToiUuValue = detailXNTByCode?.slTonToiUu ?? detailByCode?.slTonToiUu;
+
+      // const tonToiUu = Number(data?.xntDetail[0]?.slTonToiUu ?? 0);
+
+      // const canhBao =
+      //   detailXNTByCode?.canhBao ?? detailByCode?.canhBao ?? 'SKU chưa có trong định mức';
+
+      // const slCoTheDat: number | string =
+      //   xntRows.length === 0 || tonToiUuValue == null
+      //     ? 'SKU chưa có trong định mức'
+      //     : totalTon <= tonToiUu
+      //       ? tonToiUu - totalTon
+      //       : 'Vượt tồn tối ưu';
+      // // =====================================================
+      // // TÌM XNT ĐÚNG CHI NHÁNH + MÃ HÀNG
+      // // =====================================================
+      // const xntProduct = data?.xntDetail?.find(
+      //   (x) =>
+      //     x.chiNhanh?.trim() === row.chiNhanh?.trim() && x.maHang?.trim().toUpperCase() === code
+      // );
+
+      // // =====================================================
+      // // TÌM DETAIL TỔNG THEO MÃ HÀNG
+      // // =====================================================
+      // const detailByCode = data?.phieuDatHangDetail?.find(
+      //   (x) => x.maHang?.trim().toUpperCase() === code
+      // );
+      // const detailXNTByCode = data?.xntDetail?.find((x) => x.maHang?.trim().toUpperCase() === code);
+
+      // // =====================================================
+      // // TÌM ĐỀ XUẤT CŨ ĐÚNG CHI NHÁNH + MÃ HÀNG
+      // // =====================================================
+      // const deXuatByCode = data?.phieuDeXuatDetail?.find(
+      //   (x) =>
+      //     x.chiNhanh?.trim() === row.chiNhanh?.trim() && x.maHang?.trim().toUpperCase() === code
+      // );
+
+      // // =====================================================
+      // // CẢNH BÁO
+      // // =====================================================
+      // const canhBao =
+      //   detailXNTByCode?.canhBao ?? detailByCode?.canhBao ?? 'SKU chưa có trong định mức';
+
+      // const slCoTheDat =
+      //   detailXNTByCode?.slTonToiUu ?? detailByCode?.slTonToiUu ?? 'SKU chưa có trong định mức';
 
       // =====================================================
       // KIỂM TRA NCC
@@ -832,19 +887,18 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
 
                 thueSuat: productName.vat,
 
-                tenNhaCungCap: deXuatByCode?.tenNhaCungCap ?? productName.dmncc?.tenNcc ?? '',
+                tenNhaCungCap: productName.dmncc?.tenNcc ?? '',
 
                 // XNT đúng kho
-                nhapChuyen: Number(xntProduct?.nhapChuyen) || 0,
+                nhapChuyen: Number(xntProductByBranch?.nhapChuyen) || 0,
 
-                xuatBan: Number(xntProduct?.xuatBan) || 0,
+                xuatBan: Number(xntProductByBranch?.xuatBan) || 0,
 
-                tonCuoi: Number(xntProduct?.tonCuoi) || 0,
+                tonCuoi: Number(xntProductByBranch?.tonCuoi) || 0,
 
-                slTonToiUu: Number(xntProduct?.slTonToiUu) || 0,
+                slTonToiUu: Number(xntProductByBranch?.slTonToiUu) || 0,
 
                 // định mức
-                canhBao,
 
                 slCoTheDat: Number(slCoTheDat),
               }
@@ -1239,7 +1293,7 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
 
                   <TableCell>{canhBao}</TableCell>
 
-                  <TableCell>
+                  {/* <TableCell>
                     <TableCell>
                       {row.canhBao === 'Vượt tồn tối ưu'
                         ? 'Vượt tồn tối ưu'
@@ -1247,6 +1301,11 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
                           ? slCoTheDat
                           : slCoTheDat}
                     </TableCell>
+                  </TableCell> */}
+                  <TableCell>
+                    {typeof slCoTheDat === 'number'
+                      ? slCoTheDat.toLocaleString('vi-VN')
+                      : slCoTheDat}
                   </TableCell>
 
                   <TableCell>
