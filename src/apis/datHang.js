@@ -69,6 +69,16 @@ export const editSLPGD = async (payload) => {
   }
 };
 
+// ----- GD CẬP NHẬP SỐ LƯỢNG ĐƠN ĐỀ XUẤT ----- //
+export const editSLGD = async (payload) => {
+  try {
+    const response = await fetcher.post('/dat-hang/editSLGD', payload);
+    return response.data.content;
+  } catch (error) {
+    throw error.response.data?.mesaage;
+  }
+};
+
 // ----- CẬP NHẬT THỜI GIAN GIAO HÀNG IN ĐẶT HÀNG ----- //
 export const updateThoiHanGiaoHang = async (id, thoiGianGiaoHang) => {
   try {

@@ -36,6 +36,7 @@ export const Dmhh = lazy(() => import('src/pages/dmhh'));
 export const DatHangPage = lazy(() => import('src/pages/datHang'));
 export const InDatHangPage = lazy(() => import('src/pages/donDatHang'));
 export const PheDuyetPage = lazy(() => import('src/pages/pheDuyet'));
+export const PheDuyetDetailPage = lazy(() => import('src/pages/pheDuyetDetail'));
 export const Dmncc = lazy(() => import('src/pages/dmncc'));
 
 const renderFallback = () => (
@@ -104,6 +105,7 @@ export const getRoutesSection = (reportMenus: any[]): RouteObject[] => [
           { path: 'dat-hang', element: <DatHangPage /> },
           { path: 'in-dat-hang', element: <InDatHangPage /> },
           { path: 'phe-duyet/:id', element: <PheDuyetPage /> },
+          { path: 'phe-duyet-detail/:id', element: <PheDuyetDetailPage /> },
         ],
       },
 

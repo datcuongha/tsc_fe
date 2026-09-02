@@ -19,6 +19,7 @@ export type EditDatHangTMDetail = {
   chuThich: string;
   slCoTheDat: number;
   slTonToiUu: number;
+  soLuongPGDDuyet: number | '';
 };
 
 export type xntDetailProps = {

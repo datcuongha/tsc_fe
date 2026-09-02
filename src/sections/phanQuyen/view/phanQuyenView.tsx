@@ -21,7 +21,7 @@ import { PhanQuyenTableRow, type PhanQuyenProps } from '../phanQuyen-table-row';
 export function PhanQuyenView() {
   const table = useTable();
   const [filterName, setFilterName] = useState('');
-  const { open, closeModal, openModal, data } = useModal();
+  const { open, closeModal, openModal } = useModal();
 
   const { data: dataPhanQuyen = [], isLoading } = useQuery<PhanQuyenProps[]>({
     queryKey: ['dataPhanQuyen'],

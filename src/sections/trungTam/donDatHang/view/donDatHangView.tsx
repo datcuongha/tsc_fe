@@ -28,6 +28,7 @@ import { TableEmptyRows } from '../../../../components/table-empty/table-empty-r
 export function DonDatHangView() {
   const [openFilter, setOpenFilter] = useState(false);
   const { user } = useAuth();
+  const role = user.data.vaiTroId;
 
   const [filters, setFilters] = useState<DonHangFiltersState>({
     ncc: [],
@@ -61,7 +62,7 @@ export function DonDatHangView() {
   const notFound = !dataFiltered.length && !!filterName;
 
   const handleApprove = (row: PrintDhProps) => {
-    navigate(`/phe-duyet/${row.id}`);
+    navigate(Number(role) === 7 ? `/phe-duyet-detail/${row.id}` : `/phe-duyet/${row.id}`);
   };
 
   const exportData =

@@ -13,7 +13,7 @@ import { Iconify } from 'src/components/iconify';
 // ----------------------------------------------------------------------
 
 export type RoleProps = {
-  id:string;
+  id: string;
   name: string;
   dienGiai: string;
   status: boolean;
@@ -23,13 +23,10 @@ type RoleTableRowProps = {
   row: RoleProps;
   selected: boolean;
   onSelectRow: () => void;
+  edit: () => void;
 };
 
-export function RoleTableRow({
-  row,
-  selected,
-  onSelectRow,
-}: RoleTableRowProps) {
+export function RoleTableRow({ row, selected, onSelectRow, edit }: RoleTableRowProps) {
   const [openPopover, setOpenPopover] = useState<HTMLButtonElement | null>(null);
 
   const handleOpenPopover = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
@@ -91,16 +88,21 @@ export function RoleTableRow({
           <MenuItem
             onClick={() => {
               handleClosePopover();
+              edit();
             }}
           >
             <Iconify icon="solar:pen-bold" />
             Edit
           </MenuItem>
 
-          <MenuItem>
+          {/* <MenuItem
+            onClick={() => {
+              handleClosePopover();
+            }}
+          >
             <Iconify icon="custom:admin-role-permission" />
             Phân quyền
-          </MenuItem>
+          </MenuItem> */}
         </MenuList>
       </Popover>
     </>

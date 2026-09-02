@@ -36,13 +36,21 @@ export const showAlert = ({ type = 'error', message }: swalTypeProps) => {
   });
 };
 
-export const capitalizeFirstLetter = (text: string) =>
-  text
+export const capitalizeFirstLetter = (text: string) =>{
+  if (!text) return '';
+  return text
+    .trim()
     .toLowerCase()
-    .split(' ')
+    .split(/\s+/)
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
+};
 
 
-export const capitalizeFirstLetterFirst = (text: string) =>
-  text.charAt(0).toUpperCase() + text.slice(1);
+export const capitalizeFirstLetterFirst = (value?: string) => {
+  if (!value) return '';
+
+  const text = value.trim().toLowerCase();
+
+  return text.charAt(0).toUpperCase() + text.slice(1);
+};

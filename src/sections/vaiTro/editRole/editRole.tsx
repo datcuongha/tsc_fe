@@ -29,14 +29,14 @@ import { showAlert, capitalizeFirstLetter } from 'src/components/alert';
 
 import { widthImport } from '../../invoice-it/utils';
 
-import type { CreateRoleFrom, CreateRoleProps } from './type';
+import type { EditRoleFrom, EditRoleProps } from './type';
 
-const createScheme = object({
+const editScheme = object({
   name: string().required('Vui lòng nhập vai trò'),
   dienGiai: string(),
 });
 
-export function CreateRole({  handleClose }: CreateRoleProps) {
+export function EditRole({ rowSelect, handleClose }: EditRoleProps) {
   const queryClient = useQueryClient();
   const actions = ['view', 'create', 'update', 'delete'];
 
@@ -63,14 +63,14 @@ export function CreateRole({  handleClose }: CreateRoleProps) {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      name: '',
-      dienGiai: '',
+      name: rowSelect.name,
+      dienGiai: rowSelect.dienGiai,
     },
-    resolver: yupResolver(createScheme),
+    resolver: yupResolver(editScheme),
   });
 
   const { mutate } = useMutation({
-    mutationFn: (values: CreateRoleFrom) => {
+    mutationFn: (values: EditRoleFrom) => {
       const formatValue = {
         ...values,
         name: capitalizeFirstLetter(values.name),
@@ -90,12 +90,12 @@ export function CreateRole({  handleClose }: CreateRoleProps) {
     },
   });
 
-  const handleFormSubmit: SubmitHandler<CreateRoleFrom> = (data) => {
+  const handleFormSubmit: SubmitHandler<EditRoleFrom> = (data) => {
     mutate(data);
   };
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)}>
-      <DialogTitle>Tạo vai trò</DialogTitle>
+      <DialogTitle>Cập nhật vai trò</DialogTitle>
       <DialogContent>
         <FormField label="Vai trò">
           <TextField
@@ -158,12 +158,13 @@ export function CreateRole({  handleClose }: CreateRoleProps) {
           </Table>
         </TableContainer>
       </DialogContent>
+      
       <DialogActions>
         <Button color="inherit" onClick={handleClose}>
           Huỷ
         </Button>
         <Button type="submit" color="primary" variant="contained">
-          Tạo
+          Cập nhật
         </Button>
       </DialogActions>
     </form>

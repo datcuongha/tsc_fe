@@ -35,6 +35,43 @@ const normalize = (value: unknown): string =>
     .trim()
     .toUpperCase();
 
+const calculateSlCoTheDat = ({
+  canhBao,
+  tonCuoi,
+  tonToiUu,
+}: {
+  canhBao: unknown;
+  tonCuoi: unknown;
+  tonToiUu: unknown;
+}): number | string => {
+  const warning = String(canhBao ?? '').trim();
+
+  if (warning === 'Không bán được 3 tháng') {
+    return 'Không bán được 3 tháng';
+  }
+
+  if (warning === 'Chưa xác định') {
+    return 'Chưa xác định định mức';
+  }
+
+  if (warning === 'SKU chưa có trong định mức') {
+    return 'SKU chưa có trong định mức';
+  }
+
+  const parsedTonCuoi = Number(tonCuoi);
+  const parsedTonToiUu = Number(tonToiUu);
+
+  const safeTonCuoi = Number.isFinite(parsedTonCuoi) ? parsedTonCuoi : 0;
+
+  const safeTonToiUu = Number.isFinite(parsedTonToiUu) ? parsedTonToiUu : 0;
+
+  if (safeTonCuoi <= safeTonToiUu) {
+    return safeTonToiUu - safeTonCuoi;
+  }
+
+  return 'Vượt tồn tối ưu';
+};
+
 export function TongHop({
   pivot,
   pivotXnt,
@@ -83,6 +120,7 @@ export function TongHop({
     : '';
 
   const toDate = pivot[0]?.toDate ? new Date(pivot[0].toDate).toLocaleDateString('vi-VN') : '';
+
   const handleAddRow = () => {
     // Lấy NCC hiện tại từ dữ liệu đang filter
     // ưu tiên dòng đang hiển thị
@@ -122,7 +160,7 @@ export function TongHop({
         ...prev,
 
         // Đưa row mới lên đầu để thấy ngay
-        pivot: [...prev.pivot, newRow],
+        pivot: [newRow, ...prev.pivot],
       };
     });
 
@@ -229,8 +267,11 @@ export function TongHop({
         normalize(item['Mã hàng']) === normalize(maHang) &&
         normalize(item['Chi nhánh']) === normalize(chiNhanh)
     );
+  console.log(pivotXnt);
 
   const handleSelectMaHang = async (row: any, maHang: string) => {
+    if (!row.isNew) return;
+
     const code = normalize(maHang);
     const branch = normalize(row['Chi nhánh']);
 
@@ -255,23 +296,27 @@ export function TongHop({
       const productDmhh = await getDmhhByMaHang(code);
 
       // Chỉ lấy đúng một dòng theo mã hàng + chi nhánh
+      // Theo mã hàng + chi nhánh
       const productXnt = findXntByCodeAndBranch(code, row['Chi nhánh']);
 
+      // Chỉ theo mã hàng, không xét chi nhánh
       const xntRows = pivotXnt.filter((item) => normalize(item['Mã hàng']) === code);
+
+      const xntRow = xntRows.find(
+        (item) => item['SL tồn kho tối ưu'] !== null && item['SL tồn kho tối ưu'] !== undefined
+      );
 
       const totalTon = xntRows.reduce((sum, item) => sum + Number(item['Tồn cuối kì'] ?? 0), 0);
 
-      const tonToiUu = Number(xntRows[0]?.['SL tồn kho tối ưu'] ?? 0);
+      const canhBao = xntRow?.['Cảnh báo'] ?? 'SKU chưa có trong định mức';
 
-      // const canhBao = row['Cảnh báo'] ?? 'SKU chưa có trong định mức';
+      const tonToiUu = Number(xntRow?.['SL tồn kho tối ưu'] ?? 0);
 
-      const slCoTheDat: number | string =
-        xntRows.length === 0
-          ? 'SKU chưa có trong định mức'
-          : totalTon <= tonToiUu
-            ? tonToiUu - totalTon
-            : 'Vượt tồn tối ưu';
-
+      const slCoTheDat: number | string = calculateSlCoTheDat({
+        canhBao,
+        tonCuoi: totalTon,
+        tonToiUu,
+      });
       if (!productDmhh && !productXnt) {
         showAlert({
           type: 'error',
@@ -296,11 +341,13 @@ export function TongHop({
               'Xuất bán': productXnt?.['Xuất bán'] ?? null,
               'Tồn cuối kì': productXnt?.['Tồn cuối kì'] ?? null,
 
-              // Cảnh báo chỉ lấy tại đây
-              'Cảnh báo': productXnt?.['Cảnh báo'] ?? 'SKU chưa có trong định mức',
+              // // Cảnh báo chỉ lấy tại đây
+              // 'Cảnh báo': xntRows[0]?.['Cảnh báo'] ?? 'SKU chưa có trong định mức',
 
-              // Không lấy nhầm dữ liệu Cảnh báo
-              // 'SL có thể đặt hàng': productXnt?.['SL tồn kho tối ưu'] ?? 0,
+              // // Không lấy nhầm dữ liệu Cảnh báo
+              // // 'SL có thể đặt hàng': productXnt?.['SL tồn kho tối ưu'] ?? 0,
+              // 'SL có thể đặt hàng': slCoTheDat,
+              'Cảnh báo': canhBao,
               'SL có thể đặt hàng': slCoTheDat,
             }
           : item
@@ -434,14 +481,14 @@ export function TongHop({
                 zIndex: 11,
               }}
             >
-              <TableCell sx={{ width: 100 }}>NCC</TableCell>
-              <TableCell>Thời gian</TableCell>
-              <TableCell sx={{ width: 70 }}>Chi nhánh</TableCell>
+              <TableCell sx={{ width: 150 }}>NCC</TableCell>
+              <TableCell sx={{ width: 10 }}>Thời gian</TableCell>
+              <TableCell sx={{ width: 50 }}>Chi nhánh</TableCell>
               <TableCell sx={{ width: 180 }}>Mã hàng</TableCell>
               <TableCell sx={{ width: 120 }}>Tên hàng</TableCell>
               <TableCell sx={{ width: 70 }}>Ghi chú hàng hoá</TableCell>
-              <TableCell sx={{ width: 30 }}>Giá vốn</TableCell>
-              <TableCell sx={{ width: 30 }}>Giá bán</TableCell>
+              <TableCell sx={{ width: 10 }}>Giá vốn</TableCell>
+              <TableCell sx={{ width: 10 }}>Giá bán</TableCell>
               <TableCell sx={{ width: 30 }}>SL kho đặt</TableCell>
               <TableCell sx={{ width: 30 }}>Nhập chuyển</TableCell>
               <TableCell sx={{ width: 30 }}>Xuất bán</TableCell>
@@ -449,15 +496,13 @@ export function TongHop({
               <TableCell sx={{ width: 90 }}>SL thu mua đề xuất</TableCell>
               <TableCell sx={{ width: 50 }}>Cảnh báo</TableCell>
               <TableCell sx={{ width: 50 }}>SL có thể đặt</TableCell>
-              <TableCell sx={{ width: 120 }}>Chú thích</TableCell>
-
-              <TableCell />
+              <TableCell sx={{ width: 500 }}>Chú thích</TableCell>
             </TableRow>
 
             <TableRow
               sx={{
                 position: 'sticky',
-                top: 100,
+                top: 90,
                 backgroundColor: '#fff',
                 zIndex: 10,
               }}
@@ -526,53 +571,39 @@ export function TongHop({
               <TableCell />
               <TableCell />
               <TableCell />
-              <TableCell />
             </TableRow>
           </TableHead>
 
           <TableBody>
             {paginatedData.map((row, index) => {
-              // const code = (row['Mã hàng'] ?? '').trim().toUpperCase();
+              const currentBranch = String(row['Chi nhánh'] ?? '').trim();
 
-              // const xntRows = pivotXnt.filter((item) => item['Mã hàng'] === code);
-
-              // const detailByCode = pivot?.find(
-              //   (item) => item['Mã hàng']?.trim().toUpperCase() === code
-              // );
-
-              // const xntByCode = pivotXnt?.find(
-              //   (item) => item['Mã hàng']?.trim().toUpperCase() === code
-              // );
-
-              // const canhBao =
-              //   detailByCode?.['Cảnh báo'] ??
-              //   xntByCode?.['Cảnh báo'] ??
-              //   row['Cảnh báo'] ??
-              //   'SKU chưa có trong định mức';
-
-              // const slCoTheDat: number | string =
-              //   detailByCode?.['SL có thể đặt hàng'] ??
-              //   xntByCode?.['SL tồn kho tối ưu'] ??
-              //   'SKU chưa có trong định mức';
+              const rowBranchOptions = [
+                ...new Set(
+                  [currentBranch, ...branchOptions]
+                    .map((value) => String(value ?? '').trim())
+                    .filter(Boolean)
+                ),
+              ];
               const code = normalize(row['Mã hàng']);
 
               const xntRows = pivotXnt.filter((item) => normalize(item['Mã hàng']) === code);
 
-              const totalTon = xntRows.reduce(
-                (sum, item) => sum + Number(item['Tồn cuối kì'] ?? 0),
-                0
-              );
+              // const totalTon = xntRows.reduce(
+              //   (sum, item) => sum + Number(item['Tồn cuối kì'] ?? 0),
+              //   0
+              // );
 
-              const tonToiUu = Number(xntRows[0]?.['SL tồn kho tối ưu'] ?? 0);
+              // const tonToiUu = Number(xntRows[0]?.['SL tồn kho tối ưu'] ?? 0);
 
-              const canhBao = row['Cảnh báo'] ?? 'SKU chưa có trong định mức';
+              // const canhBao = row['Cảnh báo'] ?? 'SKU chưa có trong định mức';
 
-              const slCoTheDat: number | string =
-                xntRows.length === 0
-                  ? 'SKU chưa có trong định mức'
-                  : totalTon <= tonToiUu
-                    ? tonToiUu - totalTon
-                    : 'Vượt tồn tối ưu';
+              // const slCoTheDat: number | string =
+              //   xntRows.length === 0
+              //     ? 'SKU chưa có trong định mức'
+              //     : totalTon <= tonToiUu
+              //       ? tonToiUu - totalTon
+              //       : 'Vượt tồn tối ưu';
 
               return (
                 <TableRow
@@ -586,6 +617,7 @@ export function TongHop({
 
                   <TableCell>
                     <TextField
+                      sx={{ width: 115 }}
                       select
                       size="small"
                       value={row['Chi nhánh'] ?? ''}
@@ -611,7 +643,7 @@ export function TongHop({
                       }}
                       fullWidth
                     >
-                      {branchOptions.map((branch) => (
+                      {rowBranchOptions.map((branch) => (
                         <MenuItem key={branch} value={branch}>
                           {branch}
                         </MenuItem>
@@ -629,6 +661,7 @@ export function TongHop({
                       }}
                     >
                       <TextField
+                        sx={{ width: 130 }}
                         size="small"
                         defaultValue={row['Mã hàng'] ?? ''}
                         disabled={!row['Chi nhánh'] || !row.isNew}
@@ -740,6 +773,7 @@ export function TongHop({
                       inputRef={(el) => {
                         thuMuaRefs.current[index] = el;
                       }}
+                      sx={{ width: 50 }}
                       size="small"
                       type="number"
                       value={row.thuMuaNhap ?? ''}
@@ -784,26 +818,30 @@ export function TongHop({
                   <TableCell>{canhBao}</TableCell>
 
                   <TableCell>
-                    {slCoTheDat === 'Vượt tồn tối ưu'
-                      ? 'Vượt tồn tối ưu'
-                      : Number(row.slCoTheDat) === 0
-                        ? slCoTheDat
-                        : slCoTheDat}
-                  </TableCell> */}
-
-                  <TableCell>{canhBao}</TableCell>
-
-                  <TableCell>
                     {typeof slCoTheDat === 'number'
                       ? slCoTheDat.toLocaleString('vi-VN')
                       : slCoTheDat}
+                  </TableCell> */}
+
+                  <TableCell>{row['Cảnh báo'] ?? 'SKU chưa có trong định mức'}</TableCell>
+
+                  <TableCell>
+                    {typeof row['SL có thể đặt hàng'] === 'number'
+                      ? row['SL có thể đặt hàng'].toLocaleString('vi-VN')
+                      : (row['SL có thể đặt hàng'] ?? '')}
                   </TableCell>
+
                   <TableCell>
                     <TextField
                       inputRef={(el) => {
                         chuThichRefs.current[index] = el;
                       }}
                       size="small"
+                      sx={{ width: 150 }}
+                      multiline
+                      minRows={1}
+                      maxRows={10}
+                      fullWidth
                       value={row.chuThich ?? ''}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') {

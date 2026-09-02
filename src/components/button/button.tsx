@@ -9,6 +9,10 @@ export function ButtonGroup({
   handleImport,
   handleChangePass,
   handleGetApi,
+  handleClose,
+  isPendingSubmit,
+  showSubmit,
+  submitLabel,
 }: ButtonGroupProps) {
   return (
     <Grid>
@@ -40,6 +44,31 @@ export function ButtonGroup({
       {handleGetApi && (
         <Button variant="contained" color="info" onClick={handleGetApi} sx={{ mr: 0.5 }}>
           Lấy API
+        </Button>
+      )}
+
+      {handleClose && (
+        <Button
+          type="button"
+          variant="outlined"
+          color="inherit"
+          onClick={handleClose}
+          disabled={isPendingSubmit}
+          sx={{ mr: 0.5 }}
+        >
+          Huỷ
+        </Button>
+      )}
+
+      {showSubmit && (
+        <Button
+          type="submit"
+          variant="contained"
+          color="primary"
+          disabled={isPendingSubmit}
+          sx={{ mr: 0.5 }}
+        >
+          {isPendingSubmit ? 'Đang xử lý...' : submitLabel}
         </Button>
       )}
     </Grid>

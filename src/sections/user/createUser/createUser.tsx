@@ -232,29 +232,6 @@ export function CreateUser({ handleClose }: CreateUserPros) {
                 />
               </FormField>
 
-              {/* {f.name === 'userName' && (
-                <>
-                  <SelectWithAdd
-                    label="Bộ phận"
-                    data={dataBp}
-                    value={watch('boPhan')}
-                    onChange={(val) => setValue('boPhan', val, { shouldValidate: true })}
-                    onOpen={() => openModal('bp')}
-                    error={errors.boPhan?.message}
-                  />
-                  <SelectWithAdd
-                    label="Vai trò"
-                    data={dataRole}
-                    value={watch('vaiTro')}
-                    onChange={(val) => setValue('vaiTro', val, { shouldValidate: true })}
-                    onOpen={() => openModal('role')}
-                    error={errors.vaiTro?.message}
-                  />
-
-                  <PasswordField label="Mật khẩu" name="pass" />
-                  <PasswordField label="Nhập lại mật khẩu" name="confirmPass" />
-                </>
-              )} */}
               {f.name === 'userName' && (
                 <>
                   <SelectWithAdd

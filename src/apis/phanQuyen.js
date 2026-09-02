@@ -9,3 +9,13 @@ export const getAllPq = async () => {
     throw error.response.data?.message;
   }
 };
+
+// ----- TẠO PHÂN QUYỀN ----- //
+export const createPq = async (payload) => {
+  try {
+    const response = await fetcher.post('/phanquyen/createPq', payload);
+    return response.data.content;
+  } catch (error) {
+    throw error.response.data?.message;
+  }
+};

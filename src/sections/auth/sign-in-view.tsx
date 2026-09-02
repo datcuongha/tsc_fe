@@ -58,8 +58,6 @@ export function SignInView() {
       // router.push('/');
     },
     onError: (error: any) => {
-      console.log(error);
-      
       showAlert({
         type: 'error',
         message: error || 'Lỗi hệ thống',

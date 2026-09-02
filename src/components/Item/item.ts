@@ -74,7 +74,7 @@ export const headLabel = {
     { id: 'name', label: 'Tên vai trò' },
     { id: 'dienGiai', label: 'Mô tả' },
     { id: 'status', label: 'Trạng thái' },
-    { id: '', label: '' },
+    { id: 'trong', label: '' },
   ],
   deXuat: [
     { id: 'maPhieu', label: 'Mã phiếu' },

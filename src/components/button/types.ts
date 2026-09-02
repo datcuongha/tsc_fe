@@ -6,4 +6,8 @@ export type ButtonGroupProps = {
   handleChangePass?: () => void;
   handleGetApi?: () => void;
   disabled?: boolean;
+  handleClose?: () => void;
+  showSubmit?: boolean;
+  submitLabel?: string;
+  isPendingSubmit?: boolean;
 };

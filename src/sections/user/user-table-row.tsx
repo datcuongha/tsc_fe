@@ -132,11 +132,11 @@ export function UserTableRow({
             <Iconify icon="custom:change-pass" />
             Đổi mật khẩu
           </MenuItem>
-
+{/* 
           <MenuItem>
             <Iconify icon='custom:admin-role-permission' />
             Phân quyền
-          </MenuItem>
+          </MenuItem> */}
         </MenuList>
       </Popover>
     </>

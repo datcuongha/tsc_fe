@@ -65,12 +65,12 @@ type UserOption = {
 export function EditUser({ handleClose, rowSelect }: EditUserProps) {
   const queryClient = useQueryClient();
 
-  const { data: dataRole = [] } = useQuery<OptionType[]>({
+  const { data: dataRole = [], isLoading: isLoadingRole } = useQuery<OptionType[]>({
     queryKey: ['role'],
     queryFn: getDataRole,
   });
 
-  const { data: dataBoPhan = [] } = useQuery<OptionType[]>({
+  const { data: dataBoPhan = [], isLoading: isLoadingBoPhan } = useQuery<OptionType[]>({
     queryKey: ['boPhan'],
     queryFn: getAllBp,
   });
@@ -107,7 +107,8 @@ export function EditUser({ handleClose, rowSelect }: EditUserProps) {
   });
 
   const selectedBoPhan = watch('boPhan');
-  const managerId = watch('managerId');
+  const selectedRole = watch('vaiTro');
+  const selectedManager = watch('managerId');
 
   const filteredUsers = dataUser.filter(
     (item) => String(item.boPhanId) === String(selectedBoPhan) && item.userId !== rowSelect.userId
@@ -222,7 +223,7 @@ export function EditUser({ handleClose, rowSelect }: EditUserProps) {
         <SelectWithAdd
           label="Vai trò"
           data={dataRole}
-          value={watch('vaiTro')}
+          value={isLoadingRole ? '' : selectedRole}
           onChange={(val) =>
             setValue('vaiTro', val, {
               shouldValidate: true,
@@ -235,7 +236,7 @@ export function EditUser({ handleClose, rowSelect }: EditUserProps) {
         <SelectWithAdd
           label="Bộ phận"
           data={dataBoPhan}
-          value={selectedBoPhan}
+          value={isLoadingBoPhan ? '' : selectedBoPhan}
           onChange={(val) => {
             setValue('boPhan', val, {
               shouldValidate: true,
@@ -254,7 +255,7 @@ export function EditUser({ handleClose, rowSelect }: EditUserProps) {
           <Autocomplete<UserOption>
             options={filteredUsers}
             getOptionLabel={(option) => option.fullName ?? ''}
-            value={filteredUsers.find((item) => item.userId === managerId) ?? null}
+            value={filteredUsers.find((item) => item.userId === selectedManager) ?? null}
             onChange={(_, value) => {
               setValue('managerId', value ? value.userId : null, {
                 shouldValidate: true,
