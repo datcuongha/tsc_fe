@@ -59,7 +59,8 @@ type ApplyFilterProps = {
 };
 
 export function applyFilter({ inputData, comparator, filterName }: ApplyFilterProps) {
-  const stabilizedThis = inputData.map((el, index) => [el, index] as const);
+  const safeData = Array.isArray(inputData) ? inputData : [];
+  const stabilizedThis = safeData.map((el, index) => [el, index] as const);
 
   stabilizedThis.sort((a, b) => {
     const order = comparator(a[0], b[0]);
@@ -77,5 +78,3 @@ export function applyFilter({ inputData, comparator, filterName }: ApplyFilterPr
 
   return inputData;
 }
-
-

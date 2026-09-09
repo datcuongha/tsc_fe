@@ -31,8 +31,12 @@ export function RoleView() {
     queryFn: getDataRole,
   });
 
+  const tableData = Array.isArray(dataRole)
+    ? dataRole
+    : (dataRole?.data ?? dataRole?.content ?? []);
+
   const dataFiltered: RoleProps[] = applyFilter({
-    inputData: dataRole,
+    inputData: tableData,
     comparator: getComparator(table.order, table.orderBy),
     filterName,
   });
@@ -101,7 +105,7 @@ export function RoleView() {
         {notFound && <TableNoData searchQuery={filterName} />}
       </PrimaryTemp>
 
-      <ModalManager open={!!open} handleClose={closeModal}>
+      <ModalManager open={!!open} handleClose={closeModal} maxWidth='lg'>
         {open === 'create' && <CreateRole handleClose={closeModal} />}
         {open === 'edit' && data && <EditRole rowSelect={data} handleClose={closeModal} />}
       </ModalManager>

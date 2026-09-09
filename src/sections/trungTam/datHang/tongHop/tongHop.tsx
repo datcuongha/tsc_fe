@@ -1,3 +1,4 @@
+import Swal from 'sweetalert2';
 import { useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
@@ -98,6 +99,29 @@ export function TongHop({
     queryKey: ['dmKho'],
     queryFn: getAllKho,
   });
+
+  const handleBack = async () => {
+    const result = await Swal.fire({
+      icon: 'warning',
+      title: 'Xác nhận',
+      text: 'Bạn có chắc muốn quay lại không?',
+      showCancelButton: true,
+      confirmButtonText: 'Đồng ý',
+      cancelButtonText: 'Huỷ',
+      confirmButtonColor: '#d32f2f',
+      didOpen: () => {
+        const container = Swal.getContainer();
+
+        if (container) {
+          container.style.zIndex = '2000';
+        }
+      },
+    });
+
+    if (result.isConfirmed) {
+      handleClose();
+    }
+  };
 
   const filteredData = pivot.filter((row) => {
     const ncc = (row['Tên nhà cung cấp'] || '').toString().toLowerCase();
@@ -377,7 +401,6 @@ export function TongHop({
         fromDate: pivot[0]?.fromDate,
         toDate: pivot[0]?.toDate,
       });
-      console.log(result);
 
       if (result) {
         showAlert({
@@ -483,7 +506,7 @@ export function TongHop({
             >
               <TableCell sx={{ width: 150 }}>NCC</TableCell>
               <TableCell sx={{ width: 10 }}>Thời gian</TableCell>
-              <TableCell sx={{ width: 50 }}>Chi nhánh</TableCell>
+              <TableCell>Chi nhánh</TableCell>
               <TableCell sx={{ width: 180 }}>Mã hàng</TableCell>
               <TableCell sx={{ width: 120 }}>Tên hàng</TableCell>
               <TableCell sx={{ width: 70 }}>Ghi chú hàng hoá</TableCell>
@@ -617,7 +640,7 @@ export function TongHop({
 
                   <TableCell>
                     <TextField
-                      sx={{ width: 115 }}
+                      sx={{ width: 120 }}
                       select
                       size="small"
                       value={row['Chi nhánh'] ?? ''}
@@ -901,7 +924,7 @@ export function TongHop({
           rowsPerPageOptions={[50]}
           onPageChange={(event, newPage) => setPage(newPage)}
         />
-        <Button variant="outlined" onClick={handleClose}>
+        <Button variant="outlined" onClick={handleBack}>
           Quay lại
         </Button>
         <Button variant="contained" startIcon={<Add />} onClick={handleAddRow} disabled={loading}>

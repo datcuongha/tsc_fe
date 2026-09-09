@@ -36,6 +36,42 @@ const normalize = (value: unknown): string =>
     .trim()
     .toUpperCase();
 
+const calculateSlCoTheDat = ({
+  canhBao,
+  tonCuoi,
+  tonToiUu,
+}: {
+  canhBao: unknown;
+  tonCuoi: unknown;
+  tonToiUu: unknown;
+}): number | string => {
+  const warning = String(canhBao ?? '').trim();
+
+  if (warning === 'Không bán được 3 tháng') {
+    return 'Không bán được 3 tháng';
+  }
+
+  if (warning === 'Chưa xác định') {
+    return 'Chưa xác định định mức';
+  }
+
+  if (warning === 'SKU chưa có trong định mức') {
+    return 'SKU chưa có trong định mức';
+  }
+
+  const parsedTonCuoi = Number(tonCuoi);
+  const parsedTonToiUu = Number(tonToiUu);
+
+  const safeTonCuoi = Number.isFinite(parsedTonCuoi) ? parsedTonCuoi : 0;
+
+  const safeTonToiUu = Number.isFinite(parsedTonToiUu) ? parsedTonToiUu : 0;
+
+  if (safeTonCuoi <= safeTonToiUu) {
+    return safeTonToiUu - safeTonCuoi;
+  }
+
+  return 'Vượt tồn tối ưu';
+};
 export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
   const queryClient = useQueryClient();
   const thuMuaRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -150,6 +186,7 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
       });
       return;
     }
+    
     try {
       // const code = maHang.trim().toUpperCase();
       const code = normalize(maHang);
@@ -163,28 +200,56 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
         });
         return;
       }
+      // Tất cả dòng XNT cùng mã hàng
+      const xntRows = data.xntDetail?.filter((item) => normalize(item.maHang) === code) ?? [];
 
-      const productByXntDetail =
-        data.xntDetail?.filter((item) => normalize(item.maHang) === code) ?? [];
+      // Tìm dòng có tồn kho tối ưu
+      const xntRow = xntRows.find(
+        (item) => item.slTonToiUu !== null && item.slTonToiUu !== undefined
+      );
 
-      const totalTon = productByXntDetail.reduce((sum, item) => sum + Number(item.tonCuoi ?? 0), 0);
+      // Tổng tồn cuối của mã hàng ở tất cả kho
+      const totalTon = xntRows.reduce((sum, item) => sum + Number(item.tonCuoi ?? 0), 0);
 
-      const tonToiUu = Number(productByXntDetail[0]?.slTonToiUu ?? 0);
+      // Tồn tối ưu theo mã hàng
+      const tonToiUu = Number(xntRow?.slTonToiUu ?? 0);
 
+      // Cảnh báo theo mã hàng
+      const canhBao = xntRow?.canhBao ?? 'SKU chưa có trong định mức';
+
+      // Tính giống file Tổng hợp
+      const slCoTheDat: number | string = calculateSlCoTheDat({
+        canhBao,
+        tonCuoi: totalTon,
+        tonToiUu,
+      });
+
+      // Dòng này chỉ dùng lấy nhập/xuất/tồn đúng kho
       const xntProductByBranch = data.xntDetail?.find(
         (item) =>
           normalize(item.chiNhanh) === normalize(row.chiNhanh) && normalize(item.maHang) === code
       );
+      // const productByXntDetail =
+      //   data.xntDetail?.filter((item) => normalize(item.maHang) === code) ?? [];
 
-      const hasXnt = productByXntDetail.length > 0;
-      const isOverStock = hasXnt && totalTon > tonToiUu;
+      // const totalTon = productByXntDetail.reduce((sum, item) => sum + Number(item.tonCuoi ?? 0), 0);
 
-      // Luôn để kiểu number vì type slCoTheDat là number
-      const slCoTheDat = hasXnt ? Math.max(tonToiUu - totalTon, 0) : 0;
+      // const tonToiUu = Number(productByXntDetail[0]?.slTonToiUu ?? 0);
 
-      const canhBao =
-        xntProductByBranch?.canhBao ??
-        (!hasXnt ? 'SKU chưa có trong định mức' : isOverStock ? 'Vượt tồn tối ưu' : '');
+      // const xntProductByBranch = data.xntDetail?.find(
+      //   (item) =>
+      //     normalize(item.chiNhanh) === normalize(row.chiNhanh) && normalize(item.maHang) === code
+      // );
+
+      // const hasXnt = productByXntDetail.length > 0;
+      // const isOverStock = hasXnt && totalTon > tonToiUu;
+
+      // // Luôn để kiểu number vì type slCoTheDat là number
+      // const slCoTheDat = hasXnt ? Math.max(tonToiUu - totalTon, 0) : 0;
+
+      // const canhBao =
+      //   xntProductByBranch?.canhBao ??
+      //   (!hasXnt ? 'SKU chưa có trong định mức' : isOverStock ? 'Vượt tồn tối ưu' : '');
 
       // const productByXntDetail = data?.xntDetail?.filter((item) => normalize(item.maHang) === code);
 

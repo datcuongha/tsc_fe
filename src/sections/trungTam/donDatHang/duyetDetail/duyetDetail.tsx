@@ -10,6 +10,7 @@ import {
   Dialog,
   TableRow,
   Backdrop,
+  TableContainer,
   TableHead,
   TableCell,
   TableBody,
@@ -18,6 +19,7 @@ import {
   DialogActions,
   DialogContent,
   CircularProgress,
+  Paper,
 } from '@mui/material';
 
 import { editSLPGD, duyetPhieu, tuChoiPhieu, getPhieuById } from 'src/apis/datHang';
@@ -551,219 +553,226 @@ export function DuyetDetailView() {
         {/* ================================================= */}
         {/* TABLE */}
         {/* ================================================= */}
-
-        <Table
+        <TableContainer
+          component={Paper}
           sx={{
-            border: '1px solid black',
-
-            '& td, & th': {
-              border: '1px solid black',
-
-              padding: '4px',
-
-              fontSize: 12,
-            },
+            maxHeight: '100vh',
+            overflow: 'auto',
           }}
         >
-          <TableHead>
-            <TableRow>
-              <TableCell align="center">STT</TableCell>
+          <Table
+            stickyHeader
+            sx={{
+              border: '1px solid black',
 
-              <TableCell align="center">Chi nhánh</TableCell>
+              '& td, & th': {
+                border: '1px solid black',
 
-              <TableCell align="center">Mã hàng</TableCell>
+                padding: '4px',
 
-              <TableCell align="center">Tên sản phẩm</TableCell>
+                fontSize: 12,
+              },
+            }}
+          >
+            <TableHead>
+              <TableRow>
+                <TableCell align="center">STT</TableCell>
 
-              <TableCell align="center">Ghi chú hàng hoá</TableCell>
+                <TableCell align="center">Chi nhánh</TableCell>
 
-              <TableCell align="center">SL kho đặt</TableCell>
+                <TableCell align="center">Mã hàng</TableCell>
 
-              <TableCell align="center">Giá vốn</TableCell>
+                <TableCell align="center">Tên sản phẩm</TableCell>
 
-              <TableCell align="center">Giá bán</TableCell>
+                <TableCell align="center">Ghi chú hàng hoá</TableCell>
 
-              <TableCell align="center">Nhập chuyển</TableCell>
+                <TableCell align="center">SL kho đặt</TableCell>
 
-              <TableCell align="center">Xuất bán</TableCell>
+                <TableCell align="center">Giá vốn</TableCell>
 
-              <TableCell align="center">Tồn cuối</TableCell>
+                <TableCell align="center">Giá bán</TableCell>
 
-              <TableCell align="center">SL thu mua đề xuất</TableCell>
+                <TableCell align="center">Nhập chuyển</TableCell>
 
-              {capDuyet >= 1 && <TableCell align="center">PGD duyệt</TableCell>}
+                <TableCell align="center">Xuất bán</TableCell>
 
-              <TableCell align="center">Cảnh báo</TableCell>
+                <TableCell align="center">Tồn cuối</TableCell>
 
-              <TableCell align="center">SL có thể đặt</TableCell>
+                <TableCell align="center">SL thu mua đề xuất</TableCell>
 
-              <TableCell align="center">Chú thích</TableCell>
-            </TableRow>
-          </TableHead>
+                {capDuyet >= 1 && <TableCell align="center">PGD duyệt</TableCell>}
 
-          <TableBody>
-            {rows.map((item, index) => (
-              <TableRow key={`${item.id}-${index}`}>
-                <TableCell
-                  align="center"
-                  sx={{
-                    width: 35,
-                  }}
-                >
-                  {index + 1}
-                </TableCell>
+                <TableCell align="center">Cảnh báo</TableCell>
 
-                <TableCell
-                  sx={{
-                    width: 80,
-                  }}
-                >
-                  {item.chiNhanh}
-                </TableCell>
+                <TableCell align="center">SL có thể đặt</TableCell>
 
-                <TableCell
-                  sx={{
-                    width: 100,
-                  }}
-                >
-                  {item.maHang}
-                </TableCell>
+                <TableCell align="center">Chú thích</TableCell>
+              </TableRow>
+            </TableHead>
 
-                <TableCell
-                  sx={{
-                    width: 210,
-                  }}
-                >
-                  {item.tenHang}
-                </TableCell>
-
-                <TableCell
-                  sx={{
-                    width: 140,
-                  }}
-                >
-                  {item.ghiChuKho}
-                </TableCell>
-
-                <TableCell
-                  align="center"
-                  sx={{
-                    width: 35,
-                  }}
-                >
-                  {item.slKhoDat}
-                </TableCell>
-
-                <TableCell
-                  align="center"
-                  sx={{
-                    width: 60,
-                  }}
-                >
-                  {Number(item.giaVon || 0).toLocaleString('vi-VN')}
-                </TableCell>
-
-                <TableCell
-                  align="center"
-                  sx={{
-                    width: 60,
-                  }}
-                >
-                  {Number(item.giaBan || 0).toLocaleString('vi-VN')}
-                </TableCell>
-
-                <TableCell align="center" sx={{ width: 35 }}>
-                  {item.nhapChuyen}
-                </TableCell>
-
-                <TableCell align="center" sx={{ width: 35 }}>
-                  {item.xuatBan}
-                </TableCell>
-
-                <TableCell align="center" sx={{ width: 35 }}>
-                  {item.tonCuoi}
-                </TableCell>
-
-                <TableCell
-                  align="center"
-                  sx={{
-                    width: 35,
-                  }}
-                >
-                  {item.thuMuaNhap}
-                </TableCell>
-
-                {/* =================================== */}
-                {/* PGD */}
-                {/* =================================== */}
-
-                {capDuyet >= 1 && (
+            <TableBody>
+              {rows.map((item, index) => (
+                <TableRow key={`${item.id}-${index}`}>
                   <TableCell
                     align="center"
                     sx={{
                       width: 35,
                     }}
                   >
-                    {editMode && canApprove ? (
-                      <TextField
-                        type="number"
-                        variant="standard"
-                        value={item.soLuongPGDDuyet ?? ''}
-                        onChange={(e) =>
-                          handleChange(
-                            index,
-
-                            'soLuongPGDDuyet',
-
-                            e.target.value === '' ? '' : Number(e.target.value)
-                          )
-                        }
-                        onKeyDown={(e) => {
-                          if (e.key === '-' || e.key === 'e') {
-                            e.preventDefault();
-                          }
-                        }}
-                        inputProps={{
-                          min: 0,
-                        }}
-                      />
-                    ) : (
-                      item.soLuongPGDDuyet
-                    )}
+                    {index + 1}
                   </TableCell>
-                )}
 
-                <TableCell
-                  align="center"
-                  sx={{
-                    width: 100,
-                  }}
-                >
-                  {findDetail(item)?.canhBao}
-                </TableCell>
+                  <TableCell
+                    sx={{
+                      width: 80,
+                    }}
+                  >
+                    {item.chiNhanh}
+                  </TableCell>
 
-                <TableCell
-                  align="center"
-                  sx={{
-                    width: 35,
-                  }}
-                >
-                  {findDetail(item)?.slCoTheDat}
-                </TableCell>
+                  <TableCell
+                    sx={{
+                      width: 100,
+                    }}
+                  >
+                    {item.maHang}
+                  </TableCell>
 
-                <TableCell
-                  align="center"
-                  sx={{
-                    width: 200,
-                  }}
-                >
-                  {item.chuThich}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+                  <TableCell
+                    sx={{
+                      width: 210,
+                    }}
+                  >
+                    {item.tenHang}
+                  </TableCell>
 
+                  <TableCell
+                    sx={{
+                      width: 140,
+                    }}
+                  >
+                    {item.ghiChuKho}
+                  </TableCell>
+
+                  <TableCell
+                    align="center"
+                    sx={{
+                      width: 35,
+                    }}
+                  >
+                    {item.slKhoDat}
+                  </TableCell>
+
+                  <TableCell
+                    align="center"
+                    sx={{
+                      width: 60,
+                    }}
+                  >
+                    {Number(item.giaVon || 0).toLocaleString('vi-VN')}
+                  </TableCell>
+
+                  <TableCell
+                    align="center"
+                    sx={{
+                      width: 60,
+                    }}
+                  >
+                    {Number(item.giaBan || 0).toLocaleString('vi-VN')}
+                  </TableCell>
+
+                  <TableCell align="center" sx={{ width: 35 }}>
+                    {item.nhapChuyen}
+                  </TableCell>
+
+                  <TableCell align="center" sx={{ width: 35 }}>
+                    {item.xuatBan}
+                  </TableCell>
+
+                  <TableCell align="center" sx={{ width: 35 }}>
+                    {item.tonCuoi}
+                  </TableCell>
+
+                  <TableCell
+                    align="center"
+                    sx={{
+                      width: 35,
+                    }}
+                  >
+                    {item.thuMuaNhap}
+                  </TableCell>
+
+                  {/* =================================== */}
+                  {/* PGD */}
+                  {/* =================================== */}
+
+                  {capDuyet >= 1 && (
+                    <TableCell
+                      align="center"
+                      sx={{
+                        width: 35,
+                      }}
+                    >
+                      {editMode && canApprove ? (
+                        <TextField
+                          type="number"
+                          variant="standard"
+                          value={item.soLuongPGDDuyet ?? ''}
+                          onChange={(e) =>
+                            handleChange(
+                              index,
+
+                              'soLuongPGDDuyet',
+
+                              e.target.value === '' ? '' : Number(e.target.value)
+                            )
+                          }
+                          onKeyDown={(e) => {
+                            if (e.key === '-' || e.key === 'e') {
+                              e.preventDefault();
+                            }
+                          }}
+                          inputProps={{
+                            min: 0,
+                          }}
+                        />
+                      ) : (
+                        item.soLuongPGDDuyet
+                      )}
+                    </TableCell>
+                  )}
+
+                  <TableCell
+                    align="center"
+                    sx={{
+                      width: 100,
+                    }}
+                  >
+                    {findDetail(item)?.canhBao}
+                  </TableCell>
+
+                  <TableCell
+                    align="center"
+                    sx={{
+                      width: 35,
+                    }}
+                  >
+                    {findDetail(item)?.slCoTheDat}
+                  </TableCell>
+
+                  <TableCell
+                    align="center"
+                    sx={{
+                      width: 200,
+                    }}
+                  >
+                    {item.chuThich}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
         {/* ================================================= */}
         {/* SIGN */}
         {/* ================================================= */}

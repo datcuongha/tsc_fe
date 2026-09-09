@@ -50,8 +50,12 @@ export function AccountPopover({ data = [], sx, ...other }: AccountPopoverProps)
     [handleClosePopover, router]
   );
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    handleClosePopover();
+
+    await logout();
+
+    router.replace('/sign-in');
   };
 
   return (

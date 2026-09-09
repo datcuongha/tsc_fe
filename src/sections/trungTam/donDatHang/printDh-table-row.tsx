@@ -43,6 +43,7 @@ export type PrintDhProps = {
     phieuDatHangNhap: string;
     chuThich: string;
     canhBao: string;
+    soLuongPGDDuyet:number;
   }[];
   phieuDatHangDetail?: {
     tongTienHang: number;

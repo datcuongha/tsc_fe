@@ -17,7 +17,7 @@ export type EditDatHangTMDetail = {
   thuMuaNhap: number | '';
   ngayKhoDat: string;
   chuThich: string;
-  slCoTheDat: number;
+  slCoTheDat: number | string;
   slTonToiUu: number;
   soLuongPGDDuyet: number | '';
 };

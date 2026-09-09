@@ -88,6 +88,7 @@ export function DonDatHangView() {
                 'Đơn giá': item.giaVon,
                 'Giá bán': item.giaBan,
                 'SL thu mua': item.thuMuaNhap,
+                'SL phê duyệt': item.soLuongPGDDuyet,
                 'Cảnh báo': item.canhBao,
                 slCoTheDat:
                   phieu.phieuDatHangDetail?.find((detail) => detail.maHang === item.maHang)
@@ -113,6 +114,7 @@ export function DonDatHangView() {
               'Đơn giá': item.giaVon,
               'Giá bán': item.giaBan,
               'SL thu mua': item.thuMuaNhap,
+              'SL phê duyệt': item.soLuongPGDDuyet,
               'Cảnh báo': item.canhBao,
               slCoTheDat:
                 phieu.phieuDatHangDetail?.find((detail) => detail.maHang === item.maHang)
@@ -147,6 +149,7 @@ export function DonDatHangView() {
                     { id: 'Đơn giá', label: 'Đơn giá' },
                     { id: 'Giá bán', label: 'Giá bán' },
                     { id: 'SL thu mua', label: 'SL thu mua' },
+                    { id: 'SL phê duyệt', label: 'SL phê duyệt' },
                     { id: 'Cảnh báo', label: 'Cảnh báo' },
                     { id: 'slCoTheDat', label: 'Cảnh báo file tổng' },
                   ],
