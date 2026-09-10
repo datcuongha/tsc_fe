@@ -1,3 +1,4 @@
+import Swal from 'sweetalert2';
 import { useRef, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -87,6 +88,29 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
     maHang: '',
     tenHang: '',
   });
+
+    const handleBack = async () => {
+      const result = await Swal.fire({
+        icon: 'warning',
+        title: 'Xác nhận',
+        text: 'Bạn có chắc muốn quay lại không?',
+        showCancelButton: true,
+        confirmButtonText: 'Đồng ý',
+        cancelButtonText: 'Huỷ',
+        confirmButtonColor: '#d32f2f',
+        didOpen: () => {
+          const container = Swal.getContainer();
+  
+          if (container) {
+            container.style.zIndex = '2000';
+          }
+        },
+      });
+  
+      if (result.isConfirmed) {
+        handleClose();
+      }
+    };
 
   const filteredData = rows.filter(
     (row) =>
@@ -880,7 +904,7 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
           rowsPerPageOptions={[50]}
           onPageChange={(event, newPage) => setPage(newPage)}
         />
-        <Button variant="outlined" onClick={handleClose}>
+        <Button variant="outlined" onClick={handleBack}>
           Quay lại
         </Button>
         <Button

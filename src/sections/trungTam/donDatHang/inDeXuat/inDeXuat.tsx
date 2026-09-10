@@ -79,6 +79,8 @@ export function InDeXuat({ data, handleClose, userButton }: InDeXuatProps) {
         border-collapse: collapse !important;
         table-layout: auto !important;
         page-break-inside: auto;
+        font-size: 11px !important;
+
       }
 
       thead {

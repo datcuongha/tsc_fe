@@ -172,64 +172,7 @@ export function PrintDhTableRow({
         anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
-        {/* <MenuList
-          disablePadding
-          sx={{
-            p: 0.5,
-            gap: 0.5,
-            width: 210,
-            display: 'flex',
-            flexDirection: 'column',
-            [`& .${menuItemClasses.root}`]: {
-              px: 1,
-              gap: 2,
-              borderRadius: 0.75,
-              [`&.${menuItemClasses.selected}`]: { bgcolor: 'action.selected' },
-            },
-          }}
-        > */}
-        {/* <MenuItem
-            onClick={() => {
-              handleClosePopover();
-              chonLoaiIn();
-            }}
-          >
-            <Iconify icon="solar:print-bold" />
-            In
-          </MenuItem> */}
-
-        {/* <MenuItem
-            onClick={() => {
-              handleClosePopover();
-              printDX();
-            }}
-          >
-            <Iconify icon="solar:pen-bold" />
-            In đề xuất
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              handleClosePopover();
-              printDDH();
-            }}
-            disabled={['CHO_DUYET', 'NHAP', 'TRA_LAI'].includes(row.trangThai)}
-          >
-            <Iconify icon="solar:pen-bold" />
-            In đặt hàng
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              handleClosePopover();
-              editDatHangTM();
-            }}
-            disabled={[ 'TRA_LAI'].includes(row.trangThai)}
-          >
-            <Iconify icon="solar:pen-bold" />
-            Cập nhật đặt hàng
-          </MenuItem>
-        </MenuList> */}
+   
         <MenuList
           disablePadding
           sx={{

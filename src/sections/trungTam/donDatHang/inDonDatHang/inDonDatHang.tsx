@@ -155,24 +155,44 @@ export function InDonDatHang({ data, handleClose }: InDonDatHangProps) {
   }
 `,
 
-    onAfterPrint: () => {
-      handleClose();
-    },
+    // onAfterPrint: () => {
+    //   handleClose();
+    // },
   });
+
+  // const handleSaveAndPrint = async () => {
+  //   try {
+  //     await updateThoiHanGiaoHang(Number(data.id), thoiGianGiaoHang);
+  //     await queryClient.invalidateQueries({
+  //       queryKey: ['dataDH'],
+  //     });
+
+  //     handlePrint();
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // };
 
   const handleSaveAndPrint = async () => {
     try {
-      await updateThoiHanGiaoHang(Number(data.id), thoiGianGiaoHang);
-      await queryClient.invalidateQueries({
-        queryKey: ['dataDH'],
-      });
+      const daCoThoiGian =
+        data.thoiGianGiaoHang !== null &&
+        data.thoiGianGiaoHang !== undefined &&
+        data.thoiGianGiaoHang !== '';
+
+      if (!daCoThoiGian) {
+        await updateThoiHanGiaoHang(Number(data.id), thoiGianGiaoHang);
+
+        await queryClient.invalidateQueries({
+          queryKey: ['dataDH'],
+        });
+      }
 
       handlePrint();
     } catch (error) {
       console.error(error);
     }
   };
-
   return (
     <>
       <DialogActions className="no-print">

@@ -802,6 +802,9 @@ export function TongHop({
                       value={row.thuMuaNhap ?? ''}
                       inputProps={{
                         min: 0,
+                        onWheel: (e) => {
+                          e.currentTarget.blur();
+                        },
                       }}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') {
