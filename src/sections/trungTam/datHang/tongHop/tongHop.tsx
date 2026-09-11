@@ -139,12 +139,14 @@ export function TongHop({
 
   const paginatedData = filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
-  const fromDate = pivot[0]?.fromDate
-    ? new Date(pivot[0].fromDate).toLocaleDateString('vi-VN')
+  const lastItem = pivot[pivot.length - 1];
+
+  const fromDate = lastItem?.fromDate
+    ? new Date(lastItem.fromDate).toLocaleDateString('vi-VN')
     : '';
 
-  const toDate = pivot[0]?.toDate ? new Date(pivot[0].toDate).toLocaleDateString('vi-VN') : '';
-
+  const toDate = lastItem?.toDate ? new Date(lastItem.toDate).toLocaleDateString('vi-VN') : '';
+  
   const handleAddRow = () => {
     // Lấy NCC hiện tại từ dữ liệu đang filter
     // ưu tiên dòng đang hiển thị
@@ -291,7 +293,6 @@ export function TongHop({
         normalize(item['Mã hàng']) === normalize(maHang) &&
         normalize(item['Chi nhánh']) === normalize(chiNhanh)
     );
-  console.log(pivotXnt);
 
   const handleSelectMaHang = async (row: any, maHang: string) => {
     if (!row.isNew) return;

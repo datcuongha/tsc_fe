@@ -226,7 +226,8 @@ export function Dmhh() {
             <DanhMucTableHead
               order={table.order}
               orderBy={table.orderBy}
-              rowCount={total}
+              // rowCount={total}
+              rowCount={dataDmhh.length}
               numSelected={table.selected.length}
               onSort={table.onSort}
               onSelectAllRows={(checked) =>

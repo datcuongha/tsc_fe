@@ -48,7 +48,6 @@ export function DonDatHangView() {
   });
 
   const navigate = useNavigate();
-
   const handleOpenPhieu = (row: PrintDhProps) => {
     openModal('inDeXuat', row);
   };
