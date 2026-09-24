@@ -1,3 +1,4 @@
+import * as XLSX from 'xlsx';
 import { round } from 'es-toolkit';
 import React, { useRef, useState } from 'react';
 import { useReactToPrint } from 'react-to-print';
@@ -18,9 +19,66 @@ import {
 
 import { updateThoiHanGiaoHang } from 'src/apis/datHang';
 
+import { showAlert } from 'src/components/alert';
+
 import type { InDonDatHangProps } from './type';
 
 export function InDonDatHang({ data, handleClose }: InDonDatHangProps) {
+
+  const handleExportExcel = () => {
+    const exportData = data.phieuDatHangDetail
+      .filter((item) => Number(item.soLuongGDDuyet) > 0)
+      .map((item, index) => {
+        const soLuong = Number(item.soLuongGDDuyet) || 0;
+        const donGia = Number(item.donGia) || 0;
+        const thueSuat = Number(item.thueSuat) || 0;
+        const thanhTien = soLuong * donGia;
+        const tienThue = round(thanhTien * thueSuat);
+
+        return {
+          STT: index + 1,
+          'Tên hàng': item.tenSp ?? '',
+          ĐVT: item.dvt ?? '',
+          'Số lượng': soLuong,
+          'Đơn giá': donGia,
+          'Thành tiền': thanhTien,
+          'Mức thuế suất': `${thueSuat * 100}%`,
+          'Tiền thuế GTGT': tienThue,
+          'Thành tiền sau thuế GTGT': thanhTien + tienThue,
+        };
+      });
+
+    if (exportData.length === 0) {
+      showAlert({
+        type: 'error',
+        message: 'Không có dữ liệu để xuất',
+      });
+      return;
+    }
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+
+    worksheet['!cols'] = [
+      { wch: 6 },
+      { wch: 35 },
+      { wch: 10 },
+      { wch: 12 },
+      { wch: 15 },
+      { wch: 18 },
+      { wch: 15 },
+      { wch: 18 },
+      { wch: 25 },
+    ];
+
+    const workbook = XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Chi tiết đặt hàng');
+
+    const fileName = `${data.maPhieu}-${data.tenNcc}`.replace(/[\\/:*?"<>|]/g, '-').trim();
+
+    XLSX.writeFile(workbook, `Đơn đặt hàng ${fileName} .xlsx`);
+  };
+
   const duyetCap2 = data.phieuDatHangDuyet?.find((item) => item.capDuyet === 2);
 
   const ngay = duyetCap2?.ngayDuyet ? new Date(duyetCap2.ngayDuyet) : new Date();
@@ -67,34 +125,6 @@ export function InDonDatHang({ data, handleClose }: InDonDatHangProps) {
   const moneyText = doReadNumber(String(Math.round(tongThanhToan)), config);
 
   const today = new Date();
-
-  // const handlePrint = useReactToPrint({
-  //   contentRef: printRef,
-  //   documentTitle: `Don dat hang-${data.maPhieu}`,
-  //   pageStyle: `
-  //     @page {
-  //       size: A4;
-  //       margin: 7mm;
-  //     }
-
-  //     @media print {
-  //       body {
-  //         margin: 0;
-  //         padding: 0;
-  //         -webkit-print-color-adjust: exact;
-  //         print-color-adjust: exact;
-  //         font-family: "Times New Roman", serif !important;
-  //       }
-
-  //       * {
-  //         font-family: "Times New Roman", serif !important;
-  //       }
-  //     }
-  //   `,
-  //   onAfterPrint: () => {
-  //     handleClose(); // Đóng modal sau khi đóng hộp thoại in
-  //   },
-  // });
 
   const handlePrint = useReactToPrint({
     contentRef: printRef,
@@ -160,19 +190,6 @@ export function InDonDatHang({ data, handleClose }: InDonDatHangProps) {
     // },
   });
 
-  // const handleSaveAndPrint = async () => {
-  //   try {
-  //     await updateThoiHanGiaoHang(Number(data.id), thoiGianGiaoHang);
-  //     await queryClient.invalidateQueries({
-  //       queryKey: ['dataDH'],
-  //     });
-
-  //     handlePrint();
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // };
-
   const handleSaveAndPrint = async () => {
     try {
       const daCoThoiGian =
@@ -199,6 +216,9 @@ export function InDonDatHang({ data, handleClose }: InDonDatHangProps) {
         <Button onClick={handleClose}>Đóng</Button>
         <Button variant="contained" onClick={handleSaveAndPrint}>
           In
+        </Button>
+        <Button variant="contained" color="info" onClick={handleExportExcel}>
+          Xuất
         </Button>
       </DialogActions>
 

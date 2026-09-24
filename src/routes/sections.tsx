@@ -328,7 +328,7 @@ export const getRoutesSection = (reportMenus: any[]): RouteObject[] => [
       {
         path: 'invoice-it',
 
-        element: protectedPage('INVOICE_IT_VIEW', <InvoiceItPage />),
+        element: protectedPage('INVOICE_VIEW', <InvoiceItPage />),
       },
 
       {

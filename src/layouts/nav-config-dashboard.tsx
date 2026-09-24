@@ -249,7 +249,7 @@ const createNavData = (reportMenus: any[]): NavItem[] => [
       {
         title: 'Invoice IT',
         path: '/invoice-it',
-        permission: 'INVOICE_IT_VIEW',
+        permission: 'INVOICE_VIEW',
       },
 
       {

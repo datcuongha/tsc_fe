@@ -13,17 +13,16 @@ import { Scrollbar } from 'src/components/scrollbar';
 
 export type DonHangFiltersState = {
   ncc: string[];
-  chiNhanh: string[];
+  trangThai: string;
   fromDate: string;
   toDate: string;
-  month: string;       
+  month: string;
   year: string;
 };
 
 type Props = {
   canReset: boolean;
   openFilter: boolean;
- 
   filters: DonHangFiltersState;
 
   onCloseFilter: () => void;
@@ -32,7 +31,10 @@ type Props = {
 
   options: {
     ncc: string[];
-    chiNhanh: string[];
+    trangThai: {
+      value: string;
+      label: string;
+    }[];
     years: string[];
   };
 };
@@ -87,7 +89,7 @@ export function DonHangFilters({
 
       <Scrollbar>
         <Stack spacing={3} sx={{ p: 3 }}>
-          {/* NCC */}
+          {/* Nhà cung cấp */}
           <Autocomplete
             multiple
             options={options.ncc}
@@ -100,17 +102,18 @@ export function DonHangFilters({
             renderInput={(params) => <TextField {...params} label="Nhà cung cấp" size="small" />}
           />
 
-          {/* Chi nhánh */}
+          {/* Hiển thị label, lưu mã value vào filters.trangThai */}
           <Autocomplete
-            multiple
-            options={options.chiNhanh}
-            value={filters.chiNhanh}
-            onChange={(_, value) =>
+            options={options.trangThai}
+            getOptionLabel={(option) => option.label}
+            value={options.trangThai.find((option) => option.value === filters.trangThai) ?? null}
+            isOptionEqualToValue={(option, value) => option.value === value.value}
+            onChange={(_, option) =>
               onSetFilters({
-                chiNhanh: value,
+                trangThai: option?.value ?? '',
               })
             }
-            renderInput={(params) => <TextField {...params} label="Chi nhánh" size="small" />}
+            renderInput={(params) => <TextField {...params} label="Trạng thái" size="small" />}
           />
 
           <Divider />
@@ -150,10 +153,10 @@ export function DonHangFilters({
           {/* Tháng */}
           <Autocomplete
             options={['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']}
-            value={filters.month}
+            value={filters.month || null}
             onChange={(_, value) =>
               onSetFilters({
-                month: value || '',
+                month: value ?? '',
               })
             }
             renderInput={(params) => <TextField {...params} label="Tháng" size="small" />}
@@ -162,10 +165,10 @@ export function DonHangFilters({
           {/* Năm */}
           <Autocomplete
             options={options.years}
-            value={filters.year}
+            value={filters.year || null}
             onChange={(_, value) =>
               onSetFilters({
-                year: value || '',
+                year: value ?? '',
               })
             }
             renderInput={(params) => <TextField {...params} label="Năm" size="small" />}

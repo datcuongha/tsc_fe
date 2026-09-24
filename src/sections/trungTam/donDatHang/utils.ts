@@ -25,10 +25,7 @@ function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
 export function getComparator<Key extends keyof any>(
   order: 'asc' | 'desc',
   orderBy: Key
-): (
-  a: { [key in Key]: number | string },
-  b: { [key in Key]: number | string }
-) => number {
+): (a: { [key in Key]: number | string }, b: { [key in Key]: number | string }) => number {
   return order === 'desc'
     ? (a, b) => descendingComparator(a, b, orderBy)
     : (a, b) => -descendingComparator(a, b, orderBy);
@@ -41,7 +38,7 @@ type ApplyFilterProps = {
 
   filters?: {
     ncc: string[];
-    chiNhanh: string[];
+    trangThai: string;
     fromDate: string;
     toDate: string;
     month: string;
@@ -49,12 +46,7 @@ type ApplyFilterProps = {
   };
 };
 
-export function applyFilter({
-  inputData,
-  comparator,
-  filterName,
-  filters,
-}: ApplyFilterProps) {
+export function applyFilter({ inputData, comparator, filterName, filters }: ApplyFilterProps) {
   const stabilizedThis = inputData.map((el, index) => [el, index] as const);
 
   stabilizedThis.sort((a, b) => {
@@ -69,25 +61,18 @@ export function applyFilter({
 
   // Search NCC
   if (filterName) {
-    data = data.filter((item) =>
-      item.tenNcc.toLowerCase().includes(filterName.toLowerCase())
-    );
+    data = data.filter((item) => item.tenNcc.toLowerCase().includes(filterName.toLowerCase()));
   }
 
   // NCC
   if (filters?.ncc?.length) {
-    data = data.filter((item) =>
-      filters.ncc.includes(item.tenNcc)
-    );
+    data = data.filter((item) => filters.ncc.includes(item.tenNcc));
   }
 
   // Chi nhánh
-  if (filters?.chiNhanh?.length) {
-    data = data.filter((item) =>
-      item.phieuDeXuatDetail?.some((d) =>
-        filters.chiNhanh.includes(d.chiNhanh)
-      )
-    );
+  // Trạng thái
+  if (filters?.trangThai) {
+    data = data.filter((item) => item.trangThai === filters.trangThai);
   }
 
   // Từ ngày
@@ -118,9 +103,7 @@ export function applyFilter({
     data = data.filter((item) => {
       if (!item.createDate) return false;
 
-      const month = String(
-        new Date(item.createDate).getMonth() + 1
-      ).padStart(2, '0');
+      const month = String(new Date(item.createDate).getMonth() + 1).padStart(2, '0');
 
       return month === filters.month;
     });
@@ -131,10 +114,7 @@ export function applyFilter({
     data = data.filter((item) => {
       if (!item.createDate) return false;
 
-      return (
-        String(new Date(item.createDate).getFullYear()) ===
-        filters.year
-      );
+      return String(new Date(item.createDate).getFullYear()) === filters.year;
     });
   }
 

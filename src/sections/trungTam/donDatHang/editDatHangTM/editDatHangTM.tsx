@@ -212,7 +212,6 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
     }
     
     try {
-      // const code = maHang.trim().toUpperCase();
       const code = normalize(maHang);
 
       const productName = await getDmhhByMaHang(code);
@@ -253,109 +252,7 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
         (item) =>
           normalize(item.chiNhanh) === normalize(row.chiNhanh) && normalize(item.maHang) === code
       );
-      // const productByXntDetail =
-      //   data.xntDetail?.filter((item) => normalize(item.maHang) === code) ?? [];
-
-      // const totalTon = productByXntDetail.reduce((sum, item) => sum + Number(item.tonCuoi ?? 0), 0);
-
-      // const tonToiUu = Number(productByXntDetail[0]?.slTonToiUu ?? 0);
-
-      // const xntProductByBranch = data.xntDetail?.find(
-      //   (item) =>
-      //     normalize(item.chiNhanh) === normalize(row.chiNhanh) && normalize(item.maHang) === code
-      // );
-
-      // const hasXnt = productByXntDetail.length > 0;
-      // const isOverStock = hasXnt && totalTon > tonToiUu;
-
-      // // Luôn để kiểu number vì type slCoTheDat là number
-      // const slCoTheDat = hasXnt ? Math.max(tonToiUu - totalTon, 0) : 0;
-
-      // const canhBao =
-      //   xntProductByBranch?.canhBao ??
-      //   (!hasXnt ? 'SKU chưa có trong định mức' : isOverStock ? 'Vượt tồn tối ưu' : '');
-
-      // const productByXntDetail = data?.xntDetail?.filter((item) => normalize(item.maHang) === code);
-
-      // const totalTon = productByXntDetail.reduce((sum, item) => sum + Number(item.tonCuoi ?? 0), 0);
-
-      // const tonToiUu = Number(productByXntDetail[0]?.slTonToiUu ?? 0);
-
-      // const slCoTheDat: number | string =
-      //   productByXntDetail.length === 0
-      //     ? 'SKU chưa có trong định mức'
-      //     : totalTon <= tonToiUu
-      //       ? tonToiUu - totalTon
-      //       : 'Vượt tồn tối ưu';
-
-      // const xntProductByBranch = data?.xntDetail?.find(
-      //   (x) =>
-      //     x.chiNhanh?.trim() === row.chiNhanh?.trim() && x.maHang?.trim().toUpperCase() === code
-      // );
-
-      // const detailByCode = data?.phieuDatHangDetail?.find(
-      //   (x) => x.maHang?.trim().toUpperCase() === code
-      // );
-
-      // const detailXNTByCode = data?.xntDetail?.find((x) => x.maHang?.trim().toUpperCase() === code);
-
-      // const deXuatByCode = data?.phieuDeXuatDetail?.find(
-      //   (x) =>
-      //     x.chiNhanh?.trim() === row.chiNhanh?.trim() && x.maHang?.trim().toUpperCase() === code
-      // );
-
-      // // Tất cả dữ liệu XNT cùng mã hàng
-      // const xntRows = data?.xntDetail?.filter((x) => x.maHang?.trim().toUpperCase() === code) ?? [];
-
-      // // Cộng tồn cuối của tất cả chi nhánh
-      // const totalTon = xntRows.reduce((sum, item) => sum + Number(item.tonCuoi ?? 0), 0);
-
-      // const tonToiUuValue = detailXNTByCode?.slTonToiUu ?? detailByCode?.slTonToiUu;
-
-      // const tonToiUu = Number(data?.xntDetail[0]?.slTonToiUu ?? 0);
-
-      // const canhBao =
-      //   detailXNTByCode?.canhBao ?? detailByCode?.canhBao ?? 'SKU chưa có trong định mức';
-
-      // const slCoTheDat: number | string =
-      //   xntRows.length === 0 || tonToiUuValue == null
-      //     ? 'SKU chưa có trong định mức'
-      //     : totalTon <= tonToiUu
-      //       ? tonToiUu - totalTon
-      //       : 'Vượt tồn tối ưu';
-      // // =====================================================
-      // // TÌM XNT ĐÚNG CHI NHÁNH + MÃ HÀNG
-      // // =====================================================
-      // const xntProduct = data?.xntDetail?.find(
-      //   (x) =>
-      //     x.chiNhanh?.trim() === row.chiNhanh?.trim() && x.maHang?.trim().toUpperCase() === code
-      // );
-
-      // // =====================================================
-      // // TÌM DETAIL TỔNG THEO MÃ HÀNG
-      // // =====================================================
-      // const detailByCode = data?.phieuDatHangDetail?.find(
-      //   (x) => x.maHang?.trim().toUpperCase() === code
-      // );
-      // const detailXNTByCode = data?.xntDetail?.find((x) => x.maHang?.trim().toUpperCase() === code);
-
-      // // =====================================================
-      // // TÌM ĐỀ XUẤT CŨ ĐÚNG CHI NHÁNH + MÃ HÀNG
-      // // =====================================================
-      // const deXuatByCode = data?.phieuDeXuatDetail?.find(
-      //   (x) =>
-      //     x.chiNhanh?.trim() === row.chiNhanh?.trim() && x.maHang?.trim().toUpperCase() === code
-      // );
-
-      // // =====================================================
-      // // CẢNH BÁO
-      // // =====================================================
-      // const canhBao =
-      //   detailXNTByCode?.canhBao ?? detailByCode?.canhBao ?? 'SKU chưa có trong định mức';
-
-      // const slCoTheDat =
-      //   detailXNTByCode?.slTonToiUu ?? detailByCode?.slTonToiUu ?? 'SKU chưa có trong định mức';
-
+     
       // =====================================================
       // KIỂM TRA NCC
       // =====================================================
@@ -375,42 +272,6 @@ export function EditDatHangTM({ data, handleClose }: EditDatHangTMProps) {
       // =====================================================
       // UPDATE ROW
       // =====================================================
-      // setRows((prev) =>
-      //   prev.map((item) =>
-      //     item.id === rowId
-      //       ? {
-      //           ...item,
-
-      //           maHang: code,
-
-      //           tenHang: productName.tenHang,
-
-      //           giaBan: Number(productName.giaBan) || 0,
-
-      //           giaVon: Number(productName.giaMua) || 0,
-
-      //           dvt: productName.dvt ?? '',
-
-      //           thueSuat: productName.vat,
-
-      //           tenNhaCungCap: productName.dmncc?.tenNcc ?? '',
-
-      //           // XNT đúng kho
-      //           nhapChuyen: Number(xntProductByBranch?.nhapChuyen) || 0,
-
-      //           xuatBan: Number(xntProductByBranch?.xuatBan) || 0,
-
-      //           tonCuoi: Number(xntProductByBranch?.tonCuoi) || 0,
-
-      //           slTonToiUu: Number(xntProductByBranch?.slTonToiUu) || 0,
-
-      //           // định mức
-
-      //           slCoTheDat: Number(slCoTheDat),
-      //         }
-      //       : item
-      //   )
-      // );
       setRows((prev) =>
         prev.map((item) =>
           item.id === rowId

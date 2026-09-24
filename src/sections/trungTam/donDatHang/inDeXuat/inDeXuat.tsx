@@ -134,7 +134,7 @@ export function InDeXuat({ data, handleClose, userButton }: InDeXuatProps) {
 
     const workbook = XLSX.utils.book_new();
 
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'DeXuat');
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Đề xuất');
 
     XLSX.writeFile(workbook, `Đề xuất ${fileName} .xlsx`);
   };
@@ -217,80 +217,6 @@ export function InDeXuat({ data, handleClose, userButton }: InDeXuatProps) {
 
   return (
     <>
-      {/* <style>
-        {`
-    @media print {
-
-      @page {
-        size: A4 landscape;
-        margin: 7mm;
-      }
-
-      html,
-      body {
-        width: 297mm !important;
-
-        margin: 0 !important;
-        padding: 0 !important;
-
-        background: #fff !important;
-      }
-
-      body * {
-        visibility: hidden;
-      }
-
-      #print-area,
-      #print-area * {
-        visibility: visible;
-      }
-
-      #print-area {
-        width: 100% !important;
-
-        box-shadow: none !important;
-
-        overflow: visible !important;
-      }
-
-      table {
-        width: 100%;
-        border-collapse: collapse;
-
-        page-break-inside: auto;
-      }
-
-      thead {
-        display: table-header-group;
-      }
-
-      tfoot {
-        display: table-footer-group;
-      }
-
-      tr,
-      td,
-      th {
-        page-break-inside: avoid !important;
-        break-inside: avoid !important;
-      }
-
-      tr {
-        page-break-after: auto;
-      }
-
-      .no-print,
-      .MuiAppBar-root,
-      .MuiDrawer-root,
-      header,
-      nav,
-      aside {
-        display: none !important;
-      }
-
-    }
-  `}
-      </style> */}
       <Box
         ref={printRef}
         className="print-content"

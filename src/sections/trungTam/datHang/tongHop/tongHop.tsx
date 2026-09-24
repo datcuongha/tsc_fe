@@ -146,7 +146,7 @@ export function TongHop({
     : '';
 
   const toDate = lastItem?.toDate ? new Date(lastItem.toDate).toLocaleDateString('vi-VN') : '';
-  
+
   const handleAddRow = () => {
     // Lấy NCC hiện tại từ dữ liệu đang filter
     // ưu tiên dòng đang hiển thị
@@ -160,7 +160,7 @@ export function TongHop({
 
       const newRow = {
         isNew: true,
-        daNhapThuMua: false,
+        daNhapThuMua: false,   
 
         // Quan trọng:
         // gán NCC hiện tại để không bị filter loại mất
@@ -205,87 +205,6 @@ export function TongHop({
   };
 
   const branchOptions = [...new Set(dataKho.map((x: any) => x.tenKho))] as string[];
-
-  // const handleSelectMaHang = async (row: any, maHang: string) => {
-  //   const code = maHang.trim().toUpperCase();
-
-  //   if (!code) return;
-
-  //   const isDuplicate = pivot.some(
-  //     (item) => item !== row && item['Chi nhánh'] === row['Chi nhánh'] && item['Mã hàng'] === code
-  //   );
-
-  //   if (isDuplicate) {
-  //     showAlert({
-  //       type: 'error',
-  //       message: `Mã hàng ${code} đã tồn tại trong kho ${row['Chi nhánh']}.`,
-  //     });
-  //     return;
-  //   }
-
-  //   try {
-  //     // Tìm chính xác mã hàng trong DB
-  //     const productDmhh = await getDmhhByMaHang(code);
-
-  //     const product = pivotXnt.find(
-  //       (x) => x['Chi nhánh'] === row['Chi nhánh'] && x['Mã hàng']?.trim().toUpperCase() === code
-  //     );
-
-  //     const productByCode = pivotXnt.find(
-  //       (x) => x !== row && x['Mã hàng']?.trim().toUpperCase() === code
-  //     ); // const product = pivotXnt.find((x) => x['Mã hàng']?.trim().toUpperCase() === code);
-
-  //     if (!product && !productDmhh) {
-  //       showAlert({
-  //         type: 'error',
-  //         message: 'Không tìm thấy mã hàng',
-  //       });
-  //       return;
-  //     }
-
-  //     const updated = pivot.map((item) =>
-  //       item === row
-  //         ? {
-  //             ...item,
-  //             ['Tên nhà cung cấp']: productDmhh?.dmncc?.tenNcc ?? '',
-  //             ['Mã hàng']: code,
-  //             ['Tên hàng']: productDmhh?.tenHang ?? '',
-  //             ['Giá bán']: productDmhh?.giaBan ?? 0,
-  //             ['Giá vốn']: productDmhh?.giaMua ?? 0,
-  //             ['ĐVT']: productDmhh?.dvt ?? '',
-  //             ['Mức thuế VAT đầu vào']: productDmhh?.vat ?? 0,
-
-  //             ['Nhập chuyển']: product?.['Nhập chuyển'] ?? null,
-
-  //             ['Xuất bán']: product?.['Xuất bán'] ?? null,
-
-  //             ['Tồn cuối kì']: product?.['Tồn cuối kì'] ?? null,
-
-  //             // Cảnh báo có thể fallback theo mã
-  //             ['Cảnh báo']:
-  //               product?.['Cảnh báo'] ??
-  //               productByCode?.['Cảnh báo'] ??
-  //               'SKU chưa có trong định mức',
-
-  //             ['SL có thể đặt hàng']:
-  //               product?.['Cảnh báo'] ??
-  //               productByCode?.['Cảnh báo'] ??
-  //               'SKU chưa có trong định mức',
-  //           }
-  //         : item
-  //     );
-
-  //     setData((prev) => ({
-  //       ...prev!,
-  //       pivot: updated,
-  //     }));
-  //   } catch {
-  //     showAlert({
-  //       type: 'error',
-  //       message: 'Không thể tìm thông tin mã hàng',
-  //     });
-  //   }
-  // };
 
   const findXntByCodeAndBranch = (maHang: unknown, chiNhanh: unknown) =>
     pivotXnt.find(
@@ -399,8 +318,8 @@ export function TongHop({
         filteredData,
         pivotXnt,
         userId,
-        fromDate: pivot[0]?.fromDate,
-        toDate: pivot[0]?.toDate,
+        fromDate,
+        toDate,
       });
 
       if (result) {

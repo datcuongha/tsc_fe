@@ -5,7 +5,7 @@ import { History } from 'src/sections/history/view';
 export default function Page() {
   return (
     <>
-      <title>{`Lịch sư - ${CONFIG.appName}`}</title>
+      <title>{`Lịch sử - ${CONFIG.appName}`}</title>
 
       <History />
     </>

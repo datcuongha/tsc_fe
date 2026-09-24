@@ -32,7 +32,7 @@ export function DonDatHangView() {
 
   const [filters, setFilters] = useState<DonHangFiltersState>({
     ncc: [],
-    chiNhanh: [],
+    trangThai: '',
     fromDate: '',
     toDate: '',
     month: '',
@@ -46,7 +46,7 @@ export function DonDatHangView() {
     queryKey: ['dataDH'],
     queryFn: getAllDatHang,
   });
-
+  
   const navigate = useNavigate();
   const handleOpenPhieu = (row: PrintDhProps) => {
     openModal('inDeXuat', row);
@@ -241,7 +241,7 @@ export function DonDatHangView() {
           openFilter={openFilter}
           canReset={
             filters.ncc.length > 0 ||
-            filters.chiNhanh.length > 0 ||
+            filters.trangThai.length > 0 ||
             filters.fromDate !== '' ||
             filters.toDate !== '' ||
             filters.month !== '' ||
@@ -252,7 +252,7 @@ export function DonDatHangView() {
           onResetFilter={() =>
             setFilters({
               ncc: [],
-              chiNhanh: [],
+              trangThai: '',
               fromDate: '',
               toDate: '',
               month: '',
@@ -270,12 +270,11 @@ export function DonDatHangView() {
               .filter(Boolean)
               .sort((a, b) => a.localeCompare(b, 'vi')),
 
-            chiNhanh: [
-              ...new Set(dataDH.flatMap((i) => i.phieuDeXuatDetail?.map((x) => x.chiNhanh) || [])),
-            ]
-              .filter(Boolean)
-              .sort((a, b) => a.localeCompare(b, 'vi')),
-
+            trangThai: [
+              { value: 'DA_DUYET', label: 'Đã duyệt' },
+              { value: 'CHO_DUYET', label: 'Chờ duyệt' },
+              { value: 'CHUA_DUYET', label: 'Chưa duyệt' },
+            ],
             years: [
               ...new Set(
                 dataDH
