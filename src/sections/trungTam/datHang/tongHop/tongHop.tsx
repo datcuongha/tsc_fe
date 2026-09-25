@@ -139,13 +139,40 @@ export function TongHop({
 
   const paginatedData = filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
-  const lastItem = pivot[pivot.length - 1];
+  // const lastItem = pivot[pivot.length - 1];
 
-  const fromDate = lastItem?.fromDate
-    ? new Date(lastItem.fromDate).toLocaleDateString('vi-VN')
-    : '';
+  // const fromDate = lastItem?.fromDate
+  //   ? new Date(lastItem.fromDate).toLocaleDateString('vi-VN')
+  //   : '';
 
-  const toDate = lastItem?.toDate ? new Date(lastItem.toDate).toLocaleDateString('vi-VN') : '';
+  // const toDate = lastItem?.toDate ? new Date(lastItem.toDate).toLocaleDateString('vi-VN') : '';
+
+  // const dateSource = pivot.find((item) => item.fromDate && item.toDate);
+
+  // const rawFromDate = dateSource?.fromDate;
+  // const rawToDate = dateSource?.toDate;
+
+  // const fromDate = rawFromDate ? new Date(rawFromDate).toLocaleDateString('vi-VN') : '';
+
+  // const toDate = rawToDate ? new Date(rawToDate).toLocaleDateString('vi-VN') : '';
+
+  const periodRef = useRef(
+    (() => {
+      const source = pivot.find((item) => item.fromDate && item.toDate);
+
+      return {
+        fromDate: source?.fromDate,
+        toDate: source?.toDate,
+      };
+    })()
+  );
+
+  const rawFromDate = periodRef.current.fromDate;
+  const rawToDate = periodRef.current.toDate;
+
+  const fromDate = rawFromDate ? new Date(rawFromDate).toLocaleDateString('vi-VN') : '';
+
+  const toDate = rawToDate ? new Date(rawToDate).toLocaleDateString('vi-VN') : '';
 
   const handleAddRow = () => {
     // Lấy NCC hiện tại từ dữ liệu đang filter
@@ -160,8 +187,9 @@ export function TongHop({
 
       const newRow = {
         isNew: true,
-        daNhapThuMua: false,   
-
+        daNhapThuMua: false,
+        fromDate: periodRef.current.fromDate,
+        toDate: periodRef.current.toDate,
         // Quan trọng:
         // gán NCC hiện tại để không bị filter loại mất
         'Tên nhà cung cấp': nccHienTai,
@@ -318,8 +346,8 @@ export function TongHop({
         filteredData,
         pivotXnt,
         userId,
-        fromDate,
-        toDate,
+        fromDate: periodRef.current.fromDate,
+        toDate: periodRef.current.toDate,
       });
 
       if (result) {
