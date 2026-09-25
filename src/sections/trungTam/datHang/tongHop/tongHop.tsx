@@ -156,19 +156,10 @@ export function TongHop({
 
   // const toDate = rawToDate ? new Date(rawToDate).toLocaleDateString('vi-VN') : '';
 
-  const periodRef = useRef(
-    (() => {
-      const source = pivot.find((item) => item.fromDate && item.toDate);
+  const dateSource = pivot.find((item) => !item.isNew && item.fromDate && item.toDate);
 
-      return {
-        fromDate: source?.fromDate,
-        toDate: source?.toDate,
-      };
-    })()
-  );
-
-  const rawFromDate = periodRef.current.fromDate;
-  const rawToDate = periodRef.current.toDate;
+  const rawFromDate = dateSource?.fromDate;
+  const rawToDate = dateSource?.toDate;
 
   const fromDate = rawFromDate ? new Date(rawFromDate).toLocaleDateString('vi-VN') : '';
 
@@ -188,8 +179,7 @@ export function TongHop({
       const newRow = {
         isNew: true,
         daNhapThuMua: false,
-        fromDate: periodRef.current.fromDate,
-        toDate: periodRef.current.toDate,
+
         // Quan trọng:
         // gán NCC hiện tại để không bị filter loại mất
         'Tên nhà cung cấp': nccHienTai,
@@ -340,14 +330,34 @@ export function TongHop({
   };
 
   const handleCreate = async () => {
+    
+    if (!rawFromDate || !rawToDate) {
+      showAlert({
+        type: 'error',
+        message: 'Không tìm thấy kỳ số liệu',
+      });
+      return;
+    }
+
+    const parsedFromDate = new Date(rawFromDate);
+    const parsedToDate = new Date(rawToDate);
+
+    if (Number.isNaN(parsedFromDate.getTime()) || Number.isNaN(parsedToDate.getTime())) {
+      showAlert({
+        type: 'error',
+        message: 'Kỳ số liệu không hợp lệ',
+      });
+      return;
+    }
+
     try {
       setLoading(true);
       const result = await processTotal({
         filteredData,
         pivotXnt,
         userId,
-        fromDate: periodRef.current.fromDate,
-        toDate: periodRef.current.toDate,
+        fromDate: rawFromDate,
+        toDate: rawToDate,
       });
 
       if (result) {
